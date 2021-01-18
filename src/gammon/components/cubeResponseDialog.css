@@ -1,0 +1,32 @@
+
+
+.dialog.cubeResponse > .buttons {
+    width: 90%;
+    height: calc(var(--pieceSize) * 2.0);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.dialog.cubeResponse .caption:before {
+    content: "Take or Pass?";
+    align-self: center;
+}
+
+.button.take {
+    background: darkslategray;
+    color: white;
+}
+
+.button.pass {
+    background: lightgray;
+}
+
+.button.take:after {
+    content: "Take";
+}
+
+.button.pass:after {
+    content: "Pass";
+}
+

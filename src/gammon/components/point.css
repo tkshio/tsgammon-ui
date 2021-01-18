@@ -1,0 +1,123 @@
+/* 駒を縦に並べるスタイルシート */
+
+:root {
+    --redPieceColor: crimson;
+    --whitePieceColor: white;
+}
+
+
+/* 駒はflexの機能で5個ごとに折り返し、marginで少しずつずらしている */
+.column .point {
+    /* 5個であふれて折り返しになる高さ */
+    height: calc(var(--pieceSize) * 5.5);
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    /* 折り返しのためずらす分の調整 */
+    margin-left: calc(var(--pieceSize) * 7 / 8);
+}
+
+/* 上半分では駒を上から下、下半分ではその逆 */
+.upper .column .point {
+    flex-direction: column;
+}
+
+.lower .column .point {
+    flex-direction: column-reverse;
+
+    /* margin-bottomでpieceの重なりを調整すると、下段だけ余計にずれるので調整 */
+    margin-bottom: 1px;
+}
+
+/* ただし、バー内では逆 */
+.bar .upper .column .point {
+    flex-direction: column-reverse;
+    margin-bottom: calc(var(--pieceSize) * 1 / 2);
+}
+
+.bar .lower .column .point {
+    flex-direction: column;
+    margin-top: calc(var(--pieceSize) * 1 / 2);
+}
+
+/* カラム内、すなわちポイントとバーポイント上の駒 */
+.column .piece {
+    width: var(--pieceSize);
+    height: var(--pieceSize);
+    border-radius: 50%;
+    border: 1px solid black;
+
+    /*ほかのピースより下*/
+    z-index: 10;
+
+    /* pieceを折り返しても同じ位置に表示させる */
+    margin-left: calc(var(--pieceSize) * -7 / 8);
+
+    /*上下も少しだけ重ねる*/
+    margin-bottom: -1px;
+}
+
+/* ベアオフした駒の描画 */
+.goal {
+    --pheight: calc(var(--pieceSize) * 0.25);
+}
+
+.goal.upper .point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.goal.lower .point {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.goal .piece {
+    width: var(--pieceSize);
+    height: var(--pheight);
+    border-radius: 5%;
+    border: 1px solid black;
+    margin: 1px 0;
+}
+
+/* 5個おきに隙間を開ける */
+.goal.upper .piece:nth-child(5),
+.goal.upper .piece:nth-child(10) {
+    margin-bottom: var(--pheight);
+}
+
+.goal.lower .piece:nth-child(5),
+.goal.lower .piece:nth-child(10) {
+    margin-top: var(--pheight);
+}
+
+/* 駒の色 */
+.red .piece {
+    background-color: var(--redPieceColor);
+}
+
+.white .piece {
+    background-color: var(--whitePieceColor);
+}
+
+/*ずらしたとき、隣のポイント上の駒より上に表示したいので、z-indexで調節する */
+
+.column .point .piece:nth-child(6),
+.column .point .piece:nth-child(7),
+.column .point .piece:nth-child(8),
+.column .point .piece:nth-child(9),
+.column .point .piece:nth-child(10) {
+    z-index: 20;
+}
+
+.column .point .piece:nth-child(11),
+.column .point .piece:nth-child(12),
+.column .point .piece:nth-child(13),
+.column .point .piece:nth-child(14),
+.column .point .piece:nth-child(15) {
+    z-index: 30;
+}

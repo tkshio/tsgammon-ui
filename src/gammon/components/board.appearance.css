@@ -1,0 +1,55 @@
+/* 盤面の外枠 */
+.board {
+    margin: 5px;
+    border-color: var(--boardColor);
+    border-style: solid;
+    border-width: calc(var(--pieceSize) * 0.5 + 3px) calc(var(--pieceSize) * 0.5);
+    background-color: var(--boardBackgroundColor);
+}
+
+/* インナー・アウターと、左右のバーとの境界 */
+.centerArea {
+    border-color: var(--boardColor);
+    border-style: solid;
+    border-width: 0 calc(var(--pieceSize) * 0.5);
+}
+
+/* 中央・左右のバー */
+.bar, .side-bar {
+    background-color: var(--boardColor);
+
+}
+
+/* ベアオフの駒の置き場 */
+.goal {
+    background-color: lightgray;
+}
+
+/* 座標表記 */
+.posIndex {
+    color: white;
+    font-size: calc(var(--pieceSize) * 0.5);
+}
+
+/* 配色・サイズパラメーター */
+:root {
+    --pieceSize: 32px;
+    --diceSize: 36px;
+    --dicePipSize: 70%;
+
+    --boardColor: gray;
+    --boardBackgroundColor: whitesmoke;
+
+    --triangleColorEven: darkslategray;
+    --triangleColorOdd: lightgray;
+
+    --whiteSideColor: white;
+    --whiteSideDicePipColor: black;
+
+    --redSideColor: crimson;
+    --redSideDicePipColor: white;
+
+    --cubeColor: black;
+    --cubeFontColor: white;
+    --cubeMaxColor: gray;
+}

@@ -1,0 +1,111 @@
+/* クラス .die.d1 - .die.d6 を使ってダイスを表現するスタイルシート */
+
+:root {
+    --diceSize: 24px;
+    --diceColor: white;
+    --dicePipColor: black;
+    --dicePipSize: 70%;
+}
+
+/* ダイスを任意の数、横一列に中央寄せして並べる */
+.dice {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pip.used {
+    filter: brightness(70%);
+}
+
+/* 9分割したエリアに7個の円を描いてダイスの目にしている */
+.pip {
+    height: var(--diceSize);
+    width: var(--diceSize);
+    margin: calc(var(--diceSize) * 0.1);
+    padding: calc(var(--diceSize) * 0.15 - 1px);
+    display: grid;
+    grid-template-rows:1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr 1fr;
+    border: 1px solid black;
+    border-radius: 20%;
+    box-sizing: border-box;
+    background-color: var(--diceColor);
+    align-items: center;
+    justify-items: center;
+}
+
+.pip > * {
+    box-sizing: border-box;
+    width: var(--dicePipSize);
+    height: var(--dicePipSize);
+    border-radius: 50%;
+}
+
+.pip > .a {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+}
+
+.pip > .b {
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 1;
+}
+
+.pip > .c {
+    grid-row: 3 / span 1;
+    grid-column: 1 / span 1;
+}
+
+.pip > .d {
+    grid-row: 1 / span 1;
+    grid-column: 3 / span 1;
+}
+
+.pip > .e {
+    grid-row: 2 / span 1;
+    grid-column: 3 / span 1;
+}
+
+.pip > .f {
+    grid-row: 3 / span 1;
+    grid-column: 3 / span 1;
+}
+
+.pip > .center {
+    grid-row: 2 / span 1;
+    grid-column: 2 / span 1;
+}
+
+/* クラス名で切り替え */
+.pip.d1 > .center,
+.pip.d2 > .a,
+.pip.d2 > .f,
+.pip.d3 > .a,
+.pip.d3 > .center,
+.pip.d3 > .f,
+.pip.d4 > .a,
+.pip.d4 > .c,
+.pip.d4 > .d,
+.pip.d4 > .f,
+.pip.d5 > .a,
+.pip.d5 > .c,
+.pip.d5 > .d,
+.pip.d5 > .f,
+.pip.d5 > .center,
+.pip.d6 > .a,
+.pip.d6 > .b,
+.pip.d6 > .c,
+.pip.d6 > .d,
+.pip.d6 > .e,
+.pip.d6 > .f {
+    border: 1px solid var(--dicePipColor);
+    background-color: var(--dicePipColor);
+}
+
+/* 1の目の時は、一回り大きく */
+.pip.d1 > .center {
+    height: calc(var(--dicePipSize) * 1.5);
+    width: calc(var(--dicePipSize) * 1.5);
+}
+

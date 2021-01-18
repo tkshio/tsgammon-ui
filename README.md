@@ -1,46 +1,26 @@
-# Getting Started with Create React App
+# tsgammon-ui
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Typescript + React (Create React App)
+で実装された[バックギャモン](https://ja.wikipedia.org/wiki/%E3%83%90%E3%83%83%E3%82%AF%E3%82%AE%E3%83%A3%E3%83%A2%E3%83%B3) です。
 
-## Available Scripts
+思考エンジンには[jgammon](https://github.com/tkshio/jgammon) により訓練したニューラルネットワークを使用しています（あまり強くありません）。
 
-In the project directory, you can run:
+## ビルド・実行
 
-### `npm start`
+````
+> npm run build
+> npm install -g serve
+> serve build
+````
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 対局について
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+* 無制限のマネーゲームです。
+* ジャコビールールが有効です。したがって、どちらもダブルをしていない場合はギャモン・バックギャモンになりません。
+* <span style="border-radius: 5px; display: flex; align-items: center; padding: 2px 5px; background-color: rgb(47, 79, 79); color: rgb(255, 255, 255); font-size:9pt; width: fit-content; margin-right: 5px; justify-content: center;">
+  Copy Records</span>により、棋譜をクリップボードにコピーできます。コピーした棋譜は、XGで解析することができます。
 
-### `npm test`
+## ライセンス
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+本ソースコードのライセンスはApache License, Version 2.0とします。
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).

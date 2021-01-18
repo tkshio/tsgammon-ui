@@ -1,0 +1,20 @@
+
+.cube {
+    width: var(--pieceSize);
+    height: var(--pieceSize);
+
+    border-radius: 10%;
+    border: 0 solid black;
+    margin: calc(var(--pieceSize) * 0.25);
+
+    background-color: var(--cubeColor);
+    color: var(--cubeFontColor);
+
+    font-size: calc(var(--pieceSize) * 0.60);
+    text-align: center;
+    line-height: var(--pieceSize);
+}
+
+.cube.MAX {
+    color: var(--cubeMaxColor);
+}

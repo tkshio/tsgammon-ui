@@ -1,26 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {UnlimitedMatch} from "./gammon/components/UnlimitedMatch";
+import {whiteSideAutoOperator, whiteSideBoardOperator} from "./gammon/models/GameOperators";
+import {dnEngine} from "./gammon/engines/SimpleNNGammon";
+import {stateBuilder} from "./gammon/models/GameState";
+import "./App.css"
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const args = {
+        initialState: stateBuilder.initGameState(),
+        boardOperator: whiteSideBoardOperator(),
+        autoOperator: whiteSideAutoOperator(dnEngine()),
+    }
+    return (
+        <div className="App">
+            <UnlimitedMatch {...args}/>
+        </div>
+    );
 }
 
 export default App;
