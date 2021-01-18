@@ -5,6 +5,10 @@ Typescript + React (Create React App)
 
 思考エンジンには[jgammon](https://github.com/tkshio/jgammon) により訓練したニューラルネットワークを使用しています（あまり強くありません）。
 
+## デモ
+
+https://tkshio.github.io/tsgammon-ui/
+
 ## ビルド・実行
 
 ````
