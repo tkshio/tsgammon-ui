@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/tsgammon-ui/static/css/main.360ff05e.chunk.css",
+    "main.js": "/tsgammon-ui/static/js/main.6e60136b.chunk.js",
+    "main.js.map": "/tsgammon-ui/static/js/main.6e60136b.chunk.js.map",
+    "runtime-main.js": "/tsgammon-ui/static/js/runtime-main.37deae84.js",
+    "runtime-main.js.map": "/tsgammon-ui/static/js/runtime-main.37deae84.js.map",
+    "static/js/2.2a31c9e6.chunk.js": "/tsgammon-ui/static/js/2.2a31c9e6.chunk.js",
+    "static/js/2.2a31c9e6.chunk.js.map": "/tsgammon-ui/static/js/2.2a31c9e6.chunk.js.map",
+    "static/js/3.971545b2.chunk.js": "/tsgammon-ui/static/js/3.971545b2.chunk.js",
+    "static/js/3.971545b2.chunk.js.map": "/tsgammon-ui/static/js/3.971545b2.chunk.js.map",
+    "index.html": "/tsgammon-ui/index.html",
+    "static/css/main.360ff05e.chunk.css.map": "/tsgammon-ui/static/css/main.360ff05e.chunk.css.map",
+    "static/js/2.2a31c9e6.chunk.js.LICENSE.txt": "/tsgammon-ui/static/js/2.2a31c9e6.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.37deae84.js",
+    "static/js/2.2a31c9e6.chunk.js",
+    "static/css/main.360ff05e.chunk.css",
+    "static/js/main.6e60136b.chunk.js"
+  ]
+}
