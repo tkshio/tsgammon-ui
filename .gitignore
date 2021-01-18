@@ -9,8 +9,7 @@
 /coverage
 
 # production
-# this branch is used for github-pages
-#/build
+/build
 
 # misc
 .DS_Store
