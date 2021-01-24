@@ -1,4 +1,4 @@
-import {BoardStateNode, buildNodesWith, collectMoves, Move} from "../../models/BoardStateNode";
+import {BoardStateNode, buildNodesWith, collectMoves, collectUniqueMoves, Move} from "../../models/BoardStateNode";
 import {dicePip} from "../../models/Dices";
 
 export function move(from: number, to: number, isHit?: boolean): Move {
@@ -7,10 +7,10 @@ export function move(from: number, to: number, isHit?: boolean): Move {
 
 describe('Basic Backgammon rules', () => {
     test('Can\'t go into blocked points', () => {
-        const node = buildNodesWith([0,
-                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
-                2, 0, -2, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
-                0],
+            const node = buildNodesWith([0,
+                    0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                    2, 0, -2, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                    0],
                 dicePip(1), dicePip(2))
             expect(collectMoves(node)).toEqual([
                 [move(13, 14), move(14, 16)],
@@ -57,12 +57,12 @@ describe('Basic Backgammon rules', () => {
         }
     )
     test('Must use bigger one when both rolls couldn\'t be used at once', () => {
-        const node = buildNodesWith([0,
-                1, 0, 0, -2, -2, -2, /* bar */ -2, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
-                0],
-            dicePip(1), dicePip(2))
-        expect(collectMoves(node)).toEqual([
+            const node = buildNodesWith([0,
+                    1, 0, 0, -2, -2, -2, /* bar */ -2, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                    0],
+                dicePip(1), dicePip(2))
+            expect(collectMoves(node)).toEqual([
                 [move(1, 3)],
                 // move 1/2 is illegal
             ])
@@ -269,3 +269,21 @@ describe('implement dependent', () => {
         )
     }
 )
+
+describe('mark redundant moves', () => {
+    test('mark redundant for doublet', () => {
+        const node = buildNodesWith([0,
+                1, 0, 1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(2), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(10)
+        const expected = [false, false, false, false, false,
+            false, false, false, false, false
+        ]
+        movesList.forEach((moves, i) => {
+            expect(moves.isRedundant).toBe(expected[i])
+        })
+    })
+})

@@ -15,6 +15,11 @@ export type Move = {
     pip: number
 }
 
+export type Moves = {
+    moves: Move[]
+    isRedundant: boolean
+}
+
 /**
  * BoardStateとダイスの対にたいして、そこから可能な手をツリー構造で表現するオブジェクト
  */
@@ -37,6 +42,9 @@ export type BoardStateNode = {
      * この局面にいたる直前までに適用した手。ロール直後の場合は空となる。
      */
     lastMoves(): Move[]
+
+    /** ツリー端のノードで、同一局面でisRedundant=falseなノードが既に存在している場合true */
+    isRedundant: boolean;
 }
 
 /**
@@ -54,6 +62,23 @@ export function collectMoves(node: BoardStateNode): Move[][] {
         return [node.lastMoves()]
     }
 }
+
+export function collectUniqueMoves(node: BoardStateNode): Moves[] {
+    const hasUnusedDice = node.dices.find(dice => !dice.used)
+    if (hasUnusedDice) {
+        const bMajor: Moves[] = node.board.points()
+            .map((_, idx) =>
+                node.majorFirst(idx))
+            .map(node => node.hasValue ? collectUniqueMoves(node) : [])
+            .flat();
+        const bMinor: Moves[] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectUniqueMoves(node) : []).flat();
+
+        return bMajor.concat(bMinor)
+    } else {
+        return [{moves: node.lastMoves(), isRedundant: node.isRedundant}]
+    }
+}
+
 
 /**
  * 与えられた盤面、ダイスから、可能なムーブと、その適用後のダイスのペアをすべて列挙する
@@ -89,7 +114,8 @@ export function nodeWithBlankDice(board: BoardState): BoardStateNode {
         board: board,
         majorFirst: () => NO_MOVE,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => []
+        lastMoves: () => [],
+        isRedundant: false
     };
 }
 
@@ -150,7 +176,9 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         board: board,
         majorFirst: major,
         minorFirst: minor,
-        lastMoves: () => []
+        lastMoves: () => [],
+        isRedundant: false
+
     }
 }
 
@@ -173,7 +201,8 @@ function buildLeaveNodesAndParent(board: BoardState,
                     board: boardAfter,
                     majorFirst: () => NO_MOVE,
                     minorFirst: () => NO_MOVE,
-                    lastMoves: () => moves
+                    lastMoves: () => moves,
+                    isRedundant: false
                 }, 0/*最後のダイスが適用できたので、未使用のダイスは0*/]
             },
             // ここは末端の局面なので、ムーブできない場合は未使用のダイス＝1個を返す
@@ -190,7 +219,8 @@ function buildLeaveNodesAndParent(board: BoardState,
         board: board,
         majorFirst: major,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => lastMoves
+        lastMoves: () => lastMoves,
+        isRedundant: false
     }, unusedDices]
 }
 
@@ -315,6 +345,7 @@ function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDice
         board: board,
         majorFirst: major,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => lastMoves
+        lastMoves: () => lastMoves,
+        isRedundant: false
     }, marked]
 }
