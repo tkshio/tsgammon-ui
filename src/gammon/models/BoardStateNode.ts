@@ -187,7 +187,8 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
 function buildLeaveNodesAndParent(board: BoardState,
                                   usedDices: Dices,
                                   lastDice: DicePip,
-                                  lastMoves: Move[])
+                                  lastMoves: Move[],
+                                  isRedundantFunc: (moves: Move[]) => boolean = () => false)
     : [BoardStateNode, number] {
 
     const dicesUsedUp = usedDices.concat([{pip: lastDice.pip, used: true}])
@@ -202,7 +203,7 @@ function buildLeaveNodesAndParent(board: BoardState,
                     majorFirst: () => NO_MOVE,
                     minorFirst: () => NO_MOVE,
                     lastMoves: () => moves,
-                    isRedundant: false
+                    isRedundant: isRedundantFunc(moves)
                 }, 0/*最後のダイスが適用できたので、未使用のダイスは0*/]
             },
             // ここは末端の局面なので、ムーブできない場合は未使用のダイス＝1個を返す
@@ -321,18 +322,11 @@ function buildNodesForDoublet(board: BoardState, dices: Dices): BoardStateNode {
 }
 
 // 与えられた盤面、ダイスから、可能なムーブと、その適用後のダイスのペアをすべて列挙する
-function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDices: Dices, lastMoves: Move[]): [BoardStateNode, number] {
-    const nodeBuilder = unusedDices.length === 2 ?
-        (b: BoardState, moves: Move[]) => buildLeaveNodesAndParent(b, usedDices.concat({
-            pip: unusedDices[0].pip,
-            used: true
-        }), unusedDices[1], moves) :
-        (b: BoardState, moves: Move[]) => buildNodesForDoubletRec(b, usedDices.concat({
-            pip: unusedDices[0].pip,
-            used: true
-        }), unusedDices.slice(1), moves)
-// 常にmark==unusedDices.length
+function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDices: Dices, lastMoves: Move[], isAlreadyRedundant: boolean = false): [BoardStateNode, number] {
 
+    const nodeBuilder = unusedDices.length === 2 ? nodeBuilderForLeaves() : nodeBuilderRec()
+
+    // 常にmark==unusedDices.length
     const [major, marked] = applyDicePipToPoints(board, unusedDices[0].pip, lastMoves, nodeBuilder, unusedDices.length)
 
     // unusedDicesから、末尾 marked個分は使えないのであらかじめマークする
@@ -348,4 +342,38 @@ function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDice
         lastMoves: () => lastMoves,
         isRedundant: false
     }, marked]
+
+
+    function nodeBuilderForLeaves() {
+        return (b: BoardState, moves: Move[]) => {
+            const isRedundant = isAlreadyRedundant ||
+                lastMoveIsRedundant(moves)
+
+            const isRedundantFunc = isRedundant ? () => true :
+                (moves: Move[]) => isRedundant || lastMoveIsRedundant(moves)
+
+            return buildLeaveNodesAndParent(b, usedDices.concat({
+                pip: unusedDices[0].pip,
+                used: true
+            }), unusedDices[1], moves, isRedundantFunc)
+        }
+    }
+
+    function nodeBuilderRec() {
+        return (b: BoardState, moves: Move[]) => {
+            const isRedundant = isAlreadyRedundant ||
+                lastMoveIsRedundant(moves)
+
+            return buildNodesForDoubletRec(b, usedDices.concat({
+                pip: unusedDices[0].pip,
+                used: true
+            }), unusedDices.slice(1), moves, isRedundant)
+        }
+    }
+
+    // 最後に適用した手が、それまでに適用した手より手前の駒を動かす場合は、冗長なムーブ
+    function lastMoveIsRedundant(moves: Move[]): boolean {
+        return ((moves.length > 1) &&
+            (moves[moves.length - 2].from > moves[moves.length - 1].from))
+    }
 }

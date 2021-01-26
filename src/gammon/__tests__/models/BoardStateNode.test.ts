@@ -279,11 +279,10 @@ describe('mark redundant moves', () => {
             dicePip(2), dicePip(2))
         const movesList = collectUniqueMoves(node)
         expect(movesList.length).toBe(10)
-        const expected = [false, false, false, false, false,
-            false, false, false, false, false
+        const expected = [false, true, false, true, true,
+            true, true, true, true, false
         ]
-        movesList.forEach((moves, i) => {
-            expect(moves.isRedundant).toBe(expected[i])
-        })
+        // movesList.forEach(moves=>console.log(moves.moves.map(move=>`${move.from}/${move.to}`).join(",")))
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
     })
 })
