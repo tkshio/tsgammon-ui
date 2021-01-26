@@ -9,6 +9,8 @@ const NO_MOVE: NoMove = {hasValue: false}
  * 外部出力にあたっては、GameStateがAbsoluteMoveに変換して提供するので、そちらを使用する。
  */
 export type Move = {
+    isOverrun: Boolean;
+    isBearOff: boolean;
     isHit: boolean;
     from: number
     to: number
@@ -130,15 +132,65 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         used: false
     } as DicePip
 
-    // 大きい目を先に使った場合の候補手と、その場合のmarked = 使えないロール目の数
-    const [majorTmp, majorMarked] = applyDicePipToPoints(board, majorDice.pip, [], (b, m) => buildLeaveNodesAndParent(b, [{
-        ...majorDice,
-        used: true
-    }], minorDice, m), 2)
-    const [minorTmp, minorMarked] = applyDicePipToPoints(board, minorDice.pip, [], (b, m) => buildLeaveNodesAndParent(b, [{
-        ...minorDice,
-        used: true
-    }], majorDice, m), 2)
+    function applyDices(firstDice: DicePip, secondDice: DicePip,
+                        isRedundantFunc: (moves: Move[]) => boolean = () => false) {
+        const dicesAfterUse = [{
+            ...firstDice,
+            used: true
+        }]
+
+        const nodeBuilder =
+            (board: BoardState, moves: Move[]) => buildLeaveNodesAndParent(
+                board, dicesAfterUse, secondDice, moves, isRedundantFunc
+            )
+
+        return applyDicePipToPoints(
+            board, firstDice.pip, [], nodeBuilder, 2)
+
+    }
+
+    // 大きい目を先に使った場合の候補手は、冗長扱いしない
+    const [majorTmp, majorMarked] = applyDices(majorDice, minorDice);
+
+    // 小さい目の場合、冗長判定がある
+    const isRedundantFunc = (moves: Move[]) => {
+        if (moves.length !== 2) {
+            // 2手なければ、冗長かどうかは気にしない
+            return false
+        }
+        // 1. 同じところから二つの駒を動かす場合、冗長（majorに含まれている）
+        if (moves[0].from === moves[1].from) {
+            return true
+        }
+        // 2. 同じ駒を2回動かすムーブで、かつダイスを入れ替えた場合のムーブと合わせて
+        // 片方だけがヒットの場合、冗長ではない
+        if (moves[0].to === moves[1].from) {
+            const isHit = moves[0].isHit
+            const swappedMovesNode = majorTmp(moves[0].from)
+            if (swappedMovesNode.hasValue) {
+                const swappedMove = swappedMovesNode.lastMoves()[0]
+                // どちらもヒットか、どちらもヒットでない場合は、冗長
+                return (isHit && swappedMove.isHit) ||
+                    (!isHit && !swappedMove.isHit)
+            } else {
+                return false
+            }
+        }
+        // 3. 一手目によりlastPosが変わる場合、冗長ではない
+        if (moves[0].from === board.lastPiecePos() &&
+            board.piecesAt(moves[0].from) === 1 &&
+            moves[1].isOverrun
+        ) {
+            return false
+        }
+        // 3. どちらもベアオフ
+        //         if (moves[0].isBearOff && moves[1].isBearOff) {
+        //             return true
+        //         }
+        // 3. 別々の場所にある別々の駒を動かす場合、必ず冗長
+        return true
+    }
+    const [minorTmp, minorMarked] = applyDices(minorDice, majorDice, isRedundantFunc)
 
     let major: (pos: number) => (BoardStateNode | NoMove)
     let minor: (pos: number) => (BoardStateNode | NoMove)
@@ -296,7 +348,12 @@ function isLegalMove(board: BoardState, pos: number, dicePip: number): { isLegal
         return (opponent < 2) ?
             {
                 isLegal: true, move: {
-                    from: pos, to: pos + dicePip, pip: dicePip, isHit: opponent === 1
+                    from: pos,
+                    to: pos + dicePip,
+                    pip: dicePip,
+                    isHit: opponent === 1,
+                    isBearOff: false,
+                    isOverrun: false
                 }
             } :
             {isLegal: false}
@@ -311,7 +368,17 @@ function isLegalMove(board: BoardState, pos: number, dicePip: number): { isLegal
 
     // ちょうどで上がるか、そうでなければ最後尾からでなくてはいけない
     return (moveTo === bearOffPos || pos === board.lastPiecePos()) ?
-        {isLegal: true, move: {from: pos, to: pos + dicePip, pip: dicePip, isHit: false}} :
+        {
+            isLegal: true,
+            move: {
+                from: pos,
+                to: pos + dicePip,
+                pip: dicePip,
+                isHit: false,
+                isBearOff: true,
+                isOverrun: moveTo > bearOffPos
+            }
+        } :
         {isLegal: false}
 }
 

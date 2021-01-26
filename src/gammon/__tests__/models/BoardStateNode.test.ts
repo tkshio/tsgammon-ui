@@ -2,7 +2,7 @@ import {BoardStateNode, buildNodesWith, collectMoves, collectUniqueMoves, Move} 
 import {dicePip} from "../../models/Dices";
 
 export function move(from: number, to: number, isHit?: boolean): Move {
-    return {from: from, to: to, pip: to - from, isHit: !!isHit}
+    return {from: from, to: to, pip: to - from, isHit: !!isHit, isBearOff: to >= 25, isOverrun: to > 25}
 }
 
 describe('Basic Backgammon rules', () => {
@@ -271,6 +271,78 @@ describe('implement dependent', () => {
 )
 
 describe('mark redundant moves', () => {
+    test('mark redundant when the same piece moved twice and no hits in midst', () => {
+        const node = buildNodesWith([0,
+                1, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                1, 0, 0, -1, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(1), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(8)
+        const expected = [false, false, false, false,
+            true, true, true, true
+        ]
+
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('mark redundant the same piece moved twice, hits twice', () => {
+        const node = buildNodesWith([0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                1, -1, -1, -1, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(1), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(2)
+        const expected = [false, true]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('do not mark redundant when the piece hits in first move', () => {
+        const node = buildNodesWith([0,
+                1, -1, 0, -1, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                1, 0, -1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(1), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(8)
+        const expected = [false, false, false, false,
+            false, true, true, false
+        ]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('mark redundant when moves are from the same point', () => {
+        const node = buildNodesWith([0,
+                3, 0, -1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(1), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(4)
+        const expected = [false, false, true, false,
+        ]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('mark redundant in bearing-off case, with overrun', () => {
+        const node = buildNodesWith([0,
+                0, 0, -1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 1, 1, 0,
+                -2],
+            dicePip(3), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(3)
+        const expected = [false, false, true]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('mark redundant in bearing-off case, without overrun', () => {
+        const node = buildNodesWith([0,
+                0, 0, -1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 1, 1, 0, 0,
+                -2],
+            dicePip(3), dicePip(2))
+        const movesList = collectUniqueMoves(node)
+        expect(movesList.length).toBe(4)
+        const expected = [false, false, true, true]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
     test('mark redundant for doublet', () => {
         const node = buildNodesWith([0,
                 1, 0, 1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
