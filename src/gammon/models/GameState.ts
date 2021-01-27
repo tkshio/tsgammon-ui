@@ -219,7 +219,7 @@ export const stateBuilder: StateBuilder = {
      */
     buildCheckerPlayStatus(state: GameStatePrivate, player: Player, nodes: BoardStateNode, baseNodes?: BoardStateNode): GameStatePrivate {
         const absoluteBoard = () => player.makeAbsoluteBoard(nodes.board)
-        const moves = collectMoves(nodes).map(moves => moves.map(makeMoveAbsolute(nodes.board, player)))
+        const moves = collectMoves(nodes).filter(moves => !moves.isRedundant).map(moves => moves.moves.map(makeMoveAbsolute(nodes.board, player)))
         const curPlay = {
             moves: nodes.lastMoves().map(makeMoveAbsolute(nodes.board, player)),
             dices: (baseNodes ?? nodes).dices

@@ -54,26 +54,15 @@ export type BoardStateNode = {
  * すなわちそのBoardStateNodeの局面で可能な選択肢の列挙を返す
  * @param node
  */
-export function collectMoves(node: BoardStateNode): Move[][] {
-    const hasUnusedDice = node.dices.find(dice => !dice.used)
-    if (hasUnusedDice) {
-        const bMajor: Move[][] = node.board.points().map((_, idx) => node.majorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
-        const bMinor: Move[][] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
-        return bMajor.concat(bMinor)
-    } else {
-        return [node.lastMoves()]
-    }
-}
-
-export function collectUniqueMoves(node: BoardStateNode): Moves[] {
+export function collectMoves(node: BoardStateNode): Moves[] {
     const hasUnusedDice = node.dices.find(dice => !dice.used)
     if (hasUnusedDice) {
         const bMajor: Moves[] = node.board.points()
             .map((_, idx) =>
                 node.majorFirst(idx))
-            .map(node => node.hasValue ? collectUniqueMoves(node) : [])
+            .map(node => node.hasValue ? collectMoves(node) : [])
             .flat();
-        const bMinor: Moves[] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectUniqueMoves(node) : []).flat();
+        const bMinor: Moves[] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
 
         return bMajor.concat(bMinor)
     } else {
@@ -183,11 +172,11 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         ) {
             return false
         }
-        // 3. どちらもベアオフ
-        //         if (moves[0].isBearOff && moves[1].isBearOff) {
-        //             return true
-        //         }
-        // 3. 別々の場所にある別々の駒を動かす場合、必ず冗長
+        // 4. 一手目がリエントリーで、かつバー上の駒がそれだけの場合は冗長でない
+        if (moves[0].from === 0 &&
+            board.piecesAt(0) === 1) {
+            return false;
+        }
         return true
     }
     const [minorTmp, minorMarked] = applyDices(minorDice, majorDice, isRedundantFunc)

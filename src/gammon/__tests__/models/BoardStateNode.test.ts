@@ -1,4 +1,4 @@
-import {BoardStateNode, buildNodesWith, collectMoves, collectUniqueMoves, Move} from "../../models/BoardStateNode";
+import {BoardStateNode, buildNodesWith, collectMoves, Move} from "../../models/BoardStateNode";
 import {dicePip} from "../../models/Dices";
 
 export function move(from: number, to: number, isHit?: boolean): Move {
@@ -12,10 +12,10 @@ describe('Basic Backgammon rules', () => {
                     2, 0, -2, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(13, 14), move(14, 16)],
-                // move 13/15 is illegal
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(13, 14), move(14, 16)],
+            // move 13/15 is illegal
+        ])
         }
     )
     test('Must move pieces on the bar first', () => {
@@ -24,12 +24,12 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(0, 2), move(1, 2)],
-                [move(0, 2), move(2, 3)],
-                [move(0, 1), move(1, 3)],
-                // move 1/2 0/2, 1/3 0/2 is illegal
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(0, 2), move(1, 2)],
+            [move(0, 2), move(2, 3)],
+            [move(0, 1), move(1, 3)],
+            // move 1/2 0/2, 1/3 0/2 is illegal
+        ])
         }
     )
     test('Ignore unusable rolls', () => {
@@ -38,10 +38,10 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(1, 3)],
-                // can't use dicePip(1)
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(1, 3)],
+            // can't use dicePip(1)
+        ])
         }
     )
     test('Must use both rolls', () => {
@@ -50,10 +50,10 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 1, 0, /* bar */ 0, 0, 1, -2, 0, 0,
                     0],
                 dicePip(5), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(17, 19), move(19, 24)],
-                // move 21/23 is illegal(must use dicePip(5))
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(17, 19), move(19, 24)],
+            // move 21/23 is illegal(must use dicePip(5))
+        ])
         }
     )
     test('Must use bigger one when both rolls couldn\'t be used at once', () => {
@@ -62,10 +62,10 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(1, 3)],
-                // move 1/2 is illegal
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(1, 3)],
+            // move 1/2 is illegal
+        ])
         }
     )
     test('May use rolls in any order when both rolls are available', () => {
@@ -76,7 +76,7 @@ describe('Basic Backgammon rules', () => {
             {
                 const node = buildNodesWith(pieces,
                     dicePip(1), dicePip(2))
-                expect(collectMoves(node)).toEqual([
+                expect(collectMoves(node).map(moves => moves.moves)).toEqual([
                     [move(1, 3), move(3, 4)],
                     [move(1, 2), move(2, 4)],
                 ])
@@ -84,7 +84,7 @@ describe('Basic Backgammon rules', () => {
             {
                 const node = buildNodesWith(pieces,
                     dicePip(2), dicePip(1)) // dices swapped
-                expect(collectMoves(node)).toEqual([
+                expect(collectMoves(node).map(moves => moves.moves)).toEqual([
                     [move(1, 3), move(3, 4)],
                     [move(1, 2), move(2, 4)],
                 ])
@@ -97,9 +97,9 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(1, 2, true)],
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(1, 2, true)],
+        ])
             const afterMove = node.minorFirst(1)
             expect(afterMove.hasValue).toBeTruthy()
             expect((afterMove as BoardStateNode).board.piecesAt(25)).toEqual(-1)
@@ -111,9 +111,9 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 1,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(1, 2, true)],
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(1, 2, true)],
+        ])
         }
     )
     test('All pieces must be in inner board before bearing off 2', () => {
@@ -122,11 +122,11 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 1, 1,
                     0],
                 dicePip(1), dicePip(2))
-            expect(collectMoves(node)).toEqual([
-                [move(23, 25), move(24, 25)],
-                [move(23, 24), move(24, 26)],
-                [move(24, 25), move(23, 25)],
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(23, 25), move(24, 25)],
+            [move(23, 24), move(24, 26)],
+            [move(24, 25), move(23, 25)],
+        ])
         }
     )
     test('All pieces must be in inner board before bearing off 3', () => {
@@ -135,11 +135,11 @@ describe('Basic Backgammon rules', () => {
                     0, 1, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 1, 0,
                     0],
                 dicePip(2), dicePip(5))
-            expect(collectMoves(node)).toEqual([
-                [move(14, 19), move(19, 21)],
-                [move(14, 19), move(23, 25)],
-                [move(14, 16), move(16, 21)],
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(14, 19), move(19, 21)],
+            [move(14, 19), move(23, 25)],
+            [move(14, 16), move(16, 21)],
+        ])
         }
     )
     test('You don\'t have to use all dices at the end of game', () => {
@@ -148,10 +148,10 @@ describe('Basic Backgammon rules', () => {
                     0, 0, 0, 0, 0, 0, /* bar */ 0, 1, 0, 0, 0, 0,
                     0],
                 dicePip(2), dicePip(5))
-            expect(collectMoves(node)).toEqual([
-                [move(20, 25)],
-                [move(20, 22), move(22, 27)],
-            ])
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+            [move(20, 25)],
+            [move(20, 22), move(22, 27)],
+        ])
         }
     )
 })
@@ -165,7 +165,7 @@ describe('listup moves', () => {
             dicePip(1), dicePip(2))
 
 
-        expect(collectMoves(node)).toEqual([
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
             [move(13, 15), move(15, 16)],
             [move(15, 17), move(13, 14)],
             [move(15, 17), move(17, 18)],
@@ -183,7 +183,7 @@ describe('listup moves', () => {
             dicePip(1), dicePip(1))
 
 
-        expect(collectMoves(node)).toEqual([
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
             [move(13, 14), move(14, 15), move(15, 16), move(16, 17),],
         ])
         const node2 = buildNodesWith([0,
@@ -192,8 +192,7 @@ describe('listup moves', () => {
                 0],
             dicePip(1), dicePip(1))
 
-        const ret = collectMoves(node2)
-        expect(ret).toEqual([
+        expect(collectMoves(node2).map(moves => moves.moves)).toEqual([
             // 13-14: 14, 15
             // 13-14: 14-15: 15x2
             [move(13, 14), move(14, 15),
@@ -237,7 +236,7 @@ describe('listup moves', () => {
                 0],
             dicePip(1), dicePip(2))
 
-        expect(collectMoves(node)).toEqual([
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
             []
         ])
     })
@@ -249,7 +248,7 @@ describe('listup moves', () => {
                 0],
             dicePip(1), dicePip(1))
 
-        expect(collectMoves(node)).toEqual([
+        expect(collectMoves(node).map(moves => moves.moves)).toEqual([
             []
         ])
     })
@@ -262,9 +261,9 @@ describe('implement dependent', () => {
                         0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 1,
                         -2],
                     dicePip(1), dicePip(1))
-                expect(collectMoves(node)).toEqual([
-                    [move(24, 25)],
-                ])
+            expect(collectMoves(node).map(moves => moves.moves)).toEqual([
+                [move(24, 25)],
+            ])
             }
         )
     }
@@ -277,7 +276,7 @@ describe('mark redundant moves', () => {
                 1, 0, 0, -1, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                 -2],
             dicePip(1), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(8)
         const expected = [false, false, false, false,
             true, true, true, true
@@ -291,7 +290,7 @@ describe('mark redundant moves', () => {
                 1, -1, -1, -1, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                 -2],
             dicePip(1), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(2)
         const expected = [false, true]
         expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
@@ -302,7 +301,7 @@ describe('mark redundant moves', () => {
                 1, 0, -1, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                 -2],
             dicePip(1), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(8)
         const expected = [false, false, false, false,
             false, true, true, false
@@ -315,7 +314,7 @@ describe('mark redundant moves', () => {
                 0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                 -2],
             dicePip(1), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(4)
         const expected = [false, false, true, false,
         ]
@@ -327,7 +326,7 @@ describe('mark redundant moves', () => {
                 0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 1, 1, 0,
                 -2],
             dicePip(3), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(3)
         const expected = [false, false, true]
         expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
@@ -338,9 +337,20 @@ describe('mark redundant moves', () => {
                 0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 1, 1, 0, 0,
                 -2],
             dicePip(3), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(4)
         const expected = [false, false, true, true]
+        expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
+    })
+    test('move after reenter is not redundant', () => {
+        const node = buildNodesWith([1,
+                0, 0, 0, -2, -2, -2, /* bar */ 1, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
+                -2],
+            dicePip(5), dicePip(2))
+        const movesList = collectMoves(node)
+        expect(movesList.length).toBe(2)
+        const expected = [false, false]
         expect(movesList.map(moves => moves.isRedundant)).toEqual(expected)
     })
     test('mark redundant for doublet', () => {
@@ -349,7 +359,7 @@ describe('mark redundant moves', () => {
                 0, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0,
                 -2],
             dicePip(2), dicePip(2))
-        const movesList = collectUniqueMoves(node)
+        const movesList = collectMoves(node)
         expect(movesList.length).toBe(10)
         const expected = [false, true, false, true, true,
             true, true, true, true, false
