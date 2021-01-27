@@ -26,12 +26,17 @@ export type GameRecord = {
     stake: Score
 }
 
+export type MatchState = {
+    matchRecord: MatchRecord
+    gameState: GameState
+}
 /**
  * useMatchRecordsが返す変数・関数を型にまとめた定義
  */
 export type MatchRecordHookItems = {
-    matchRecord: MatchRecord,
+    matchState: MatchState,
     reduceState: (state: GameState, message: GammonMessage) => GameState,
+    setGameState: (state: (GameState | ((prev: GameState) => GameState))) => void,
     setPlyRecords: (plyRecords: PlyRecord[]) => void,
     commitCurPlyRecords: () => void
 }
@@ -43,12 +48,15 @@ export type MatchRecordHookItems = {
  * また、commitCurPlyRecordsにより、curPlyRecordsにある終局した状態の対局が
  * recordsに転記される。
  */
-export function useMatchRecords(initialMatchRecords: MatchRecord): MatchRecordHookItems {
+export function useMatchRecords(initialGameState: GameState, initialMatchRecords: MatchRecord): MatchRecordHookItems {
     const [matchRecords, setMatchRecords] = useState(initialMatchRecords)
+    const [gameState, setGameState] = useState(initialGameState)
 
     function reduceState(state: GameState, message: GammonMessage) {
         const [nextState, isEoG, plys] = reduceForPly(state, message)
         setMatchRecords(prev => {
+            console.log("msg=", message.type, "MatchRecords=", `${matchRecords.curPlyRecords.length}`,
+                "prev=", `${prev.curPlyRecords.length}`)
             const curPlysAdded = plys ?
                 {...prev, curPlyRecords: prev.curPlyRecords.concat(plys)} :
                 prev
@@ -60,37 +68,42 @@ export function useMatchRecords(initialMatchRecords: MatchRecord): MatchRecordHo
         return nextState
     }
 
-    return {
-        matchRecord: matchRecords,
-        reduceState: reduceState,
-        setPlyRecords: (plyRecords => {
-            setMatchRecords(prev => {
-                return {...prev, curPlyRecords: plyRecords}
-            })
-        }),
-        commitCurPlyRecords: () => {
-            // Restartにより、現在の棋譜をマッチ記録に転写するとともに、このコンポーネントからはクリアする
-            setMatchRecords(prev => {
+    function setPlyRecords(plyRecords: PlyRecord[]) {
+        setMatchRecords(prev => {
+            return {...prev, curPlyRecords: plyRecords}
+        })
+    }
 
-                const plyRecords = prev.curPlyRecords
-                if (plyRecords.length > 0) {
-                    const lastPlyRecord = plyRecords[plyRecords.length - 1]
-                    const lastMatchRecord = {
-                        stake: lastPlyRecord.state.stake,// stateがEoGの時だけ、0でない値が入る
-                        scoreBefore: prev.scoreBefore,
-                        plyRecords: plyRecords
-                    }
+    function commitCurPlyRecords() {
+        // Restartにより、現在の棋譜をマッチ記録に転写するとともに、このコンポーネントからはクリアする
+        setMatchRecords(prev => {
 
-                    return {
-                        records: prev.records.concat(lastMatchRecord),
-                        scoreBefore: prev.curScore,
-                        curPlyRecords: [],
-                        curScore: prev.curScore
-                    }
+            const plyRecords = prev.curPlyRecords
+            if (plyRecords.length > 0) {
+                const lastPlyRecord = plyRecords[plyRecords.length - 1]
+                const lastMatchRecord = {
+                    stake: lastPlyRecord.state.stake,// stateがEoGの時だけ、0でない値が入る
+                    scoreBefore: prev.scoreBefore,
+                    plyRecords: plyRecords
                 }
-                return prev
-            })
-        }
+
+                return {
+                    records: prev.records.concat(lastMatchRecord),
+                    scoreBefore: prev.curScore,
+                    curPlyRecords: [],
+                    curScore: prev.curScore
+                }
+            }
+            return prev
+        })
+    }
+
+    return {
+        matchState: {gameState: gameState, matchRecord: matchRecords},
+        reduceState: reduceState,
+        setGameState: setGameState,
+        setPlyRecords: setPlyRecords,
+        commitCurPlyRecords: commitCurPlyRecords
     }
 }
 

@@ -43,16 +43,18 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     } = {...props}
 
     // ゲームの状態を管理する
-    const [gameState, setGameState] = useState(initialState)
+    //const [gameState, setGameState] = useState(initialState)
 
     // ゲームの状態の変化に対し、指し手（ply）の記録と
     // ゲームの終了の有無（とそれに伴うスコアの加算）の管理を行う
     const {
-        matchRecord,
+        matchState,
         reduceState,
+        setGameState,
         setPlyRecords,
         commitCurPlyRecords
-    } = useMatchRecords(initialMatchRecord)
+    } = useMatchRecords(initialState, initialMatchRecord)
+    const {gameState, matchRecord} = matchState
 
     // 指し手履歴を見ているとき、あとで本来の状態に復帰するために保持する
     const [resumeToState, setResumeToState] = useState(initialState)
