@@ -2,7 +2,7 @@ import {GameConf} from "./GameState";
 import {Score} from "./Score";
 import {formatPly, PlyRecord} from "./PlyRecord";
 import {MoveFormatDirection} from "./AbsoluteMove";
-import {MatchRecord} from "../components/UseMatchRecord";
+import {MatchRecord} from "../components/UseMatchState";
 
 
 /**

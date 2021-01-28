@@ -2,7 +2,7 @@ import React from 'react'
 import {score} from "../models/Score";
 import {GameConf} from "../models/GameState";
 import {renderText} from "../models/MatchRecords";
-import {MatchRecord} from "./UseMatchRecord";
+import {MatchRecord} from "./UseMatchState";
 
 
 export type MatchRecordsTextProps = {

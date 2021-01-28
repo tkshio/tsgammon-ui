@@ -6,7 +6,7 @@ import {PlyRecords} from "./PlyRecords";
 import {score} from "../models/Score";
 import {renderText} from "../models/MatchRecords";
 import {MatchRecordsText} from "./MatchRecordsText";
-import {MatchRecord, useMatchRecords} from "./UseMatchRecord";
+import {MatchRecord, useMatchState} from "./UseMatchState";
 
 import "./unlimitedMatch.css"
 import "./button.css"
@@ -51,9 +51,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         matchState,
         reduceState,
         setGameState,
-        setPlyRecords,
-        commitCurPlyRecords
-    } = useMatchRecords(initialState, initialMatchRecord)
+        resumeMatchState
+    } = useMatchState(initialState, initialMatchRecord)
     const {gameState, matchRecord} = matchState
 
     // 指し手履歴を見ているとき、あとで本来の状態に復帰するために保持する
@@ -72,20 +71,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     // 新しい状態を生成すると同時に、そこに復帰できるように記録を更新する
     const dispatcher = (messages: GammonMessage[]) => {
         if (isLatest) {
-            setGameState(prev => {
-                const nextState = messages.reduce((state, message) => {
-                        const reducedState = reduceState(state, message)
-
-                        if (message.type === "Restart") {
-                            commitCurPlyRecords()
-                        }
-
-                        return reducedState
-                    },
-                    prev);
-                setResumeToState(nextState)
-                return nextState
-            })
+            const nextState = reduceState(matchState, ...messages).gameState
+            setResumeToState(nextState)
         }
     }
 
@@ -137,10 +124,7 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
 
     function resumeStatus() {
         if (!isLatest) {
-            const revert: GammonMessage = {type: "Revert"}
-            // matchRecordにはコミット時の状態で保持されているので、アンドゥで戻しておく
-            setGameState(matchRecord.curPlyRecords[selected].state.reduce(revert))
-            setPlyRecords(matchRecord.curPlyRecords.slice(0, selected))
+            resumeMatchState(selected)
             setIsLatest(true)
         }
     }

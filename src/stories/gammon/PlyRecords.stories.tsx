@@ -5,7 +5,7 @@ import {GameState, GammonMessage, initialStateBuilder} from "../../gammon/models
 import {dices} from "../../gammon/models/Dices";
 import {score} from "../../gammon/models/Score";
 import {PlyRecord} from "../../gammon/models/PlyRecord";
-import {reduceForPly} from "../../gammon/components/UseMatchRecord";
+import {reduceForPly} from "../../gammon/components/UseMatchState";
 
 export default {
     title: 'PlyRecords',
