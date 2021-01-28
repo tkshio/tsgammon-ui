@@ -37,7 +37,7 @@ export type MatchRecordHookItems = {
     matchState: MatchState,
     reduceState: (state: MatchState, ...messages: GammonMessage[]) => MatchState,
     setGameState: (state: (GameState | ((prev: GameState) => GameState))) => void,
-    resumeMatchState: (i: number) => void
+    resumeMatchState: (i: number) => MatchState
 }
 
 /**
@@ -79,21 +79,27 @@ export function useMatchState(initialGameState: GameState, initialMatchRecord: M
         return nextState
     }
 
-    function setPastMatchState(i: number) {
+    function resumeMatchState(i: number): MatchState {
         if (i < 0 || matchRecord.curPlyRecords.length <= i) {
-            return
+            return {matchRecord: matchRecord, gameState: gameState}
         }
         const revert: GammonMessage = {type: "Revert"}
         // matchRecordにはコミット時の状態で保持されているので、アンドゥで戻しておく
-        setGameState(matchRecord.curPlyRecords[i].state.reduce(revert))
-        setMatchRecord({...matchRecord, curPlyRecords: matchRecord.curPlyRecords.slice(0, i)})
+        const resumedState = {
+            matchRecord: {...matchRecord, curPlyRecords: matchRecord.curPlyRecords.slice(0, i)},
+            gameState: matchRecord.curPlyRecords[i].state.reduce(revert)
+
+        }
+        setGameState(resumedState.gameState)
+        setMatchRecord(resumedState.matchRecord)
+        return resumedState
     }
 
     return {
         matchState: {gameState: gameState, matchRecord: matchRecord},
         reduceState: reduceState,
         setGameState: setGameState,
-        resumeMatchState: setPastMatchState
+        resumeMatchState: resumeMatchState
     }
 }
 

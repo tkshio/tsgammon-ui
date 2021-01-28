@@ -50,16 +50,11 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     const {
         matchState,
         reduceState,
-        setGameState,
         resumeMatchState
     } = useMatchState(initialState, initialMatchRecord)
-    const {gameState, matchRecord} = matchState
 
-    // 指し手履歴を見ているとき、あとで本来の状態に復帰するために保持する
-    const [resumeToState, setResumeToState] = useState(initialState)
-
-    // 最新状態以外の過去の履歴を見ているかどうか。最新状態以外では操作やCPU側の手番を行わない
-    const [isLatest, setIsLatest] = useState(true)
+    // 実際に画面に表示している盤面
+    const [gameState, setGameState] = useState(matchState.gameState)
 
     // 指し手履歴の選択位置の管理
     const [selected, setSelected] = useState(0)
@@ -67,12 +62,17 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     // マッチ記録コピー時、メッセージを一瞬だけ表示させるためのフラグ
     const [runAnimation, setRunAnimation] = useState(false)
 
+    // 最新状態以外の過去の履歴を見ているかどうか。最新状態以外では操作やCPU側の手番を行わない
+    const isLatest = (gameState === matchState.gameState)
+
+    const {matchRecord} = matchState
+
     // GammonMessageを下位のコンポーネントから受け取って処理する。
     // 新しい状態を生成すると同時に、そこに復帰できるように記録を更新する
     const dispatcher = (messages: GammonMessage[]) => {
         if (isLatest) {
-            const nextState = reduceState(matchState, ...messages).gameState
-            setResumeToState(nextState)
+            const nextState = reduceState(matchState, ...messages)
+            setGameState(nextState.gameState)
         }
     }
 
@@ -81,6 +81,7 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         // 相手方ないし自動的に行う操作
         if (isLatest) {
             gameState.status.accept(autoOperator(gameState, dispatcher));
+            // 何らかの操作が行われて、dispatcherにより状態が更新される想定
         }
     })
 
@@ -106,17 +107,18 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         matchScore: matchRecord.curScore,
         selected: isLatest ? undefined : selected,
         dispatcher: (index: number) => {
-            if (index === matchRecord.curPlyRecords.length - 1) {
-                setGameState(resumeToState)
-                setIsLatest(true)
+            if (index < 0 || matchRecord.curPlyRecords.length - 1 <= index) {
+                // 最新版（index === curPlyRecords.length - 1)の場合は最新状態に
+                // 範囲外の場合も、とりあえず最新状態にしてしまう
+                setGameState(matchState.gameState)
             } else {
+                // それ以外の場合は過去の履歴にジャンプ
                 setGameState(matchRecord.curPlyRecords[index].state)
-                setIsLatest(false)
             }
             setSelected(index)
-
         }
     }
+
     const matchRecordsTextProps = {
         matchRecords: matchRecord,
         conf: gameState.conf
@@ -124,8 +126,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
 
     function resumeStatus() {
         if (!isLatest) {
-            resumeMatchState(selected)
-            setIsLatest(true)
+            const resumedState = resumeMatchState(selected)
+            setGameState(resumedState.gameState)
         }
     }
 
