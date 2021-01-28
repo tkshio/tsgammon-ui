@@ -9,10 +9,17 @@ const NO_MOVE: NoMove = {hasValue: false}
  * 外部出力にあたっては、GameStateがAbsoluteMoveに変換して提供するので、そちらを使用する。
  */
 export type Move = {
+    isOverrun: Boolean;
+    isBearOff: boolean;
     isHit: boolean;
     from: number
     to: number
     pip: number
+}
+
+export type Moves = {
+    moves: Move[]
+    isRedundant: boolean
 }
 
 /**
@@ -37,6 +44,9 @@ export type BoardStateNode = {
      * この局面にいたる直前までに適用した手。ロール直後の場合は空となる。
      */
     lastMoves(): Move[]
+
+    /** ツリー端のノードで、同一局面でisRedundant=falseなノードが既に存在している場合true */
+    isRedundant: boolean;
 }
 
 /**
@@ -44,16 +54,22 @@ export type BoardStateNode = {
  * すなわちそのBoardStateNodeの局面で可能な選択肢の列挙を返す
  * @param node
  */
-export function collectMoves(node: BoardStateNode): Move[][] {
+export function collectMoves(node: BoardStateNode): Moves[] {
     const hasUnusedDice = node.dices.find(dice => !dice.used)
     if (hasUnusedDice) {
-        const bMajor: Move[][] = node.board.points().map((_, idx) => node.majorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
-        const bMinor: Move[][] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
+        const bMajor: Moves[] = node.board.points()
+            .map((_, idx) =>
+                node.majorFirst(idx))
+            .map(node => node.hasValue ? collectMoves(node) : [])
+            .flat();
+        const bMinor: Moves[] = node.board.points().map((_, idx) => node.minorFirst(idx)).map(node => node.hasValue ? collectMoves(node) : []).flat();
+
         return bMajor.concat(bMinor)
     } else {
-        return [node.lastMoves()]
+        return [{moves: node.lastMoves(), isRedundant: node.isRedundant}]
     }
 }
+
 
 /**
  * 与えられた盤面、ダイスから、可能なムーブと、その適用後のダイスのペアをすべて列挙する
@@ -89,7 +105,8 @@ export function nodeWithBlankDice(board: BoardState): BoardStateNode {
         board: board,
         majorFirst: () => NO_MOVE,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => []
+        lastMoves: () => [],
+        isRedundant: false
     };
 }
 
@@ -104,15 +121,65 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         used: false
     } as DicePip
 
-    // 大きい目を先に使った場合の候補手と、その場合のmarked = 使えないロール目の数
-    const [majorTmp, majorMarked] = applyDicePipToPoints(board, majorDice.pip, [], (b, m) => buildLeaveNodesAndParent(b, [{
-        ...majorDice,
-        used: true
-    }], minorDice, m), 2)
-    const [minorTmp, minorMarked] = applyDicePipToPoints(board, minorDice.pip, [], (b, m) => buildLeaveNodesAndParent(b, [{
-        ...minorDice,
-        used: true
-    }], majorDice, m), 2)
+    function applyDices(firstDice: DicePip, secondDice: DicePip,
+                        isRedundantFunc: (moves: Move[]) => boolean = () => false) {
+        const dicesAfterUse = [{
+            ...firstDice,
+            used: true
+        }]
+
+        const nodeBuilder =
+            (board: BoardState, moves: Move[]) => buildLeaveNodesAndParent(
+                board, dicesAfterUse, secondDice, moves, isRedundantFunc
+            )
+
+        return applyDicePipToPoints(
+            board, firstDice.pip, [], nodeBuilder, 2)
+
+    }
+
+    // 大きい目を先に使った場合の候補手は、冗長扱いしない
+    const [majorTmp, majorMarked] = applyDices(majorDice, minorDice);
+
+    // 小さい目の場合、冗長判定がある
+    const isRedundantFunc = (moves: Move[]) => {
+        if (moves.length !== 2) {
+            // 2手なければ、冗長かどうかは気にしない
+            return false
+        }
+        // 1. 同じところから二つの駒を動かす場合、冗長（majorに含まれている）
+        if (moves[0].from === moves[1].from) {
+            return true
+        }
+        // 2. 同じ駒を2回動かすムーブで、かつダイスを入れ替えた場合のムーブと合わせて
+        // 片方だけがヒットの場合、冗長ではない
+        if (moves[0].to === moves[1].from) {
+            const isHit = moves[0].isHit
+            const swappedMovesNode = majorTmp(moves[0].from)
+            if (swappedMovesNode.hasValue) {
+                const swappedMove = swappedMovesNode.lastMoves()[0]
+                // どちらもヒットか、どちらもヒットでない場合は、冗長
+                return (isHit && swappedMove.isHit) ||
+                    (!isHit && !swappedMove.isHit)
+            } else {
+                return false
+            }
+        }
+        // 3. 一手目によりlastPosが変わる場合、冗長ではない
+        if (moves[0].from === board.lastPiecePos() &&
+            board.piecesAt(moves[0].from) === 1 &&
+            moves[1].isOverrun
+        ) {
+            return false
+        }
+        // 4. 一手目がリエントリーで、かつバー上の駒がそれだけの場合は冗長でない
+        if (moves[0].from === 0 &&
+            board.piecesAt(0) === 1) {
+            return false;
+        }
+        return true
+    }
+    const [minorTmp, minorMarked] = applyDices(minorDice, majorDice, isRedundantFunc)
 
     let major: (pos: number) => (BoardStateNode | NoMove)
     let minor: (pos: number) => (BoardStateNode | NoMove)
@@ -150,7 +217,9 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         board: board,
         majorFirst: major,
         minorFirst: minor,
-        lastMoves: () => []
+        lastMoves: () => [],
+        isRedundant: false
+
     }
 }
 
@@ -159,7 +228,8 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
 function buildLeaveNodesAndParent(board: BoardState,
                                   usedDices: Dices,
                                   lastDice: DicePip,
-                                  lastMoves: Move[])
+                                  lastMoves: Move[],
+                                  isRedundantFunc: (moves: Move[]) => boolean = () => false)
     : [BoardStateNode, number] {
 
     const dicesUsedUp = usedDices.concat([{pip: lastDice.pip, used: true}])
@@ -173,7 +243,8 @@ function buildLeaveNodesAndParent(board: BoardState,
                     board: boardAfter,
                     majorFirst: () => NO_MOVE,
                     minorFirst: () => NO_MOVE,
-                    lastMoves: () => moves
+                    lastMoves: () => moves,
+                    isRedundant: isRedundantFunc(moves)
                 }, 0/*最後のダイスが適用できたので、未使用のダイスは0*/]
             },
             // ここは末端の局面なので、ムーブできない場合は未使用のダイス＝1個を返す
@@ -190,7 +261,8 @@ function buildLeaveNodesAndParent(board: BoardState,
         board: board,
         majorFirst: major,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => lastMoves
+        lastMoves: () => lastMoves,
+        isRedundant: false
     }, unusedDices]
 }
 
@@ -265,7 +337,12 @@ function isLegalMove(board: BoardState, pos: number, dicePip: number): { isLegal
         return (opponent < 2) ?
             {
                 isLegal: true, move: {
-                    from: pos, to: pos + dicePip, pip: dicePip, isHit: opponent === 1
+                    from: pos,
+                    to: pos + dicePip,
+                    pip: dicePip,
+                    isHit: opponent === 1,
+                    isBearOff: false,
+                    isOverrun: false
                 }
             } :
             {isLegal: false}
@@ -280,7 +357,17 @@ function isLegalMove(board: BoardState, pos: number, dicePip: number): { isLegal
 
     // ちょうどで上がるか、そうでなければ最後尾からでなくてはいけない
     return (moveTo === bearOffPos || pos === board.lastPiecePos()) ?
-        {isLegal: true, move: {from: pos, to: pos + dicePip, pip: dicePip, isHit: false}} :
+        {
+            isLegal: true,
+            move: {
+                from: pos,
+                to: pos + dicePip,
+                pip: dicePip,
+                isHit: false,
+                isBearOff: true,
+                isOverrun: moveTo > bearOffPos
+            }
+        } :
         {isLegal: false}
 }
 
@@ -291,18 +378,11 @@ function buildNodesForDoublet(board: BoardState, dices: Dices): BoardStateNode {
 }
 
 // 与えられた盤面、ダイスから、可能なムーブと、その適用後のダイスのペアをすべて列挙する
-function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDices: Dices, lastMoves: Move[]): [BoardStateNode, number] {
-    const nodeBuilder = unusedDices.length === 2 ?
-        (b: BoardState, moves: Move[]) => buildLeaveNodesAndParent(b, usedDices.concat({
-            pip: unusedDices[0].pip,
-            used: true
-        }), unusedDices[1], moves) :
-        (b: BoardState, moves: Move[]) => buildNodesForDoubletRec(b, usedDices.concat({
-            pip: unusedDices[0].pip,
-            used: true
-        }), unusedDices.slice(1), moves)
-// 常にmark==unusedDices.length
+function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDices: Dices, lastMoves: Move[], isAlreadyRedundant: boolean = false): [BoardStateNode, number] {
 
+    const nodeBuilder = unusedDices.length === 2 ? nodeBuilderForLeaves() : nodeBuilderRec()
+
+    // 常にmark==unusedDices.length
     const [major, marked] = applyDicePipToPoints(board, unusedDices[0].pip, lastMoves, nodeBuilder, unusedDices.length)
 
     // unusedDicesから、末尾 marked個分は使えないのであらかじめマークする
@@ -315,6 +395,41 @@ function buildNodesForDoubletRec(board: BoardState, usedDices: Dices, unusedDice
         board: board,
         majorFirst: major,
         minorFirst: () => NO_MOVE,
-        lastMoves: () => lastMoves
+        lastMoves: () => lastMoves,
+        isRedundant: false
     }, marked]
+
+
+    function nodeBuilderForLeaves() {
+        return (b: BoardState, moves: Move[]) => {
+            const isRedundant = isAlreadyRedundant ||
+                lastMoveIsRedundant(moves)
+
+            const isRedundantFunc = isRedundant ? () => true :
+                (moves: Move[]) => isRedundant || lastMoveIsRedundant(moves)
+
+            return buildLeaveNodesAndParent(b, usedDices.concat({
+                pip: unusedDices[0].pip,
+                used: true
+            }), unusedDices[1], moves, isRedundantFunc)
+        }
+    }
+
+    function nodeBuilderRec() {
+        return (b: BoardState, moves: Move[]) => {
+            const isRedundant = isAlreadyRedundant ||
+                lastMoveIsRedundant(moves)
+
+            return buildNodesForDoubletRec(b, usedDices.concat({
+                pip: unusedDices[0].pip,
+                used: true
+            }), unusedDices.slice(1), moves, isRedundant)
+        }
+    }
+
+    // 最後に適用した手が、それまでに適用した手より手前の駒を動かす場合は、冗長なムーブ
+    function lastMoveIsRedundant(moves: Move[]): boolean {
+        return ((moves.length > 1) &&
+            (moves[moves.length - 2].from > moves[moves.length - 1].from))
+    }
 }

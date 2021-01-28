@@ -6,7 +6,7 @@ import {PlyRecords} from "./PlyRecords";
 import {score} from "../models/Score";
 import {renderText} from "../models/MatchRecords";
 import {MatchRecordsText} from "./MatchRecordsText";
-import {MatchRecord, useMatchRecords} from "./UseMatchRecord";
+import {MatchRecord, useMatchState} from "./UseMatchState";
 
 import "./unlimitedMatch.css"
 import "./button.css"
@@ -43,22 +43,18 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     } = {...props}
 
     // ゲームの状態を管理する
-    const [gameState, setGameState] = useState(initialState)
+    //const [gameState, setGameState] = useState(initialState)
 
     // ゲームの状態の変化に対し、指し手（ply）の記録と
     // ゲームの終了の有無（とそれに伴うスコアの加算）の管理を行う
     const {
-        matchRecord,
+        matchState,
         reduceState,
-        setPlyRecords,
-        commitCurPlyRecords
-    } = useMatchRecords(initialMatchRecord)
+        resumeMatchState
+    } = useMatchState(initialState, initialMatchRecord)
 
-    // 指し手履歴を見ているとき、あとで本来の状態に復帰するために保持する
-    const [resumeToState, setResumeToState] = useState(initialState)
-
-    // 最新状態以外の過去の履歴を見ているかどうか。最新状態以外では操作やCPU側の手番を行わない
-    const [isLatest, setIsLatest] = useState(true)
+    // 実際に画面に表示している盤面
+    const [gameState, setGameState] = useState(matchState.gameState)
 
     // 指し手履歴の選択位置の管理
     const [selected, setSelected] = useState(0)
@@ -66,24 +62,17 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     // マッチ記録コピー時、メッセージを一瞬だけ表示させるためのフラグ
     const [runAnimation, setRunAnimation] = useState(false)
 
+    // 最新状態以外の過去の履歴を見ているかどうか。最新状態以外では操作やCPU側の手番を行わない
+    const isLatest = (gameState === matchState.gameState)
+
+    const {matchRecord} = matchState
+
     // GammonMessageを下位のコンポーネントから受け取って処理する。
     // 新しい状態を生成すると同時に、そこに復帰できるように記録を更新する
     const dispatcher = (messages: GammonMessage[]) => {
         if (isLatest) {
-            setGameState(prev => {
-                const nextState = messages.reduce((state, message) => {
-                        const reducedState = reduceState(state, message)
-
-                        if (message.type === "Restart") {
-                            commitCurPlyRecords()
-                        }
-
-                        return reducedState
-                    },
-                    prev);
-                setResumeToState(nextState)
-                return nextState
-            })
+            const nextState = reduceState(matchState, ...messages)
+            setGameState(nextState.gameState)
         }
     }
 
@@ -92,6 +81,7 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         // 相手方ないし自動的に行う操作
         if (isLatest) {
             gameState.status.accept(autoOperator(gameState, dispatcher));
+            // 何らかの操作が行われて、dispatcherにより状態が更新される想定
         }
     })
 
@@ -117,17 +107,18 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         matchScore: matchRecord.curScore,
         selected: isLatest ? undefined : selected,
         dispatcher: (index: number) => {
-            if (index === matchRecord.curPlyRecords.length - 1) {
-                setGameState(resumeToState)
-                setIsLatest(true)
+            if (index < 0 || matchRecord.curPlyRecords.length - 1 <= index) {
+                // 最新版（index === curPlyRecords.length - 1)の場合は最新状態に
+                // 範囲外の場合も、とりあえず最新状態にしてしまう
+                setGameState(matchState.gameState)
             } else {
+                // それ以外の場合は過去の履歴にジャンプ
                 setGameState(matchRecord.curPlyRecords[index].state)
-                setIsLatest(false)
             }
             setSelected(index)
-
         }
     }
+
     const matchRecordsTextProps = {
         matchRecords: matchRecord,
         conf: gameState.conf
@@ -135,11 +126,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
 
     function resumeStatus() {
         if (!isLatest) {
-            const revert: GammonMessage = {type: "Revert"}
-            // matchRecordにはコミット時の状態で保持されているので、アンドゥで戻しておく
-            setGameState(matchRecord.curPlyRecords[selected].state.reduce(revert))
-            setPlyRecords(matchRecord.curPlyRecords.slice(0, selected))
-            setIsLatest(true)
+            const resumedState = resumeMatchState(selected)
+            setGameState(resumedState.gameState)
         }
     }
 
