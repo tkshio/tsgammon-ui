@@ -38,6 +38,9 @@ export function randomEngine(): GammonEngine {
         },
         checkerPlay(gameState: GameState): GammonMessageMove[] {
             const moves = gameState.moves()
+            if (moves.length === 0) {
+                return []
+            }
             const n = (Math.floor(Math.random() * moves.length))
             return movesToMsgs(moves[n])
         },

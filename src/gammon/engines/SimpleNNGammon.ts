@@ -38,12 +38,12 @@ function encode(pieces: number[], myBornOff: number, oppBornOff: number): number
                     input[pos * 8] = 1.0; // p > 0
                     input[pos * 8 + 1] = (p > 1) ? 1.0 : 0.0;
                     input[pos * 8 + 2] = (p > 2) ? 1.0 : 0.0;
-                    input[pos * 8 + 3] = (p - 3) / 2.0;
+                    input[pos * 8 + 3] = (p > 3) ? (p - 3) / 2.0 : 0.0;
                 } else if (p < 0) {
                     input[pos * 8 + 4] = 1.0;
                     input[pos * 8 + 5] = (-p > 1) ? 1.0 : 0.0;
                     input[pos * 8 + 6] = (-p > 2) ? 1.0 : 0.0;
-                    input[pos * 8 + 7] = (-p - 3) / 2.0;
+                    input[pos * 8 + 7] = (-p > 3) ? (-p - 3) / 2.0 : 0.0;
                 }
             }
         }

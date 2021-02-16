@@ -157,6 +157,15 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
             const isHit = moves[0].isHit
             const swappedMovesNode = majorTmp(moves[0].from)
             if (swappedMovesNode.hasValue) {
+
+                //2'. 大→小の順では同じピースを二回続けて動かせていない場合冗長ではない
+                {
+                    const majorPip = moves[1].pip
+                    const swappedMoveTo = moves[0].from + majorPip
+                    if (!swappedMovesNode.majorFirst(swappedMoveTo).hasValue) {
+                        return false
+                    }
+                }
                 const swappedMove = swappedMovesNode.lastMoves()[0]
                 // どちらもヒットか、どちらもヒットでない場合は、冗長
                 return (isHit && swappedMove.isHit) ||
@@ -165,6 +174,8 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
                 return false
             }
         }
+
+
         // 3. 一手目によりlastPosが変わる場合、冗長ではない
         if (moves[0].from === board.lastPiecePos() &&
             board.piecesAt(moves[0].from) === 1 &&
@@ -172,6 +183,12 @@ function buildNodesForHeteroDice(board: BoardState, dices: Dices): BoardStateNod
         ) {
             return false
         }
+        // 3'. 一手目で初めてベアオフが可能となり、二手目がベアオフの場合、冗長ではない
+        if (!board.isBearable() && moves[1].isBearOff) {
+            return false
+        }
+
+
         // 4. 一手目がリエントリーで、かつバー上の駒がそれだけの場合は冗長でない
         if (moves[0].from === 0 &&
             board.piecesAt(0) === 1) {
@@ -313,7 +330,7 @@ function applyDicePipToPoints(board: BoardState,
     });
 
 // ここで、nodesの中からmarkedが最小値でない候補を削りたい、が、nodesから直接markedを取る手段がない
-    return [pos => nodes[pos], markedMin];
+    return [pos => nodes[pos] ?? NO_MOVE, markedMin];
 }
 
 
