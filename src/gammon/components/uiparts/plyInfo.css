@@ -1,0 +1,4 @@
+/* 当面、指し手表示はテキストのみ */
+div#plyAsText {
+    font-weight: bold;
+}

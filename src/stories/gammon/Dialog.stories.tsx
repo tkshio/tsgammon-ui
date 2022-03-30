@@ -1,9 +1,8 @@
+import { Meta, Story } from "@storybook/react";
 import React from "react";
-import {Meta, Story} from "@storybook/react";
-import {Board} from "../../gammon/components/Board";
-import {initAbsoluteBoard} from "../../gammon/models/AbsoluteBoardState";
-import '../../gammon/components/cubeResponseDialog.css'
-import {Dialog, DialogProps} from "../../gammon/components/Dialog";
+import { initAbsoluteBoard } from "tsgammon-core/AbsoluteBoardState";
+import { Board } from "../../gammon/components/boards/Board";
+import { Dialog, DialogProps } from "../../gammon/components/uiparts/Dialog";
 
 // this export is required.
 export default {
@@ -15,20 +14,18 @@ export default {
 const board = {
     status: "",
     board: initAbsoluteBoard(),
-    whiteDices: {dices: []},
-    redDices: {dices: []},
+    whiteDices: { dices: [] },
+    redDices: { dices: [] },
     whiteScore: 0,
     redScore: 0,
-    dispatcher: () => {
-    }
 }
 const Template: Story<DialogProps> = (args) => {
 
     return (
         <>
             <div className={"boardContainer"}>
-                <Board {...{...board}}/>
-                <Dialog {...args}/>
+                <Board {...{ ...board }} />
+                <Dialog {...args} />
             </div>
         </>
     )

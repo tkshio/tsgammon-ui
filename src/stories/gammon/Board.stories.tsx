@@ -1,11 +1,10 @@
+import { Meta, Story } from "@storybook/react";
 import React from "react";
-import {Meta, Story} from "@storybook/react";
-import {Board, BoardProps} from '../../gammon/components/Board';
+import { AbsoluteBoardState, initAbsoluteBoard } from "tsgammon-core/AbsoluteBoardState";
+import { cube } from "tsgammon-core/CubeState";
+import { dices } from "tsgammon-core/Dices";
+import { Board, BoardProps } from '../../gammon/components/boards/Board';
 
-import '../../gammon/components/board.css'
-import {AbsoluteBoardState, initAbsoluteBoard} from "../../gammon/models/AbsoluteBoardState";
-import {cube} from "../../gammon/models/CubeState";
-import {dices} from "../../gammon/models/Dices";
 
 // this export is required.
 export default {

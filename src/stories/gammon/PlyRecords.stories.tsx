@@ -1,11 +1,9 @@
-import {Meta, Story} from "@storybook/react";
-import React, {ComponentProps} from "react";
-import {PlyRecords} from "../../gammon/components/PlyRecords";
-import {GameState, GammonMessage, initialStateBuilder} from "../../gammon/models/GameState";
-import {dices} from "../../gammon/models/Dices";
-import {score} from "../../gammon/models/Score";
-import {PlyRecord} from "../../gammon/models/PlyRecord";
-import {reduceForPly} from "../../gammon/components/UseMatchState";
+import { Meta, Story } from "@storybook/react";
+import React, { ComponentProps } from "react";
+import { absoluteMovesRed, absoluteMovesWhite } from "tsgammon-core/AbsoluteMove";
+import { PlyRecordInPlay } from "tsgammon-core/records/PlyRecord";
+import { score } from "tsgammon-core/Score";
+import { PlyRecords } from "../../gammon/components/recordedGames/PlyRecords";
 
 export default {
     title: 'PlyRecords',
@@ -13,87 +11,85 @@ export default {
     parameters: {}
 } as Meta;
 
-const Template: Story<ComponentProps<typeof PlyRecords>> = (args) => <div style={{display: 'flex', flexFlow: 'row'}}>
+const Template: Story<ComponentProps<typeof PlyRecords>> = (args) => <div style={{ display: 'flex', flexFlow: 'row' }}>
     <PlyRecords {...args} /></div>
 
 export const whiteWon = Template.bind({})
+const plyRecordsWhiteWon: PlyRecordInPlay[] = [
+    {
+        tag: "Commit",
+        ply: {
+            moves: absoluteMovesWhite([{ from: 19, to: 20 }, { from: 19, to: 23 }]),
+            dices: [1,3]
+        }, isRed: false
+    },
+    { tag: "Double", cubeValue: 2, isRed: true },
+    { tag: "Take", isRed: false },
+    {
+        tag: "Commit",
+        ply: {
+            moves: absoluteMovesRed([{ from: 19, to: 20 }, { from: 19, to: 23 }]),
+            dices: [1,3]
+        }, isRed: true
+    },
+    { tag: "Double", cubeValue: 4, isRed: false },
+    { tag: "Pass", isRed: true },
+]
+
 whiteWon.args = {
-    plyRecords: buildRecords([
-            [{type: "StartGame"}], [{type: "Roll", roll: dices(1, 3)}],
-            [{type: "Move", pos: 19}, {type: "Move", pos: 17}, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Take"}],
-            [{type: "Roll", roll: dices(1, 3)}],
-            [{type: "Move", pos: 6}, {type: "Move", pos: 8}, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Pass"}],
-        ]
-    ),
-    matchScore: score({whiteScore: 0, redScore: 1}),
+    plyRecords: plyRecordsWhiteWon.map((plyRecord: PlyRecordInPlay) => ({ plyRecord, state: undefined })),
+    matchScore: score({ whiteScore: 0, redScore: 1 }),
     dispatcher: () => {
     }
 }
 export const redWon = Template.bind({})
 redWon.args = {
-    plyRecords: buildRecords([
-            [{type: "StartGame"}], [{type: "Roll", roll: dices(3, 1)}],
-            [{type: "Move", pos: 6}, {type: "Move", pos: 6}, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Take"}],
-            [{type: "Roll", roll: dices(2, 2)}],
-            [{type: "Move", pos: 1}, {type: "Move", pos: 1}, {type: "Move", pos: 12}, {
-                type: "Move",
-                pos: 12
-            }, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Pass"}],
-        ]
-    ),
-    matchScore: score({whiteScore: 0, redScore: 1}),
+    plyRecords: whiteWon.args.plyRecords?.map(plyState => ({ ...plyState, plyRecord: { ...plyState.plyRecord, isRed: !plyState.plyRecord.isRed } })),
+    matchScore: score({ whiteScore: 0, redScore: 1 }),
     dispatcher: () => {
     }
 }
 
-
+const plyRecordsWhiteFirst: PlyRecordInPlay[] = [
+    {
+        tag: "Commit", ply: {
+            moves: absoluteMovesWhite([{ from: 19, to: 20 }, { from: 19, to: 23 }]),
+            dices: [1,3]
+        }, isRed: false
+    },
+    { tag: "Double", cubeValue: 2, isRed: true },
+    { tag: "Take", isRed: false },
+    {
+        tag: "Commit", ply:
+        {
+            moves: absoluteMovesRed([{ from: 19, to: 20 }, { from: 19, to: 23 }]),
+            dices: [1,3]
+        }, isRed: true
+    },
+]
 export const whiteFirstRedWon = Template.bind({})
 whiteFirstRedWon.args = {
-    plyRecords: buildRecords([
-            [{type: "StartGame"}], [{type: "Roll", roll: dices(1, 3)}],
-            [{type: "Move", pos: 19}, {type: "Move", pos: 17}, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Take"}],
-            [{type: "Roll", roll: dices(2, 2)}],
-            [{type: "Commit", force: true}],
-            [{type: "AwaitRoll"}, {type: "Roll", roll: dices(3, 1)}],
-            [{type: "Commit", force: true}],
-            [{type: "AwaitRoll"}, {type: "Roll", roll: dices(3, 1)}],
-            [{type: "Commit", force: true}],
-            [{type: "Double"}],
-            [{type: "Take"}],
-            [{type: "Roll", roll: dices(2, 2)}],
-            [{type: "Commit", force: true}],
-            [{type: "Double"}],
-            [{type: "Pass"}],
-        ]
-    ),
-    matchScore: score({whiteScore: 0, redScore: 1}),
+    plyRecords: plyRecordsWhiteFirst.map(plyRecord => ({ plyRecord, state: undefined })),
+    matchScore: score({ whiteScore: 0, redScore: 1 }),
     dispatcher: () => {
     }
 }
+const plyRecordsRedFirst:PlyRecordInPlay[] = [{
+    tag: "Commit", ply: {
+        moves: absoluteMovesWhite([{ from: 19, to: 20 }, { from: 19, to: 23 }]),
+        dices: [1,3]
+    }, isRed: true
+},
+{ tag: "Double", cubeValue: 2, isRed: false },
+{ tag: "Pass", isRed: true },
+]
 export const redFirstWhiteWon = Template.bind({})
 redFirstWhiteWon.args = {
-    plyRecords: buildRecords([
-            [{type: "StartGame"}], [{type: "Roll", roll: dices(3, 1)}],
-            [{type: "Move", pos: 6}, {type: "Move", pos: 6}, {type: "Commit"}],
-            [{type: "Double"}],
-            [{type: "Pass"}],
-        ]
-    ),
-    matchScore: score({whiteScore: 0, redScore: 1}),
+    plyRecords: plyRecordsRedFirst.map(plyRecord => ({ plyRecord, state: undefined })),
+    matchScore: score({ whiteScore: 0, redScore: 1 }),
     dispatcher: () => {
     }
 }
-
 
 export const emptyRecords = Template.bind({})
 emptyRecords.args = {
@@ -102,18 +98,4 @@ emptyRecords.args = {
     }
 }
 
-function buildRecords(msgsList: GammonMessage[][]): PlyRecord[] {
-    const initRecord: { state: GameState, recs: PlyRecord[] }
-        = {state: initialStateBuilder.buildOpeningStatus(), recs: []}
-    const msgs = msgsList.flat()
-    const records = msgs.reduce(
-        (records, message): { state: GameState, recs: PlyRecord[] } => {
-            const state = records.state
-            const [nextState, , plys] = reduceForPly(state, message)
-            if (plys) {
-                return {state: nextState, recs: records.recs.concat(plys)}
-            }
-            return {state: nextState, recs: records.recs}
-        }, initRecord)
-    return records.recs
-}
+

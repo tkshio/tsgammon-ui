@@ -1,0 +1,15 @@
+
+#recordsPane {
+    margin: 5px;
+}
+
+/* マッチログ */
+#matchRecord {
+    margin: 5px;
+    border: gray solid 1px;
+
+    font-family: monospace;
+    overflow-y: auto;
+    height: 200px;
+}
+
