@@ -1,19 +1,19 @@
 import React from 'react';
-import {UnlimitedMatch} from "./gammon/components/UnlimitedMatch";
-import {whiteSideAutoOperator, whiteSideBoardOperator} from "./gammon/models/GameOperators";
-import {dnEngine} from "./gammon/engines/SimpleNNGammon";
-import {stateBuilder} from "./gammon/models/GameState";
-import "./App.css"
+import { UnlimitedMatch } from "./gammon/components/apps/UnlimitedMatch";
+import { redCBAutoOperator, redSGAutoOperator } from './gammon/dispatchers/autoOperators';
+
+import "./App.css";
 
 function App() {
     const args = {
-        initialState: stateBuilder.initGameState(),
-        boardOperator: whiteSideBoardOperator(),
-        autoOperator: whiteSideAutoOperator(dnEngine()),
+        cbConfs: {
+            autoOperator: redCBAutoOperator(),
+            sgConfs: { autoOperator: redSGAutoOperator() }
+        }
     }
     return (
         <div className="App">
-            <UnlimitedMatch {...args}/>
+            <UnlimitedMatch {...args} />
         </div>
     );
 }

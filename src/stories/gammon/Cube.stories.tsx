@@ -1,8 +1,7 @@
-import {Cube, CubeProps} from '../../gammon/components/Cube';
+import { Meta, Story } from "@storybook/react";
 import React from "react";
-import {Meta, Story} from "@storybook/react";
-import '../../gammon/components/cube.css'
-import {cube} from "../../gammon/models/CubeState";
+import { cube } from "tsgammon-core/CubeState";
+import { Cube, CubeProps } from '../../gammon/components/boards/Cube';
 
 const decolator = (bgColor: string = "white", fgColor?: string) => (Story: Story) => {
     const style = {

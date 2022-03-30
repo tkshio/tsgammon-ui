@@ -1,0 +1,19 @@
+
+.revertButton {
+    height: var(--pieceSize);
+    width: var(--pieceSize);
+
+    font-size: var(--pieceSize);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.revertButton:after {
+    content: "↺";
+    color: white;
+}
+
+.revertButton[mode=redo]:after {
+    color:black;
+}

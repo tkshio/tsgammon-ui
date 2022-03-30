@@ -1,8 +1,7 @@
-import {Dice, DiceProps} from '../../gammon/components/Dice';
+import { Meta, Story } from "@storybook/react";
 import React from "react";
-import {Meta, Story} from "@storybook/react";
-import '../../gammon/components/dice.css'
-import {dices} from "../../gammon/models/Dices";
+import { dices } from "tsgammon-core/Dices";
+import { blankDice, Dice, DiceProps } from '../../gammon/components/boards/Dice';
 
 const decolator = (color: string = "white", pipColor?: string) => (Story: Story) => {
     const style = {
@@ -48,7 +47,7 @@ export const diceSet = ListTemplate.bind({});
 diceSet.args = {
     items: [
         {dices: []},
-        {dices: dices(0, 1, 2, 3, 4, 5, 6)},
+        {dices: [blankDice, ...dices( 1, 2, 3, 4, 5, 6)]},
         {dices: dices(1)},
         {dices: dices(2, 3)},
         {dices: dices(4, 5, 6)}
