@@ -20,7 +20,7 @@ https://tkshio.github.io/tsgammon-ui/
 ## 対局について
 
 * 無制限のマネーゲームです。
-* ジャコビールールが有効です。したがって、どちらもダブルをしていない場合はギャモン・バックギャモンになりません。
+* ~~ジャコビールールが有効です。したがって、どちらもダブルをしていない場合はギャモン・バックギャモンになりません。~~
 * <span style="border-radius: 5px; display: flex; align-items: center; padding: 2px 5px; background-color: rgb(47, 79, 79); color: rgb(255, 255, 255); font-size:9pt; width: fit-content; margin-right: 5px; justify-content: center;">
   Copy Records</span>により、棋譜をクリップボードにコピーできます。コピーした棋譜は、XGで解析することができます。
 
