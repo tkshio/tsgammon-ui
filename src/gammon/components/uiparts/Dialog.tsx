@@ -1,11 +1,11 @@
-import React from 'react';
-import "./dialog.css"
+import React from 'react'
+import './dialog.css'
 
 export type DialogProps = {
     msgs: string[]
     onClick: () => void
     children?: JSX.Element
-};
+}
 
 /**
  * 任意のメッセージを表示するダイアログ
@@ -16,24 +16,19 @@ export type DialogProps = {
  * @constructor
  */
 export function Dialog(props: DialogProps) {
-    const {
-        msgs = [],
-        onClick = () => {
-        },
-        children
-    } = { ...props }
+    const { msgs = [], onClick = () => {
+        //
+    }, children } = { ...props }
     return (
-        <div className={"dialogContainer"}>
-            <div className={"dialog"} onClick={onClick}>
-                {msgs.length > 0 && <div className={"caption"}>
-                    {msgs.map((msg, index) => {
-                        return (
-                            <div key={index}>
-                                {msg}
-                            </div>
-                        )
-                    })}
-                </div>}
+        <div className={'dialogContainer'}>
+            <div className={'dialog'} onClick={onClick}>
+                {msgs.length > 0 && (
+                    <div className={'caption'}>
+                        {msgs.map((msg, index) => {
+                            return <div key={index}>{msg}</div>
+                        })}
+                    </div>
+                )}
                 {children}
             </div>
         </div>

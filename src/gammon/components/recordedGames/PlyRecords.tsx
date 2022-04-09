@@ -1,13 +1,11 @@
-import { ChangeEvent, createRef, useEffect, useState } from 'react';
-import { PlyRecordEoG } from "tsgammon-core/records/PlyRecord";
-import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord';
-import { formatPlyRecord } from "tsgammon-core/records/utils/formatPlyRecord";
-import { score, Score } from "tsgammon-core/Score";
-import { MoveFormatDirection } from 'tsgammon-core/utils/formatAbsMove';
+import { ChangeEvent, createRef, useEffect, useState } from 'react'
+import { PlyRecordEoG } from 'tsgammon-core/records/PlyRecord'
+import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
+import { formatPlyRecord } from 'tsgammon-core/records/utils/formatPlyRecord'
+import { score, Score } from 'tsgammon-core/Score'
+import { MoveFormatDirection } from 'tsgammon-core/utils/formatAbsMove'
 
-import "./plyRecords.css";
-
-
+import './plyRecords.css'
 
 export type PlyRecordsProps<T> = {
     plyRecords: PlyStateRecord<T>[]
@@ -36,7 +34,8 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
         matchScore = score(),
         selected,
         dispatcher = () => {
-        }
+            //
+        },
     } = { ...props }
 
     // 座標表記のコントロール
@@ -47,12 +46,11 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
 
     // refは、selected番目の要素か、それがなければ最下段の要素
     function genRef(index: number) {
-        return (index === (selected ?? (plyStates.length))) ?
-            { ref } : {}
+        return index === (selected ?? plyStates.length) ? { ref } : {}
     }
 
     useEffect(() => {
-        ref?.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+        ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
 
     function switchDirection(event: ChangeEvent<HTMLInputElement>) {
@@ -62,58 +60,103 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
     }
 
     return (
-        <div id={"recordsAndConf"}>
-            <div id={"directionCheckbox"}>
-                <input type={"checkbox"} checked={(direction === defaultDirection)}
-                    onChange={switchDirection} />
+        <div id={'recordsAndConf'}>
+            <div id={'directionCheckbox'}>
+                <input
+                    type={'checkbox'}
+                    checked={direction === defaultDirection}
+                    onChange={switchDirection}
+                />
             </div>
-            <div id={"scrollPane"}>
-                <table className={"records"}>
+            <div id={'scrollPane'}>
+                <table className={'records'}>
                     <caption>
                         {`Red: ${matchScore.redScore} White: ${matchScore.whiteScore}`}
                     </caption>
                     <colgroup>
-                        <col id={"numCol"} />
-                        <col id={"pieceCol"} />
-                        <col id={"movesCol"} />
+                        <col id={'numCol'} />
+                        <col id={'pieceCol'} />
+                        <col id={'movesCol'} />
                     </colgroup>
                     <tbody>
-                        {plyStates.map((plyState: PlyStateRecord<T>, index: number) => {
-                            const plyRecord = plyState.plyRecord
-                            const piecemark = (plyRecord.tag === "Commit") ? (
-                                (plyRecord.isRed ? "pieceMark red" : "")
-                                + (!plyRecord.isRed ? "pieceMark white" : "")) : ""
+                        {plyStates.map(
+                            (plyState: PlyStateRecord<T>, index: number) => {
+                                const plyRecord = plyState.plyRecord
+                                const piecemark =
+                                    plyRecord.tag === 'Commit'
+                                        ? (plyRecord.isRed
+                                              ? 'pieceMark red'
+                                              : '') +
+                                          (!plyRecord.isRed
+                                              ? 'pieceMark white'
+                                              : '')
+                                        : ''
 
-
-
-                            return (
-                                <tr className={"record" + ((index === selected) ? " selected" : "")} key={index}
-                                    onClick={() => dispatcher(index, plyState.state)}>
-                                    <td>
-                                        <div {...genRef(index)}>{index + 1}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className={piecemark} />
-                                    </td>
-                                    <td>{formatPlyRecord(plyRecord, direction, true, "Cannot Move")}</td>
-                                </tr>
-                            )
-                        })}
-                        <tr className={"record" + ((selected === plyStates.length) ? " selected" : "")} key={plyStates.length}
-                            onClick={() => dispatcher(plyStates.length)}>
+                                return (
+                                    <tr
+                                        className={
+                                            'record' +
+                                            (index === selected
+                                                ? ' selected'
+                                                : '')
+                                        }
+                                        key={index}
+                                        onClick={() =>
+                                            dispatcher(index, plyState.state)
+                                        }
+                                    >
+                                        <td>
+                                            <div {...genRef(index)}>
+                                                {index + 1}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={piecemark} />
+                                        </td>
+                                        <td>
+                                            {formatPlyRecord(
+                                                plyRecord,
+                                                direction,
+                                                true,
+                                                'Cannot Move'
+                                            )}
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                        )}
+                        <tr
+                            className={
+                                'record' +
+                                (selected === plyStates.length
+                                    ? ' selected'
+                                    : '')
+                            }
+                            key={plyStates.length}
+                            onClick={() => dispatcher(plyStates.length)}
+                        >
                             <td>
-                                <div {...genRef(plyStates.length)}>{plyStates.length + 1}
+                                <div {...genRef(plyStates.length)}>
+                                    {plyStates.length + 1}
                                 </div>
                             </td>
                             <td>
                                 <div />
                             </td>
-                            <td>{eogRecord ? formatPlyRecord(eogRecord, direction, true, "") : ""}</td>
+                            <td>
+                                {eogRecord
+                                    ? formatPlyRecord(
+                                          eogRecord,
+                                          direction,
+                                          true,
+                                          ''
+                                      )
+                                    : ''}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div >
+        </div>
     )
 }

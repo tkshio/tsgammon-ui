@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 export type SelectableState<T> = {
-    index: number | undefined,
+    index: number | undefined
     state: T
 }
 
@@ -11,7 +11,10 @@ export type SelectableStateListeners<T> = {
     onResumeState: (index: number, state: T) => void
 }
 
-export function useSelectableState<T>(curState: T, listeners: SelectableStateListeners<T>): {
+export function useSelectableState<T>(
+    curState: T,
+    listeners: SelectableStateListeners<T>
+): {
     selectedState: SelectableState<T>
     ssListeners: SelectableStateListeners<T>
 } {
@@ -21,20 +24,20 @@ export function useSelectableState<T>(curState: T, listeners: SelectableStateLis
         onSelect: (selectedState: SelectableState<T>) => {
             setSelected(selectedState)
             listeners.onSelect(selectedState)
-        },    
-         onSelectLatest: () => {
+        },
+        onSelectLatest: () => {
             setSelected(undefined)
             listeners.onSelectLatest()
         },
-         onResumeState: (index: number, state: T) => {
+        onResumeState: (index: number, state: T) => {
             setSelected(undefined)
             listeners.onResumeState(index, state)
-        }
+        },
     }
 
-    const state: T = selected ? { ...curState, ...selected.state } : curState;
+    const state: T = selected ? { ...curState, ...selected.state } : curState
     return {
         selectedState: { index: selected?.index, state },
         ssListeners: selectedStateListeners,
-    };
+    }
 }

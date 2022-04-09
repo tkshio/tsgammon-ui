@@ -1,4 +1,3 @@
-
 .cube {
     width: var(--pieceSize);
     height: var(--pieceSize);
@@ -10,7 +9,7 @@
     background-color: var(--cubeColor);
     color: var(--cubeFontColor);
 
-    font-size: calc(var(--pieceSize) * 0.60);
+    font-size: calc(var(--pieceSize) * 0.6);
     text-align: center;
     line-height: var(--pieceSize);
 }

@@ -66,7 +66,8 @@
 }
 
 /* ボードの右手面、左手面 */
-.inner, .outer {
+.inner,
+.outer {
     margin: 0 2px;
 
     /* 縦方向に目一杯広げて table - dice - table と配置 */
@@ -124,19 +125,23 @@
 /* ▼▽▲△の色分け */
 
 .upper.table .column:nth-child(even) .triangle {
-    border-top: calc(var(--pieceSize) * var(--triangle-height)) solid var(--triangleColorEven);
+    border-top: calc(var(--pieceSize) * var(--triangle-height)) solid
+        var(--triangleColorEven);
 }
 
 .upper.table .column:nth-child(odd) .triangle {
-    border-top: calc(var(--pieceSize) * var(--triangle-height)) solid var(--triangleColorOdd);
+    border-top: calc(var(--pieceSize) * var(--triangle-height)) solid
+        var(--triangleColorOdd);
 }
 
 .lower.table .column:nth-child(even) .triangle {
-    border-bottom: calc(var(--pieceSize) * var(--triangle-height)) solid var(--triangleColorEven);
+    border-bottom: calc(var(--pieceSize) * var(--triangle-height)) solid
+        var(--triangleColorEven);
 }
 
 .lower.table .column:nth-child(odd) .triangle {
-    border-bottom: calc(var(--pieceSize) * var(--triangle-height)) solid var(--triangleColorOdd);
+    border-bottom: calc(var(--pieceSize) * var(--triangle-height)) solid
+        var(--triangleColorOdd);
 }
 
 /* 左右、各プレイヤーのダイス */
@@ -181,19 +186,18 @@
 
 .side-bar {
     box-sizing: content-box;
-    width: calc(var(--pieceSize) * 1.0 + 2px);
+    width: calc(var(--pieceSize) * 1 + 2px);
 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
 }
 
 /* goal 駒を上寄せ、下寄せするための指定 */
 
 .goal {
-    width: calc(var(--pieceSize) * 1.0 + 2px);
+    width: calc(var(--pieceSize) * 1 + 2px);
     height: calc(var(--pieceSize) * 0.25 * 17 + 28px);
 }
 
@@ -216,4 +220,3 @@
     justify-content: center;
     align-items: center;
 }
-

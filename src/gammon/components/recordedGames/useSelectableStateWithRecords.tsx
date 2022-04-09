@@ -1,6 +1,6 @@
-import { CheckerPlayState } from "../../dispatchers/CheckerPlayState";
-import { MatchRecorder } from "./useMatchRecorder";
-import { useSelectableState } from "./useSelectableState";
+import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
+import { MatchRecorder } from './useMatchRecorder'
+import { useSelectableState } from './useSelectableState'
 
 export function useSelectableStateWithRecord<T>(
     curState: T,
@@ -18,6 +18,6 @@ export function useSelectableStateWithRecord<T>(
         onResumeState: (index: number, state: T) => {
             matchRecorder.resumeTo(index)
             onResumeState(state)
-        }
+        },
     })
 }

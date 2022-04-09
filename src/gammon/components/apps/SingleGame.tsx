@@ -1,34 +1,38 @@
-import { useState } from 'react';
-import { GameConf, standardConf } from "tsgammon-core/GameConf";
-import { score as initScore, Score } from 'tsgammon-core/Score';
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher';
-import { RollListener } from '../../dispatchers/RollDispatcher';
-import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher';
-import { GameState, toSGState } from '../../dispatchers/utils/GameState';
-import { BoardEventHandlers } from '../boards/Board';
-import { SingleGameBoard, SingleGameBoardProps, SingleGameConfs } from '../SingleGameBoard';
-import { EOGDialog } from '../uiparts/EOGDialog';
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners';
-import { useSingleGameListeners } from '../useSingleGameListeners';
-
-
+import { useState } from 'react'
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { score as initScore, Score } from 'tsgammon-core/Score'
+import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
+import { RollListener } from '../../dispatchers/RollDispatcher'
+import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
+import { GameState, toSGState } from '../../dispatchers/utils/GameState'
+import { BoardEventHandlers } from '../boards/Board'
+import {
+    SingleGameBoard,
+    SingleGameBoardProps,
+    SingleGameConfs,
+} from '../SingleGameBoard'
+import { EOGDialog } from '../uiparts/EOGDialog'
+import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
+import { useSingleGameListeners } from '../useSingleGameListeners'
 
 export type SingleGameProps = {
     gameConf?: GameConf
     sgConfs?: SingleGameConfs
-}
-    & GameState
-    & Partial<
-        SingleGameListeners
-        & RollListener
-        & CheckerPlayListeners
-        & BoardEventHandlers
+} & GameState &
+    Partial<
+        SingleGameListeners &
+            RollListener &
+            CheckerPlayListeners &
+            BoardEventHandlers
     >
 
 export function SingleGame(props: SingleGameProps) {
     const { gameConf = standardConf, sgConfs, ...state } = props
     const initialSGState = toSGState(state)
-    const [sgState, sgListeners, setSGState] = useSingleGameListeners(initialSGState, props)
+    const [sgState, sgListeners, setSGState] = useSingleGameListeners(
+        initialSGState,
+        props
+    )
     const [cpState, cpListeners] = useCheckerPlayListeners()
     const [score, setScore] = useState(initScore())
 
@@ -38,7 +42,7 @@ export function SingleGame(props: SingleGameProps) {
         cpState,
         sgConfs,
         ...sgListeners,
-        ...cpListeners
+        ...cpListeners,
     }
 
     function doReset(scoreAfter: Score) {
@@ -48,18 +52,20 @@ export function SingleGame(props: SingleGameProps) {
     }
 
     return (
-        <div className='boardContainer'>
+        <div className="boardContainer">
             <SingleGameBoard {...sgProps} />
-            {(sgState.tag === "SGEoG") &&
-                <EOGDialog {...{
-                    stake: sgState.stake,
-                    eogStatus: sgState.eogStatus,
-                    score: score.add(sgState.stake),
-                    onClick: () => {
-                        doReset(score.add(sgState.stake))
-                    }
-                }}
-                />}
+            {sgState.tag === 'SGEoG' && (
+                <EOGDialog
+                    {...{
+                        stake: sgState.stake,
+                        eogStatus: sgState.eogStatus,
+                        score: score.add(sgState.stake),
+                        onClick: () => {
+                            doReset(score.add(sgState.stake))
+                        },
+                    }}
+                />
+            )}
         </div>
     )
 }

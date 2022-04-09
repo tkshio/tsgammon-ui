@@ -1,21 +1,30 @@
-import { CubefulGameBoard, CubefulGameBoardProps, CubefulGameConfs } from "../CubefulGameBoard"
-import { BoardEventHandlers } from "../boards/Board"
-import { CheckerPlayListeners } from "../../dispatchers/CheckerPlayDispatcher"
-import { useCheckerPlayListeners } from "../useCheckerPlayListeners"
-import { GameState, toCBState, toSGState } from "../../dispatchers/utils/GameState"
-import { useCubeGameListeners } from "../useCubeGameListeners"
-import { CubeGameListeners } from "../../dispatchers/CubeGameDispatcher"
-import { SingleGameListeners } from "../../dispatchers/SingleGameDispatcher"
-import { useSingleGameListeners } from "../useSingleGameListeners"
+import {
+    CubefulGameBoard,
+    CubefulGameBoardProps,
+    CubefulGameConfs,
+} from '../CubefulGameBoard'
+import { BoardEventHandlers } from '../boards/Board'
+import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
+import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
+import {
+    GameState,
+    toCBState,
+    toSGState,
+} from '../../dispatchers/utils/GameState'
+import { useCubeGameListeners } from '../useCubeGameListeners'
+import { CubeGameListeners } from '../../dispatchers/CubeGameDispatcher'
+import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
+import { useSingleGameListeners } from '../useSingleGameListeners'
 
 export type CubefulGameProps = {
     state?: GameState
     cbConfs?: CubefulGameConfs
-}
-    & Partial<CubeGameListeners
-        & SingleGameListeners
-        & CheckerPlayListeners
-        & BoardEventHandlers>
+} & Partial<
+    CubeGameListeners &
+        SingleGameListeners &
+        CheckerPlayListeners &
+        BoardEventHandlers
+>
 
 export function CubefulGame(props: CubefulGameProps) {
     const { state } = props
@@ -42,4 +51,3 @@ export function CubefulGame(props: CubefulGameProps) {
         </div>
     )
 }
-

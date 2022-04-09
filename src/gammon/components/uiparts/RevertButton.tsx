@@ -1,7 +1,8 @@
-
 import './revertButton.css'
 
-type RevertButtonProps = JSX.IntrinsicElements["div"] & { mode?: "undo" | "redo" }
+type RevertButtonProps = JSX.IntrinsicElements['div'] & {
+    mode?: 'undo' | 'redo'
+}
 
 /**
  * やり直しボタンを描画するコンポーネント
@@ -9,7 +10,5 @@ type RevertButtonProps = JSX.IntrinsicElements["div"] & { mode?: "undo" | "redo"
  * @constructor
  */
 export function RevertButton(prop: RevertButtonProps) {
-    return (
-        <div className={"revertButton"} {...prop} />
-    )
+    return <div className={'revertButton'} {...prop} />
 }

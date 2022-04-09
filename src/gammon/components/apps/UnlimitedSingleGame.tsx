@@ -1,13 +1,14 @@
-import { GameConf, standardConf } from "tsgammon-core/GameConf";
-import { SGState } from "../../dispatchers/SingleGameState";
-import { GameState, toSGState } from "../../dispatchers/utils/GameState";
-import { RecordedSingleGame, RecordedSingleGameProps } from "../recordedGames/RecordedSingleGame";
-import { SingleGameConfs } from "../SingleGameBoard";
-import { useSingleGameListeners } from "../useSingleGameListeners";
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { SGState } from '../../dispatchers/SingleGameState'
+import { GameState, toSGState } from '../../dispatchers/utils/GameState'
+import {
+    RecordedSingleGame,
+    RecordedSingleGameProps,
+} from '../recordedGames/RecordedSingleGame'
+import { SingleGameConfs } from '../SingleGameBoard'
+import { useSingleGameListeners } from '../useSingleGameListeners'
 
-import './main.css';
-
-
+import './main.css'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
@@ -32,7 +33,8 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
     const openingSGState = toSGState({ absPos: gameConf.initialPos })
 
-    const [sgState, listeners, setSGState] = useSingleGameListeners(initialSGState)
+    const [sgState, listeners, setSGState] =
+        useSingleGameListeners(initialSGState)
 
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
@@ -43,12 +45,8 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         },
         onResumeState: (lastState: SGState) => {
             setSGState(lastState)
-        }
+        },
     }
 
-    return (
-        <RecordedSingleGame {...recordedMatchProps} />
-    )
+    return <RecordedSingleGame {...recordedMatchProps} />
 }
-
-

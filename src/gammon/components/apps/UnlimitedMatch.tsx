@@ -1,14 +1,16 @@
-import { GameConf, standardConf } from "tsgammon-core/GameConf";
-import { Score } from 'tsgammon-core/Score';
-import { GameState } from "../../dispatchers/utils/GameState";
-import { CubefulGameConfs } from "../CubefulGameBoard";
-import { BGState, toState } from "../recordedGames/BGState";
-import { RecordedCubefulGame, RecordedCubefulGameProps } from '../recordedGames/RecordedCubefulGame';
-import { useCubeGameListeners } from "../useCubeGameListeners";
-import { useSingleGameListeners } from "../useSingleGameListeners";
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { Score } from 'tsgammon-core/Score'
+import { GameState } from '../../dispatchers/utils/GameState'
+import { CubefulGameConfs } from '../CubefulGameBoard'
+import { BGState, toState } from '../recordedGames/BGState'
+import {
+    RecordedCubefulGame,
+    RecordedCubefulGameProps,
+} from '../recordedGames/RecordedCubefulGame'
+import { useCubeGameListeners } from '../useCubeGameListeners'
+import { useSingleGameListeners } from '../useSingleGameListeners'
 
-import './main.css';
-
+import './main.css'
 
 export type UnlimitedMatchProps = {
     gameConf?: GameConf
@@ -29,12 +31,18 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
     const { gameConf = standardConf, cbConfs = { sgConfs: {} } } = props
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
-    const { cbState: openingCBState, sgState: openingSGState } = toState({ absPos: gameConf.initialPos })
+    const { cbState: openingCBState, sgState: openingSGState } = toState({
+        absPos: gameConf.initialPos,
+    })
 
     // 盤面の指定があれば、そこから開始
-    const { cbState: initialCBState, sgState: initialSGState } = toState(props.board)
-    const [cbState, cbListeners, setCBState] = useCubeGameListeners(initialCBState)
-    const [sgState, sgListeners, setSGState] = useSingleGameListeners(initialSGState)
+    const { cbState: initialCBState, sgState: initialSGState } = toState(
+        props.board
+    )
+    const [cbState, cbListeners, setCBState] =
+        useCubeGameListeners(initialCBState)
+    const [sgState, sgListeners, setSGState] =
+        useSingleGameListeners(initialSGState)
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         bgState: { cbState, sgState },
@@ -48,11 +56,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         onResumeState: (lastState: BGState) => {
             setCBState(lastState.cbState)
             setSGState(lastState.sgState)
-        }
+        },
     }
 
-    return (
-        <RecordedCubefulGame {...recordedMatchProps} />
-    )
+    return <RecordedCubefulGame {...recordedMatchProps} />
 }
-

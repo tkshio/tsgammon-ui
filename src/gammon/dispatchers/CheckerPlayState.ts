@@ -1,9 +1,8 @@
-import { AbsoluteBoardState } from 'tsgammon-core/AbsoluteBoardState';
-import { BoardState } from "tsgammon-core/BoardState";
-import { BoardStateNode } from 'tsgammon-core/BoardStateNode';
-import { Ply } from "tsgammon-core/Ply";
-import { SGInPlay } from "./SingleGameState";
-
+import { AbsoluteBoardState } from 'tsgammon-core/AbsoluteBoardState'
+import { BoardState } from 'tsgammon-core/BoardState'
+import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
+import { Ply } from 'tsgammon-core/Ply'
+import { SGInPlay } from './SingleGameState'
 
 export type CheckerPlayState = {
     isCommitted: false
@@ -17,7 +16,7 @@ export type CheckerPlayState = {
     toAbsBoard: (board: BoardState) => AbsoluteBoardState
     toPly: (board: BoardStateNode) => Ply
     toPos: (n: number) => number
-    revertDicesFlag: boolean,
+    revertDicesFlag: boolean
 }
 
 export type CheckerPlayStateCommitted = {
@@ -26,8 +25,8 @@ export type CheckerPlayStateCommitted = {
 }
 
 export function asCheckerPlayState(sgInPlay: SGInPlay): CheckerPlayState {
-    const { boardStateNode, absBoard, revertTo, toAbsBoard, toPly, toPos
-    } = sgInPlay;
+    const { boardStateNode, absBoard, revertTo, toAbsBoard, toPly, toPos } =
+        sgInPlay
     const curPly = toPly(boardStateNode)
     const isUndoable = curPly.moves.length > 0
     return {
@@ -39,9 +38,11 @@ export function asCheckerPlayState(sgInPlay: SGInPlay): CheckerPlayState {
         boardStateNodeRevertTo: revertTo,
         absBoardRevertTo: toAbsBoard(revertTo.board),
 
-        toAbsBoard, toPly, toPos,
+        toAbsBoard,
+        toPly,
+        toPos,
 
         isUndoable,
         revertDicesFlag: false,
-    };
+    }
 }

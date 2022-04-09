@@ -1,4 +1,3 @@
-
 .revertButton {
     height: var(--pieceSize);
     width: var(--pieceSize);
@@ -10,10 +9,10 @@
 }
 
 .revertButton:after {
-    content: "↺";
+    content: '↺';
     color: white;
 }
 
-.revertButton[mode=redo]:after {
-    color:black;
+.revertButton[mode='redo']:after {
+    color: black;
 }

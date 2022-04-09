@@ -1,18 +1,18 @@
-import { Meta, Story } from "@storybook/react";
-import React from "react";
-import { initAbsoluteBoard } from "tsgammon-core/AbsoluteBoardState";
-import { Board } from "../../gammon/components/boards/Board";
-import { Dialog, DialogProps } from "../../gammon/components/uiparts/Dialog";
+import { Meta, Story } from '@storybook/react'
+import React from 'react'
+import { initAbsoluteBoard } from 'tsgammon-core/AbsoluteBoardState'
+import { Board } from '../../gammon/components/boards/Board'
+import { Dialog, DialogProps } from '../../gammon/components/uiparts/Dialog'
 
 // this export is required.
 export default {
     title: 'Dialog',
     component: Dialog,
-    parameters: {}
-} as Meta;
+    parameters: {},
+} as Meta
 
 const board = {
-    status: "",
+    status: '',
     board: initAbsoluteBoard(),
     whiteDices: { dices: [] },
     redDices: { dices: [] },
@@ -20,10 +20,9 @@ const board = {
     redScore: 0,
 }
 const Template: Story<DialogProps> = (args) => {
-
     return (
         <>
-            <div className={"boardContainer"}>
+            <div className={'boardContainer'}>
                 <Board {...{ ...board }} />
                 <Dialog {...args} />
             </div>
@@ -31,11 +30,11 @@ const Template: Story<DialogProps> = (args) => {
     )
 }
 
-export const dialogWithBoard = Template.bind({});
+export const dialogWithBoard = Template.bind({})
 dialogWithBoard.args = {
-    msgs: ["Dialog message"]
-};
-export const dialogMultipleLines = Template.bind({});
+    msgs: ['Dialog message'],
+}
+export const dialogMultipleLines = Template.bind({})
 dialogMultipleLines.args = {
-    msgs: ["Dialog message", "next line"]
-};
+    msgs: ['Dialog message', 'next line'],
+}

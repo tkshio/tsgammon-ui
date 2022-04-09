@@ -5,7 +5,6 @@
     --whitePieceColor: white;
 }
 
-
 /* 駒はflexの機能で5個ごとに折り返し、marginで少しずつずらしている */
 .column .point {
     /* 5個であふれて折り返しになる高さ */

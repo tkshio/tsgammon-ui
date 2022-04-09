@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
 
-export function useDelayedTrigger(trigger: () => boolean, delayms: number): void {
+export function useDelayedTrigger(
+    trigger: () => boolean,
+    delayms: number
+): void {
     // 初期状態は待機状態
     const [flag, setFlag] = useState<boolean>(false)
     const [isWaiting, setIsWaiting] = useState<boolean>(true)
 
     // setTimeoutのCleanup用の情報を保持する
-    const [cleanup, setCleanup] = useState<any>()
+    const [cleanup, setCleanup] = useState<ReturnType<typeof setTimeout>>()
     useEffect(() => {
         // このuseEffectは普段は何もせず、
         // unmount時にのみクリーンナップを行う

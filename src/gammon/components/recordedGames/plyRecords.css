@@ -20,7 +20,7 @@
 #scrollPane {
     overflow-y: auto;
     height: 75vh;
-    width:350px;
+    width: 350px;
 }
 
 /* 座標表示スタイル切り替えチェックボックス */
@@ -34,7 +34,7 @@
 }
 
 #directionCheckbox:after {
-    content: "Use fixed index";
+    content: 'Use fixed index';
 }
 /* ムーブ履歴の表示 */
 
@@ -56,7 +56,7 @@ col#pieceCol {
 }
 
 col#movesCol {
-    width:80%;
+    width: 80%;
 }
 
 .records thead {
@@ -67,7 +67,7 @@ col#movesCol {
     padding: 5px;
 }
 
-.records td:nth-child(+1) {
+.records td:nth-child(+ 1) {
     text-align: right;
 }
 
@@ -91,8 +91,7 @@ tr.record.selected {
     width: 12px;
 }
 
-
-.record:nth-child(2n+1) {
+.record:nth-child(2n + 1) {
     background-color: #eeeeee;
 }
 
