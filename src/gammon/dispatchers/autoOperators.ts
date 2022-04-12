@@ -1,32 +1,24 @@
+import { BoardState, CubeState } from 'tsgammon-core'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
 import { CBOperator } from '../components/CubefulGameBoard'
 import { SGOperator } from '../components/SingleGameBoard'
-import { CubeGameDispatcher } from './CubeGameDispatcher'
-import { CBAction, CBResponse } from './CubeGameState'
-import { SGToRoll } from './SingleGameState'
 
 const defaultEngine: GammonEngine = simpleNNEngine
-export const doNothingOperator: SGOperator = {
-    operateCheckerPlayRed: () => false,
-    operateCheckerPlayWhite: () => false,
-    operateRollRed: () => false,
-    operateRollWhite: () => false,
-}
 
 const doCheckerPlay =
     (engine: GammonEngine) =>
     (
         doCommitCheckerPlay: (nextNode: BoardStateNode) => void,
-        boardStateNode: BoardStateNode,
+        boardStateNode: BoardStateNode
     ) => {
         doCommitCheckerPlay(engine.checkerPlay(boardStateNode))
         return true
     }
 
 // 単に受け取ったdoRoll関数をそのまま実行する
-const executeDoRoll = (doRoll: () => void) => {
+const doDoRoll = (doRoll: () => void) => {
     doRoll()
     return true
 }
@@ -35,9 +27,10 @@ export function redSGAutoOperator(
     engine: GammonEngine = defaultEngine
 ): SGOperator {
     return {
-        ...doNothingOperator,
         operateCheckerPlayRed: doCheckerPlay(engine),
-        operateRollRed: executeDoRoll,
+        operateRollRed: doDoRoll,
+        operateCheckerPlayWhite: () => false,
+        operateRollWhite: () => false,
     }
 }
 
@@ -45,9 +38,10 @@ export function whiteSGAutoOperator(
     engine: GammonEngine = defaultEngine
 ): SGOperator {
     return {
-        ...doNothingOperator,
+        operateCheckerPlayRed: () => false,
+        operateRollRed: () => false,
         operateCheckerPlayWhite: doCheckerPlay(engine),
-        operateRollWhite: executeDoRoll,
+        operateRollWhite: doDoRoll,
     }
 }
 
@@ -57,63 +51,66 @@ export function bothSGAutoOperator(
     return {
         operateCheckerPlayRed: doCheckerPlay(engine),
         operateCheckerPlayWhite: doCheckerPlay(engine),
-        operateRollRed: executeDoRoll,
-        operateRollWhite: executeDoRoll,
+        operateRollRed: doDoRoll,
+        operateRollWhite: doDoRoll,
+    }
+}
+
+function doCubeAction(engine: GammonEngine | undefined = defaultEngine) {
+    return (
+        cubeState: CubeState,
+        boardState: BoardState,
+        doDouble: () => void,
+        doSkipCubeAction: () => void
+    ) => {
+        if (engine.cubeAction(boardState, cubeState).isDouble) {
+            doDouble()
+        } else {
+            doSkipCubeAction()
+        }
+        return true
+    }
+}
+
+function doCubeResponse(engine: GammonEngine | undefined = defaultEngine) {
+    return (
+        cubeState: CubeState,
+        boardState: BoardState,
+        doTake: () => void,
+        doPass: () => void
+    ): boolean => {
+        if (engine.cubeResponse(boardState, cubeState).isTake) {
+            doTake()
+        } else {
+            doPass()
+        }
+        return true
     }
 }
 
 export function redCBAutoOperator(engine?: GammonEngine): CBOperator {
-    return cbAutoOperator(engine, (state: { isRed: boolean }) => state.isRed)
+    return {
+        operateRedCubeAction: doCubeAction(engine),
+        operateRedCubeResponse: doCubeResponse(engine),
+        operateWhiteCubeAction: () => false,
+        operateWhiteCubeResponse: () => false,
+    }
 }
 
 export function whiteCBAutoOperator(engine?: GammonEngine): CBOperator {
-    return cbAutoOperator(engine, (state: { isRed: boolean }) => !state.isRed)
+    return {
+        operateRedCubeAction: () => false,
+        operateRedCubeResponse: () => false,
+        operateWhiteCubeAction: doCubeAction(engine),
+        operateWhiteCubeResponse: doCubeResponse(engine),
+    }
 }
 
 export function bothCBAutoOperator(engine?: GammonEngine): CBOperator {
-    return cbAutoOperator(engine, () => true)
-}
-
-function cbAutoOperator(
-    engine: GammonEngine | undefined = defaultEngine,
-    isInPlay: (state: { isRed: boolean }) => boolean
-): CBOperator {
     return {
-        operateCubeAction: (
-            cbDispatcher: CubeGameDispatcher,
-            cbState: CBAction,
-            sgState: SGToRoll
-        ) => {
-            if (isInPlay(cbState)) {
-                if (
-                    engine.cubeAction(sgState.boardState, cbState.cubeState)
-                        .isDouble
-                ) {
-                    cbDispatcher.doDouble(cbState)
-                } else {
-                    cbDispatcher.doSkipCubeAction(cbState)
-                }
-                return true
-            }
-            return false
-        },
-        operateCubeResponse: (
-            cbDispatcher: CubeGameDispatcher,
-            cbState: CBResponse,
-            sgState: SGToRoll
-        ): boolean => {
-            if (isInPlay(cbState)) {
-                if (
-                    engine.cubeResponse(sgState.boardState, cbState.cubeState)
-                        .isTake
-                ) {
-                    cbDispatcher.doTake(cbState)
-                } else {
-                    cbDispatcher.doPass(cbState)
-                }
-                return true
-            }
-            return false
-        },
+        operateRedCubeAction: doCubeAction(engine),
+        operateRedCubeResponse: doCubeResponse(engine),
+        operateWhiteCubeAction: doCubeAction(engine),
+        operateWhiteCubeResponse: doCubeResponse(engine),
     }
 }

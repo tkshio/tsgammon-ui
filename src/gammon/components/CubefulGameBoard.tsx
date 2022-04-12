@@ -1,18 +1,17 @@
 import { Fragment, useCallback } from 'react'
+import { BoardState, CubeState } from 'tsgammon-core'
 import { score as initScore, Score } from 'tsgammon-core/Score'
-import { doNothingOperator } from '../dispatchers/autoOperators'
 import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
 import { cubefulSGListener } from '../dispatchers/cubefulSGListener'
 import {
-    CubeGameDispatcher,
     cubeGameDispatcher,
     CubeGameListeners,
 } from '../dispatchers/CubeGameDispatcher'
-import { CBAction, CBResponse, CBState } from '../dispatchers/CubeGameState'
+import { CBState } from '../dispatchers/CubeGameState'
 import { RollListener } from '../dispatchers/RollDispatcher'
 import { SingleGameListeners } from '../dispatchers/SingleGameDispatcher'
-import { SGState, SGToRoll } from '../dispatchers/SingleGameState'
+import { SGState } from '../dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
 import {
     SGOperator,
@@ -30,15 +29,29 @@ export type CubefulGameConfs = {
 }
 
 export type CBOperator = {
-    operateCubeAction: (
-        dispatcher: CubeGameDispatcher,
-        cbState: CBAction,
-        sgState: SGToRoll
+    operateRedCubeAction: (
+        cubeState: CubeState,
+        node: BoardState,
+        doDouble: () => void,
+        doSkipCubeAction: () => void
     ) => boolean
-    operateCubeResponse: (
-        dispatcher: CubeGameDispatcher,
-        cbState: CBResponse,
-        sgState: SGToRoll
+    operateRedCubeResponse: (
+        cubeState: CubeState,
+        node: BoardState,
+        doTake: () => void,
+        doPass: () => void
+    ) => boolean
+    operateWhiteCubeAction: (
+        cubeState: CubeState,
+        node: BoardState,
+        doDouble: () => void,
+        doSkipCubeAction: () => void
+    ) => boolean
+    operateWhiteCubeResponse: (
+        cubeState: CubeState,
+        node: BoardState,
+        doTake: () => void,
+        doPass: () => void
     ) => boolean
 }
 
@@ -79,19 +92,41 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const doCubeActions = useCallback(() => {
         if (autoOperator) {
             if (cbState.tag === 'CBAction' && sgState.tag === 'SGToRoll') {
-                return autoOperator.operateCubeAction(
-                    dispatcher,
-                    cbState,
-                    sgState
+                const cubeAction =
+                    autoOperator[
+                        cbState.isRed
+                            ? 'operateRedCubeAction'
+                            : 'operateWhiteCubeAction'
+                    ]
+                return cubeAction(
+                    cbState.cubeState,
+                    sgState.boardState,
+                    () => {
+                        dispatcher.doDouble(cbState)
+                    },
+                    () => {
+                        dispatcher.doSkipCubeAction(cbState)
+                    }
                 )
             } else if (
                 cbState.tag === 'CBResponse' &&
                 sgState.tag === 'SGToRoll'
             ) {
-                return autoOperator.operateCubeResponse(
-                    dispatcher,
-                    cbState,
-                    sgState
+                const cubeResponse =
+                    autoOperator[
+                        cbState.isRed
+                            ? 'operateRedCubeResponse'
+                            : 'operateWhiteCubeResponse'
+                    ]
+                return cubeResponse(
+                    cbState.cubeState,
+                    sgState.boardState,
+                    () => {
+                        dispatcher.doTake(cbState)
+                    },
+                    () => {
+                        dispatcher.doPass(cbState)
+                    }
                 )
             }
         }
@@ -114,7 +149,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cbState.tag === 'CBAction' ||
         cbState.tag === 'CBResponse' ||
         cbState.tag === 'CBEoG'
-            ? doNothingOperator
+            ? undefined
             : cbConfs.sgConfs.autoOperator
 
     const sgConfs: SingleGameConfs = {
