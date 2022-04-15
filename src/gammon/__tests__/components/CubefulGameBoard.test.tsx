@@ -1,37 +1,40 @@
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ComponentProps } from 'react'
-import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
+import { act } from 'react-dom/test-utils'
+import { BoardStateNode } from 'tsgammon-core'
+import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
+import { collectNodes } from 'tsgammon-core/utils/collectNodes'
+import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     CBOperator,
     CubefulGameBoard,
     CubefulGameConfs,
 } from '../../components/CubefulGameBoard'
-import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import {
-    CubeGameListeners,
-    setStateListener as setCBStateListener,
-} from '../../dispatchers/CubeGameDispatcher'
-import {
-    SingleGameListeners,
-    setStateListener as setSGStateListener,
-} from '../../dispatchers/SingleGameDispatcher'
-import { SGState } from '../../dispatchers/SingleGameState'
-import { CBState } from '../../dispatchers/CubeGameState'
-import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import {
-    CheckerPlayListeners,
-    setStateListener as setCPStateListener,
-} from '../../dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
+import { SGOperator } from '../../components/SingleGameBoard'
 import {
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
     whiteSGAutoOperator,
 } from '../../dispatchers/autoOperators'
-import { act } from 'react-dom/test-utils'
-import { SGOperator } from '../../components/SingleGameBoard'
+import {
+    CheckerPlayListeners,
+    setStateListener as setCPStateListener,
+} from '../../dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
+import {
+    CubeGameListeners,
+    setStateListener as setCBStateListener,
+} from '../../dispatchers/CubeGameDispatcher'
+import { CBState } from '../../dispatchers/CubeGameState'
+import {
+    setStateListener as setSGStateListener,
+    SingleGameListeners,
+} from '../../dispatchers/SingleGameDispatcher'
+import { SGState } from '../../dispatchers/SingleGameState'
+import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
 
 let container: HTMLElement | null = null
 
@@ -42,6 +45,7 @@ beforeEach(() => {
     jest.useFakeTimers()
 })
 
+const engine: GammonEngine = noDoubleEngine()
 const state = {
     cpState: undefined,
     sgState: toSGState(),
@@ -58,7 +62,7 @@ describe('CubeGameBoard', () => {
         const dices = screen.getAllByTestId(/^dice/)
         expect(dices.length).toBe(2)
         dices.forEach((dice) => expect(dice).toBeInTheDocument())
-        await userEvent.click(dices[0])
+        userEvent.click(dices[0])
         expect(state.sgState.tag).toEqual('SGInPlay')
         expect(isWhite(state.sgState)).toBeTruthy()
     })
@@ -96,7 +100,7 @@ describe('CubeGameBoard', () => {
 
     test("lets redAutoPlayer do red's cubeAction", async () => {
         const onSkipCubeAction = jest.fn(props.onSkipCubeAction)
-        const cbConfs = setRedAutoOp(props)
+        const cbConfs = setRedAutoOp(props, engine)
         const next = {
             ...props,
             ...state,
@@ -126,7 +130,11 @@ describe('CubeGameBoard', () => {
     })
 
     test("lets redAutoPlayer do red's checkerPlay", async () => {
-        const next = { ...props, ...state, cbConfs: setRedAutoOp(props) }
+        const next = {
+            ...props,
+            ...state,
+            cbConfs: setRedAutoOp(props, engine),
+        }
         render(<CubefulGameBoard {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
@@ -137,7 +145,11 @@ describe('CubeGameBoard', () => {
     })
 
     test("lets redAutoPlayer do red's commit", async () => {
-        const next = { ...props, ...state, cbConfs: setRedAutoOp(props) }
+        const next = {
+            ...props,
+            ...state,
+            cbConfs: setRedAutoOp(props, engine),
+        }
         render(<CubefulGameBoard {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
@@ -149,7 +161,7 @@ describe('CubeGameBoard', () => {
 
     test("lets whiteAutoPlayer do white's cubeAction", async () => {
         const onSkipCubeAction = jest.fn(props.onSkipCubeAction)
-        const cbConfs = setWhiteAutoOp(props)
+        const cbConfs = setWhiteAutoOp(props, engine)
         const next = {
             ...props,
             ...state,
@@ -228,14 +240,24 @@ function setupListeners(state: {
 }
 
 function setRedAutoOp(
-    props: ComponentProps<typeof CubefulGameBoard>
+    props: ComponentProps<typeof CubefulGameBoard>,
+    engine: GammonEngine
 ): CubefulGameConfs {
-    return setAutoOp(props, redSGAutoOperator(), redCBAutoOperator())
+    return setAutoOp(
+        props,
+        redSGAutoOperator(engine),
+        redCBAutoOperator(engine)
+    )
 }
 function setWhiteAutoOp(
-    props: ComponentProps<typeof CubefulGameBoard>
+    props: ComponentProps<typeof CubefulGameBoard>,
+    engine: GammonEngine
 ): CubefulGameConfs {
-    return setAutoOp(props, whiteSGAutoOperator(), whiteCBAutoOperator())
+    return setAutoOp(
+        props,
+        whiteSGAutoOperator(engine),
+        whiteCBAutoOperator(engine)
+    )
 }
 
 function setAutoOp(
@@ -264,4 +286,23 @@ function isWhite(sgState: SGState): boolean {
         return false
     }
     return !sgState.isRed
+}
+
+function noDoubleEngine(): GammonEngine {
+    return {
+        initialized: () => {
+            //
+        },
+        cubeAction: () => ({
+            isDouble: false,
+        }),
+        cubeResponse: () => ({ isTake: false }),
+        checkerPlay: (boardStateNode: BoardStateNode) => {
+            const nodes = collectNodes(boardStateNode)
+            return nodes[0]
+        },
+        endOfGame: () => {
+            //
+        },
+    }
 }
