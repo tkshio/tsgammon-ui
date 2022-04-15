@@ -3,7 +3,7 @@ import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
 import {
     CheckerPlayListeners,
     decorate,
-    setStateListener,
+    setCPStateListener,
 } from '../dispatchers/CheckerPlayDispatcher'
 
 export function useCheckerPlayListeners(
@@ -16,7 +16,7 @@ export function useCheckerPlayListeners(
 ] {
     const [state, setState] = useState(initialState)
     const _listeners: CheckerPlayListeners = decorate(
-        setStateListener(setState),
+        setCPStateListener(setState),
         listeners
     )
     return [state, _listeners, setState]

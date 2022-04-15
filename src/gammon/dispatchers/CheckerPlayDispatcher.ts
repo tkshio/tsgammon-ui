@@ -173,7 +173,7 @@ export function decorate(
     )
 }
 
-export function setStateListener(
+export function setCPStateListener(
     setState: (state: CheckerPlayState | undefined) => void
 ): CheckerPlayListeners {
     return {

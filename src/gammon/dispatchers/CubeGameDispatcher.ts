@@ -121,7 +121,7 @@ export function decorate(
     )
 }
 
-export function setStateListener(
+export function setCBStateListener(
     setCBState: (cbState: CBState) => void
 ): CubeGameListeners {
     return {

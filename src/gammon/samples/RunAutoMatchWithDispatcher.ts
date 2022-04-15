@@ -3,7 +3,7 @@ import { score } from 'tsgammon-core/Score'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
 import {
-    setStateListener,
+    setSGStateListener,
     singleGameDispatcher,
 } from '../dispatchers/SingleGameDispatcher'
 import { SGState } from '../dispatchers/SingleGameState'
@@ -18,7 +18,7 @@ function run() {
         gState.sg = state
     }
 
-    const sgDispatcher = singleGameDispatcher(setStateListener(setSGState))
+    const sgDispatcher = singleGameDispatcher(setSGStateListener(setSGState))
 
     let sgState = gState.sg
 

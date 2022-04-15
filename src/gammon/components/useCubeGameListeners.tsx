@@ -3,7 +3,7 @@ import { CBState } from '../dispatchers/CubeGameState'
 import {
     CubeGameListeners,
     decorate,
-    setStateListener,
+    setCBStateListener,
 } from '../dispatchers/CubeGameDispatcher'
 
 export function useCubeGameListeners(
@@ -12,7 +12,7 @@ export function useCubeGameListeners(
 ): [CBState, CubeGameListeners, Dispatch<SetStateAction<CBState>>] {
     const [state, setState] = useState(initialState)
     const _listeners: CubeGameListeners = decorate(
-        setStateListener(setState),
+        setCBStateListener(setState),
         listeners
     )
     return [state, _listeners, setState]

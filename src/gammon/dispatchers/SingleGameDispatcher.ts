@@ -144,7 +144,7 @@ export function decorate(
     )
 }
 
-export function setStateListener(
+export function setSGStateListener(
     setState: (state: SGState) => void
 ): SingleGameListeners {
     return {

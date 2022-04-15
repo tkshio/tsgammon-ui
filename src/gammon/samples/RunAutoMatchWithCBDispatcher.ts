@@ -5,11 +5,11 @@ import { cubefulSGListener } from '../dispatchers/cubefulSGListener'
 import {
     cubeGameDispatcher,
     CubeGameDispatcher,
-    setStateListener as setCBStateListener,
+    setCBStateListener ,
 } from '../dispatchers/CubeGameDispatcher'
 import { CBState } from '../dispatchers/CubeGameState'
 import {
-    setStateListener,
+    setSGStateListener,
     singleGameDispatcher,
     SingleGameListeners,
 } from '../dispatchers/SingleGameDispatcher'
@@ -87,7 +87,7 @@ function run() {
     }
 
     const cbDispatcher = cubeGameDispatcher(setCBStateListener(setCBState))
-    const sgListener = setStateListener(setSGState)
+    const sgListener = setSGStateListener(setSGState)
 
     let cbState = gState.cb
     let sgState = gState.sg
