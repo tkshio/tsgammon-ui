@@ -1,4 +1,4 @@
-import { boardState, eog } from 'tsgammon-core/BoardState'
+import { boardState as _boardState, eog } from 'tsgammon-core/BoardState'
 import { nodeWithEmptyDice } from 'tsgammon-core/BoardStateNode'
 import { cube, CubeState } from 'tsgammon-core/CubeState'
 import { DicePip } from 'tsgammon-core/Dices'
@@ -176,4 +176,18 @@ export function toSGState(gameState: GameState = {}): SGState {
             )
         }
     }
+}
+
+function boardState(pos: number[]) {
+    const pieces = pos.reduce(
+        (prev: { me: number; opp: number }, cur: number) => {
+            return cur > 0
+                ? { me: prev.me + cur, opp: prev.opp }
+                : cur < 0
+                ? { me: prev.me, opp: prev.opp + cur }
+                : prev
+        },
+        { me: 0, opp: 0 }
+    )
+    return _boardState(pos,[15 - pieces.me, 15 - pieces.opp])
 }
