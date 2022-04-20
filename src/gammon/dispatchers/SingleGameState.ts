@@ -2,19 +2,23 @@ import {
     AbsoluteBoardState,
     redViewAbsoluteBoard,
     whiteViewAbsoluteBoard,
-} from 'tsgammon-core/AbsoluteBoardState'
-import {
     AbsoluteMove,
     makeMoveAbsoluteAsRed,
     makeMoveAbsoluteAsWhite,
-} from 'tsgammon-core/AbsoluteMove'
-import { BoardState, EOGStatus } from 'tsgammon-core/BoardState'
-import { BoardStateNode, boardStateNode } from 'tsgammon-core/BoardStateNode'
-import { Dice, DicePip, DiceRoll } from 'tsgammon-core/Dices'
-import { Move } from 'tsgammon-core/Move'
-import { Ply } from 'tsgammon-core/Ply'
+    BoardState,
+    BoardStateNode,
+    boardStateNode,
+    Dice,
+    DicePip,
+    DiceRoll,
+    EOGStatus,
+    Move,
+    Ply,
+    Score,
+    scoreAsRed,
+    scoreAsWhite,
+} from 'tsgammon-core'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { Score, scoreAsRed, scoreAsWhite } from 'tsgammon-core/Score'
 
 export type SGState = SGOpening | SGInPlay | SGToRoll | SGEoG
 export type SGInPlay = SGInPlayRed | SGInPlayWhite
@@ -304,7 +308,7 @@ export function eogStateRed(
 ): SGEoGRedWon {
     const board = committed.board
     const eogStatus = board.eogStatus()
-    const stake = scoreAsRed(eogStatus.calcStake(stakeValue, false))
+    const stake = scoreAsRed(eogStatus.calcStake(stakeValue))
 
     return {
         ...eogState(board.eogStatus(), stake, redViewAbsoluteBoard(board)),
@@ -322,7 +326,7 @@ export function eogStateWhite(
 ): SGEoGWhiteWon {
     const board = committed.board
     const eogStatus = board.eogStatus()
-    const stake = scoreAsWhite(eogStatus.calcStake(stakeValue, false))
+    const stake = scoreAsWhite(eogStatus.calcStake(stakeValue))
 
     return {
         ...eogState(eogStatus, stake, whiteViewAbsoluteBoard(board)),

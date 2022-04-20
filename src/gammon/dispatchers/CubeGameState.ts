@@ -1,5 +1,4 @@
-import { Score, scoreAsRed, scoreAsWhite } from 'tsgammon-core'
-import { eog, EOGStatus } from 'tsgammon-core/BoardState'
+import {eog, EOGStatus ,Score, scoreAsRed, scoreAsWhite } from 'tsgammon-core'
 import { CubeOwner, CubeState } from 'tsgammon-core/CubeState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { applyStakeConf, StakeConf } from './StakeConf'

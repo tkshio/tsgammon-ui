@@ -1,5 +1,4 @@
-import { EOGStatus } from 'tsgammon-core/BoardState'
-import { Score } from 'tsgammon-core/Score'
+import { EOGStatus, Score } from 'tsgammon-core'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
 import { Dialog } from './Dialog'

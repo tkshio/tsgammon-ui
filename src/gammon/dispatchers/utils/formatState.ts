@@ -1,4 +1,5 @@
 import { Ply } from 'tsgammon-core'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { MoveFormatDirection } from 'tsgammon-core/utils/formatAbsMove'
 import { formatPly, formatPlyAbbr } from 'tsgammon-core/utils/formatPly'
 import { CheckerPlayState } from '../CheckerPlayState'
@@ -34,7 +35,13 @@ export function formatState(
                     : formatToRoll(cbState.isRed, lastPly, moveFormatDirection)
             }
             case 'CBEoG': {
-                return `${cbState.isRed ? 'Red' : 'White'} win.`
+                return `${
+                    cbState.result === SGResult.REDWON
+                        ? 'Red win.'
+                        : cbState.result === SGResult.WHITEWON
+                        ? 'White win.'
+                        : ''
+                }`
             }
         }
     }

@@ -1,4 +1,4 @@
-import { EOGStatus } from 'tsgammon-core/BoardState'
+import { EOGStatus } from 'tsgammon-core'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import {
     CBAction,

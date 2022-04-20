@@ -1,4 +1,5 @@
-import { CubeState, EOGStatus } from 'tsgammon-core'
+import { CubeState } from 'tsgammon-core'
+import { EOGStatus } from 'tsgammon-core/EOGStatus';
 
 export type StakeConf = {
     jacobyRule: boolean
@@ -17,7 +18,7 @@ export function applyStakeConf(
 
     return {
         eogStatus: eog,
-        stake: eog.calcStake(cubeState.value, false),
+        stake: eog.calcStake(cubeState.value),
         jacobyApplied,
     }
 }

@@ -1,11 +1,15 @@
-import { boardState as _boardState, eog } from 'tsgammon-core/BoardState'
-import { nodeWithEmptyDice } from 'tsgammon-core/BoardStateNode'
-import { cube, CubeState } from 'tsgammon-core/CubeState'
-import { DicePip } from 'tsgammon-core/Dices'
-import { standardConf } from 'tsgammon-core/GameConf'
-import { Ply } from 'tsgammon-core/Ply'
+import {
+    boardState as _boardState,
+    eog,
+    nodeWithEmptyDice,
+    cube,
+    CubeState,
+    DicePip,
+    standardConf,
+    Ply,
+    Score,
+} from 'tsgammon-core'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { Score } from 'tsgammon-core/Score'
 import {
     cbActionRed,
     cbActionWhite,
@@ -84,7 +88,6 @@ export type GameState =
 
 export function toCBState(
     gameState: GameState = {},
-    scoreConf: { jacobyRule: boolean } = { jacobyRule: false }
 ): CBState {
     const { gameStatus, cubeState = cube(1) } = gameState
     if (gameStatus === undefined) {
