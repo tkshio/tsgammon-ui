@@ -9,7 +9,7 @@ import {
     toCBState,
     toSGState,
 } from '../../dispatchers/utils/GameState'
-import { isWhite, setupListeners } from './CubefulGameBoard_utils'
+import { isWhite, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 

@@ -1,3 +1,4 @@
+import { eog, score, standardConf } from 'tsgammon-core'
 import {
     plyRecordForCheckerPlay,
     plyRecordForDouble,
@@ -17,6 +18,7 @@ import {
     SingleGameListeners,
 } from '../../dispatchers/SingleGameDispatcher'
 import { SGEoG, SGToRoll } from '../../dispatchers/SingleGameState'
+import { StakeConf } from '../../dispatchers/StakeConf'
 import {
     CubefulGameBoard,
     CubefulGameBoardProps,
@@ -54,7 +56,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         },
         ...listeners
     } = props
-
+    const { stakeConf = standardConf } = cbConfs
     const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(
         undefined,
         listeners
@@ -73,19 +75,27 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const isLatest = index === undefined
 
     const cbListeners: CubeGameListeners = decorateCB(
-        asCBListeners(matchRecorder, bgState),
+        asCBListeners(matchRecorder, stakeConf, bgState),
         listeners
     )
     const sgListeners: SingleGameListeners = decorateSG(
         asSGListeners(matchRecorder, bgState),
         listeners
     )
+    const cur = matchRecord.curGameRecord
+    const { eogStatus, stake } = cur.isEoG
+        ? {
+              eogStatus: cur.eogRecord.eogStatus,
+              stake: cur.eogRecord.stake,
+          }
+        : { eogStatus: eog(), stake: score() }
 
     const eogDialog =
         bgState.cbState.tag === 'CBEoG' ? (
             <EOGDialog
                 {...{
-                    ...bgState.cbState,
+                    eogStatus,
+                    stake,
                     score: matchRecord.score,
                     onClick: () => {
                         matchRecorder.resetCurGame()
@@ -138,6 +148,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
 function asCBListeners(
     matchRecorder: MatchRecorder<BGState>,
+    stakeConf: StakeConf,
     state: BGState
 ): Partial<CubeGameListeners> {
     return { onDouble, onTake, onEndOfCubeGame }
@@ -160,7 +171,12 @@ function asCBListeners(
             const plyRecord = plyRecordForPass(nextState.result)
             matchRecorder.recordPly(plyRecord, state)
         }
-        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result)
+        const stake = nextState.calcStake(stakeConf).stake
+        const plyRecordEoG = plyRecordForEoG(
+            stake,
+            nextState.result,
+            nextState.eogStatus
+        )
         matchRecorder.recordEoG(plyRecordEoG)
     }
 }

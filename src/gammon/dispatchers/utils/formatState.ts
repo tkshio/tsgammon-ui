@@ -33,10 +33,9 @@ export function formatState(
                     ? `${cbState.isRed ? 'White' : 'Red'} accepts the cube.`
                     : formatToRoll(cbState.isRed, lastPly, moveFormatDirection)
             }
-            case 'CBEoG':
-                return `${cbState.isRed ? 'Red' : 'White'} wins ${
-                    cbState.stake.value
-                }pt.`
+            case 'CBEoG': {
+                return `${cbState.isRed ? 'Red' : 'White'} win.`
+            }
         }
     }
 

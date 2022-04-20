@@ -1,7 +1,8 @@
+import { Score, scoreAsRed, scoreAsWhite } from 'tsgammon-core'
 import { eog, EOGStatus } from 'tsgammon-core/BoardState'
 import { CubeOwner, CubeState } from 'tsgammon-core/CubeState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { Score, scoreAsRed, scoreAsWhite } from 'tsgammon-core/Score'
+import { applyStakeConf, StakeConf } from './StakeConf'
 
 export type CBState =
     | CBOpening
@@ -22,7 +23,6 @@ export type CBResponse = CBResponseRed | CBResponseWhite
 export type CBToRoll = CBToRollRed | CBToRollWhite
 export type CBInPlay = CBInPlayRed | CBInPlayWhite
 export type CBEoG = CBEoGRedWon | CBEoGWhiteWon
-
 export type CBGameState = {
     cubeState: CubeState
 }
@@ -93,10 +93,13 @@ export type CBInPlayWhite = _CBInPlay & {
 type _CBEoG = CBGameState & {
     tag: 'CBEoG'
 
-    stake: Score
     eogStatus: EOGStatus
-    isRed: boolean
     isWonByPass: boolean
+    calcStake: (conf?: StakeConf) => {
+        stake: Score
+        eogStatus: EOGStatus
+        jacobyApplied: boolean
+    }
 }
 
 export type CBEoGRedWon = _CBEoG & {
@@ -194,7 +197,7 @@ export function cbResponseRed(cubeState: CubeState): CBResponseRed {
             return doAccept(CubeOwner.RED, cbToRollWhite, cubeState)
         },
         doPass: () => {
-            return cbEoGWhite(cubeState, eog(), true)
+            return eogForPass(cbEoGWhite, cubeState)
         },
     }
 }
@@ -208,10 +211,18 @@ export function cbResponseWhite(cubeState: CubeState): CBResponseWhite {
             return doAccept(CubeOwner.WHITE, cbToRollRed, cubeState)
         },
         doPass: () => {
-            return cbEoGRed(cubeState, eog(), true)
+            return eogForPass(cbEoGRed, cubeState)
         },
     }
 }
+
+function eogForPass<T extends CBEoG>(
+    cbEoG: (cubeState: CubeState, eog: EOGStatus, isWonByPass: boolean) => T,
+    cubeState: CubeState
+): T {
+    return cbEoG(cubeState, eog(), true)
+}
+
 function doAccept<T extends CBToRoll>(
     side: CubeOwner,
     cbToRoll: (cubeState: CubeState, cubeAction: LastCubeAction) => T,
@@ -252,47 +263,54 @@ export function cbToRollWhite(
 export function resultToCBEoG(
     cubeState: CubeState,
     sgResult: SGResult.WHITEWON | SGResult.REDWON,
-    eogStatus: EOGStatus,
-    isWonByPass: boolean
+    eogStatus: EOGStatus
 ): CBEoG {
     switch (sgResult) {
         case SGResult.WHITEWON:
-            return cbEoGWhite(cubeState, eogStatus, isWonByPass)
+            return cbEoGWhite(cubeState, eogStatus, false)
         case SGResult.REDWON:
-            return cbEoGRed(cubeState, eogStatus, isWonByPass)
+            return cbEoGRed(cubeState, eogStatus, false)
     }
 }
 
-export function cbEoGRed(
+function cbEoGRed(
     cubeState: CubeState,
     eogStatus: EOGStatus,
     isWonByPass: boolean
 ): CBEoGRedWon {
-    const stake = scoreAsRed(eogStatus.calcStake(cubeState.value, false))
     return {
         tag: 'CBEoG',
         cubeState,
-        stake,
-        eogStatus,
         result: SGResult.REDWON,
-        isRed: true,
+        eogStatus,
         isWonByPass,
+        calcStake: (stakeConf?: StakeConf) => {
+            const applied = applyStakeConf(cubeState, eogStatus, stakeConf)
+            return {
+                ...applied,
+                stake: scoreAsRed(applied.stake),
+            }
+        },
     }
 }
 
-export function cbEoGWhite(
+function cbEoGWhite(
     cubeState: CubeState,
     eogStatus: EOGStatus,
     isWonByPass: boolean
 ): CBEoGWhiteWon {
-    const stake = scoreAsWhite(eogStatus.calcStake(cubeState.value, false))
     return {
         tag: 'CBEoG',
         cubeState,
-        stake,
-        eogStatus,
         result: SGResult.WHITEWON,
-        isRed: false,
+        eogStatus,
         isWonByPass,
+        calcStake: (stakeConf?: StakeConf) => {
+            const applied = applyStakeConf(cubeState, eogStatus, stakeConf)
+            return {
+                ...applied,
+                stake: scoreAsWhite(applied.stake),
+            }
+        },
     }
 }

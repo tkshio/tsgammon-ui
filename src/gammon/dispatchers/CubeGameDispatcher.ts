@@ -26,7 +26,6 @@ export type CubeGameDispatcher = {
         state: CBState,
         result: SGResult.REDWON | SGResult.WHITEWON,
         eogStatus: EOGStatus,
-        isWonByPass: boolean
     ) => void
 }
 
@@ -135,8 +134,7 @@ export function setCBStateListener(
 }
 
 export function cubeGameDispatcher(
-    listeners: Partial<CubeGameListeners>
-): CubeGameDispatcher {
+    listeners: Partial<CubeGameListeners>): CubeGameDispatcher {
     return {
         doDouble,
         doSkipCubeAction,
@@ -209,14 +207,12 @@ export function cubeGameDispatcher(
         state: CBState,
         sgResult: SGResult.REDWON | SGResult.WHITEWON,
         eogStatus: EOGStatus,
-        isWonByPass: boolean
     ) {
         if (listeners.onEndOfCubeGame) {
             const nextState: CBEoG = resultToCBEoG(
                 state.cubeState,
                 sgResult,
-                eogStatus,
-                isWonByPass
+                eogStatus
             )
             listeners.onEndOfCubeGame(nextState)
         }

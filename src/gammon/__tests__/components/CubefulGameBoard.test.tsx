@@ -4,7 +4,7 @@ import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import { isRed, isWhite, setupListeners } from './CubefulGameBoard_utils'
+import { isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 

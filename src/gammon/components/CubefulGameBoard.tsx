@@ -1,5 +1,5 @@
 import { Fragment, useCallback } from 'react'
-import { BoardState, CubeState } from 'tsgammon-core'
+import { BoardState, CubeState, standardConf } from 'tsgammon-core'
 import { score as initScore, Score } from 'tsgammon-core/Score'
 import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
@@ -12,6 +12,7 @@ import { CBState } from '../dispatchers/CubeGameState'
 import { RollListener } from '../dispatchers/RollDispatcher'
 import { SingleGameListeners } from '../dispatchers/SingleGameDispatcher'
 import { SGState } from '../dispatchers/SingleGameState'
+import { StakeConf } from '../dispatchers/StakeConf'
 import { BoardEventHandlers } from './boards/Board'
 import {
     SGOperator,
@@ -26,6 +27,7 @@ import { useDelayedTrigger } from './utils/useDelayedTrigger'
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
     autoOperator?: CBOperator
+    stakeConf?: StakeConf
 }
 
 export type CBOperator = {
@@ -87,7 +89,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         ...listeners
     } = props
     const { autoRoll = false } = cbConfs.sgConfs
-    const { autoOperator } = cbConfs
+    const { autoOperator, stakeConf = standardConf } = cbConfs
     const dispatcher = cubeGameDispatcher(listeners)
     const doCubeActions = useCallback(() => {
         if (autoOperator) {
@@ -184,7 +186,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
             {!eogDialog && cbState && cbState.tag === 'CBEoG' && (
                 <EOGDialog
                     {...{
-                        ...cbState,
+                        ...cbState.calcStake(stakeConf),
                         score: score,
                         onClick: () => {
                             if (onCloseEOGDialog) {

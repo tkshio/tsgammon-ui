@@ -4,12 +4,11 @@ import { cube, CubeState } from 'tsgammon-core/CubeState'
 import { DicePip } from 'tsgammon-core/Dices'
 import { standardConf } from 'tsgammon-core/GameConf'
 import { Ply } from 'tsgammon-core/Ply'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { Score } from 'tsgammon-core/Score'
 import {
     cbActionRed,
     cbActionWhite,
-    cbEoGRed,
-    cbEoGWhite,
     cbInPlayRed,
     cbInPlayWhite,
     cbOpening,
@@ -18,6 +17,7 @@ import {
     CBState,
     cbToRollRed,
     cbToRollWhite,
+    resultToCBEoG,
 } from '../CubeGameState'
 import {
     eogStateRed,
@@ -82,7 +82,10 @@ export type GameState =
           lastPly?: Ply
       }
 
-export function toCBState(gameState: GameState = {}): CBState {
+export function toCBState(
+    gameState: GameState = {},
+    scoreConf: { jacobyRule: boolean } = { jacobyRule: false }
+): CBState {
     const { gameStatus, cubeState = cube(1) } = gameState
     if (gameStatus === undefined) {
         return cbOpening(cubeState)
@@ -107,9 +110,9 @@ export function toCBState(gameState: GameState = {}): CBState {
         case GameStatus.TOROLL_WHITE:
             return cbToRollWhite(cubeState, 'Skip')
         case GameStatus.EOG_REDWON:
-            return cbEoGRed(cubeState, eog(), false)
+            return resultToCBEoG(cubeState, SGResult.REDWON, eog())
         case GameStatus.EOG_WHITEWON:
-            return cbEoGWhite(cubeState, eog(), false)
+            return resultToCBEoG(cubeState, SGResult.WHITEWON, eog())
     }
 }
 
@@ -189,5 +192,5 @@ function boardState(pos: number[]) {
         },
         { me: 0, opp: 0 }
     )
-    return _boardState(pos,[15 - pieces.me, 15 - pieces.opp])
+    return _boardState(pos, [15 - pieces.me, 15 - pieces.opp])
 }

@@ -133,7 +133,7 @@ function asListeners(
         const lastState = nextState.lastState()
         const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
         matchRecorder.recordPly(plyRecord, lastState)
-        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result)
+        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result, nextState.eogStatus)
         matchRecorder.recordEoG(plyRecordEoG)
     }
 }

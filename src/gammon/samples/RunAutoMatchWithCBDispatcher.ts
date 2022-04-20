@@ -5,7 +5,7 @@ import { cubefulSGListener } from '../dispatchers/cubefulSGListener'
 import {
     cubeGameDispatcher,
     CubeGameDispatcher,
-    setCBStateListener ,
+    setCBStateListener,
 } from '../dispatchers/CubeGameDispatcher'
 import { CBState } from '../dispatchers/CubeGameState'
 import {
@@ -14,6 +14,7 @@ import {
     SingleGameListeners,
 } from '../dispatchers/SingleGameDispatcher'
 import { SGState } from '../dispatchers/SingleGameState'
+import { StakeConf } from '../dispatchers/StakeConf'
 import { toCBState, toSGState } from '../dispatchers/utils/GameState'
 import { doPlay as doCheckerPlay } from './doPlay'
 
@@ -22,6 +23,7 @@ const engine = simpleNNEngine
 function doPlay(
     cbState: CBState,
     cbDispatcher: CubeGameDispatcher,
+    stakeConf: StakeConf,
     sgState: SGState,
     sgListeners: SingleGameListeners
 ) {
@@ -76,6 +78,7 @@ function doPlay(
     }
 }
 function run() {
+    const stakeConf = { jacobyRule: false }
     let gameScore = score()
     const gState = { cb: toCBState(), sg: toSGState() }
 
@@ -93,14 +96,15 @@ function run() {
     let sgState = gState.sg
 
     while (cbState.tag !== 'CBEoG') {
-        doPlay(cbState, cbDispatcher, sgState, sgListener)
+        doPlay(cbState, cbDispatcher, stakeConf, sgState, sgListener)
 
         cbState = gState.cb
         sgState = gState.sg
     }
-    // console.log(formatPly(sgState.lastState().curPly))
-    gameScore = gameScore.add(cbState.stake)
-    console.log(formatStake(cbState.stake, cbState.eogStatus))
+
+    const stake = cbState.calcStake(stakeConf).stake
+    gameScore = gameScore.add(stake)
+    console.log(formatStake(stake, cbState.eogStatus))
 
     console.log(
         `Result: red ${gameScore.redScore} - white ${gameScore.whiteScore}`

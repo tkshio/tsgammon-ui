@@ -8,8 +8,8 @@ import {
     CubefulGameBoard,
 } from '../../components/CubefulGameBoard'
 import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import { isRed, isWhite, setupListeners } from './CubefulGameBoard_utils'
-import { noDoubleEngine, setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_utils_autoOp'
+import { isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
+import { noDoubleEngine, setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
 
 let container: HTMLElement | null = null
 

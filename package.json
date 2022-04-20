@@ -32,6 +32,11 @@
         "precommit": "run-s lint-staged test",
         "prepush": "npm run test"
     },
+    "jest": {
+        "testMatch": [
+            "<rootDir>/src/**/__tests__/**/*.test.{js,jsx,ts,tsx}"
+        ]
+    },
     "simple-git-hooks": {
         "pre-commit": "npm run precommit",
         "pre-push": "npm run prepush"
