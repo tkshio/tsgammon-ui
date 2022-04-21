@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
@@ -7,9 +6,9 @@ import {
     GameState,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from '../../dispatchers/utils/GameState'
-import { setupListeners } from './CubefulGameBoard.common'
+import { BoardOp, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 
@@ -47,8 +46,7 @@ describe('stakeConf configures jacoby rule(on):', () => {
 
     test('do last move', () => {
         render(<CubefulGameBoard {...props} />)
-        const dice = screen.getByTestId(/^dice-left/)
-        userEvent.click(dice)
+        BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {
@@ -80,8 +78,7 @@ describe('stakeConf configures jacoby rule off', () => {
 
     test('do last move', () => {
         render(<CubefulGameBoard {...props} />)
-        const dice = screen.getByTestId(/^dice-left/)
-        userEvent.click(dice)
+        BoardOp.clickLeftDice()
         expect(state.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {

@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import { isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
+import { BoardOp, isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 
@@ -20,7 +19,7 @@ const state = {
 }
 
 const props = setupListeners(state, presetDiceSource(1, 3))
-
+ 
 describe('CubeGameBoard', () => {
     test('does opening roll when dice gets clicked', async () => {
         render(<CubefulGameBoard {...props} />)
@@ -28,8 +27,7 @@ describe('CubeGameBoard', () => {
         // 初期画面とオープニングロール
         const dices = screen.getAllByTestId(/^dice/)
         expect(dices.length).toBe(2)
-        dices.forEach((dice) => expect(dice).toBeInTheDocument())
-        userEvent.click(dices[0])
+        BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGInPlay')
         expect(isWhite(state.sgState)).toBeTruthy()
     })
@@ -38,9 +36,7 @@ describe('CubeGameBoard', () => {
         const onCheckerPlay = jest.fn(props.onCheckerPlay)
         const next = { ...props, ...state, onCheckerPlay }
         render(<CubefulGameBoard {...next} />)
-
-        const point = screen.getByTestId(/^point-19/)
-        userEvent.click(point)
+        BoardOp.clickPoint(19)
         expect(onCheckerPlay).toBeCalled()
     })
 
@@ -49,8 +45,7 @@ describe('CubeGameBoard', () => {
         const next = { ...props, ...state, onCheckerPlay }
         render(<CubefulGameBoard {...next} />)
 
-        const point = screen.getByTestId(/^point-17/)
-        userEvent.click(point)
+        BoardOp.clickPoint(17)
         expect(onCheckerPlay).toBeCalled()
     })
 
@@ -58,8 +53,7 @@ describe('CubeGameBoard', () => {
         const next = { ...props, ...state }
         render(<CubefulGameBoard {...next} />)
 
-        const whiteDice = screen.getByTestId(/^dice-right/)
-        userEvent.click(whiteDice)
+        BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGToRoll')
         expect(state.cbState.tag).toEqual('CBAction')
         expect(isRed(state.sgState)).toBeTruthy()

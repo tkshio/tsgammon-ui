@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
@@ -7,9 +6,9 @@ import {
     GameState,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from '../../dispatchers/utils/GameState'
-import { isWhite, setupListeners } from './CubefulGameBoard.common'
+import { BoardOp, isWhite, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 
@@ -42,8 +41,7 @@ describe('CubeGameBoard(eog)', () => {
     test('plays last move', async () => {
         render(<CubefulGameBoard {...props} />)
 
-        const point = screen.getByTestId(/^point-23/)
-        userEvent.click(point)
+        BoardOp.clickPoint(23)
         expect(state.sgState.tag).toEqual('SGInPlay')
     })
 
@@ -51,7 +49,7 @@ describe('CubeGameBoard(eog)', () => {
         const next = { ...props, ...state }
         render(<CubefulGameBoard {...next} />)
 
-        userEvent.click(screen.getAllByTestId(/^dice/)[0])
+        BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGEoG')
         expect(isWhite(state.sgState)).toBeTruthy()
         const expectedEoG = {

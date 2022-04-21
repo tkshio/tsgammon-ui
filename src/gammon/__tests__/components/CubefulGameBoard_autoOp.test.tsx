@@ -1,14 +1,13 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
-    CubefulGameBoard,
+    CubefulGameBoard
 } from '../../components/CubefulGameBoard'
 import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import { isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
+import { BoardOp, isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
 import { noDoubleEngine, setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
 
 let container: HTMLElement | null = null
@@ -34,8 +33,7 @@ describe('CubeGameBoard(with autoOp)', () => {
         render(<CubefulGameBoard {...props} />)
 
         // 初期画面とオープニングロール
-        const dices = screen.getAllByTestId(/^dice/)
-        userEvent.click(dices[0])
+        BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGInPlay')
         expect(isRed(state.sgState)).toBeTruthy()
     })

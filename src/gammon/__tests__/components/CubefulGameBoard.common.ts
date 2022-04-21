@@ -1,13 +1,29 @@
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ComponentProps } from "react"
 import { DiceSource } from "tsgammon-core/utils/DiceSource"
 import { CubefulGameBoard } from "../../components/CubefulGameBoard"
-import { CheckerPlayListeners, setCPStateListener  } from "../../dispatchers/CheckerPlayDispatcher"
+import { CheckerPlayListeners, setCPStateListener } from "../../dispatchers/CheckerPlayDispatcher"
 import { CheckerPlayState } from "../../dispatchers/CheckerPlayState"
-import { CubeGameListeners, setCBStateListener  } from "../../dispatchers/CubeGameDispatcher"
+import { CubeGameListeners, setCBStateListener } from "../../dispatchers/CubeGameDispatcher"
 import { CBState } from "../../dispatchers/CubeGameState"
-import { SingleGameListeners, setSGStateListener  } from "../../dispatchers/SingleGameDispatcher"
+import { setSGStateListener, SingleGameListeners } from "../../dispatchers/SingleGameDispatcher"
 import { SGState } from "../../dispatchers/SingleGameState"
 
+export const BoardOp = {
+    clickPoint: (pos: number) => {
+        const point = screen.getByTestId(new RegExp(`^point-${pos}`))
+        userEvent.click(point)
+    },
+    clickRightDice: () => {
+        const rightDice = screen.getByTestId(/^dice-right/)
+        userEvent.click(rightDice)
+    },
+    clickLeftDice: () => {
+        const rightDice = screen.getByTestId(/^dice-left/)
+        userEvent.click(rightDice)
+    },
+}
 
 export function isRed(sgState: SGState): boolean {
     if (sgState.tag === 'SGOpening') {
@@ -15,6 +31,7 @@ export function isRed(sgState: SGState): boolean {
     }
     return sgState.isRed
 }
+
 export function isWhite(sgState: SGState): boolean {
     if (sgState.tag === 'SGOpening') {
         return false
