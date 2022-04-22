@@ -122,7 +122,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
                     ]
                 return cubeResponse(
                     cbState.cubeState,
-                    sgState.boardState,
+                    sgState.boardState.revert(),
                     () => {
                         dispatcher.doTake(cbState)
                     },
