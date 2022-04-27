@@ -1,7 +1,7 @@
-import { Dice } from 'tsgammon-core'
+import { Dice, wrap } from 'tsgammon-core'
 import { findMove } from 'tsgammon-core/utils/findMove'
+import { makePoint } from 'tsgammon-core/utils/makePoint'
 import { CheckerPlayState, CheckerPlayStateCommitted } from './CheckerPlayState'
-
 export type CheckerPlayDispatcher = {
     doCheckerPlay: (
         state: CheckerPlayState,
@@ -49,7 +49,9 @@ export function checkerPlayDispatcher(
             !dices[0].used &&
             !dices[1].used
 
-        const node = findMove(state.curBoardState, pos, useMinorFirst)
+        const node = wrap(state.curBoardState)
+            .apply((node) => findMove(node, pos, useMinorFirst))
+            .or((node) => makePoint(node, pos)).unwrap
         if (node.hasValue) {
             const stateAfterMove: CheckerPlayState = {
                 ...state,
