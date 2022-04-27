@@ -77,7 +77,11 @@ export function Board(props: BoardProps) {
         ).dices.filter((d: BlankDice | Dice): d is Dice => d.pip !== 0)
 
         return (
-            <div className="column" onClick={() => onClickPoint(pos, dices)} data-testid={`point-${pos}`}>
+            <div
+                className="column"
+                onClick={() => onClickPoint(pos, dices)}
+                data-testid={`point-${pos}`}
+            >
                 <Point count={num} />
                 <div className={'triangle'} />
             </div>
@@ -86,7 +90,11 @@ export function Board(props: BoardProps) {
 
     function renderDices(dice: DiceProps, label: string) {
         return (
-            <div className={'dice-space ' + label} onClick={onClickDice} data-testid={`dice-${label}`}>
+            <div
+                className={'dice-space ' + label}
+                onClick={onClickDice}
+                data-testid={`dice-${label}`}
+            >
                 <DiceComponent {...dice} />
             </div>
         )
