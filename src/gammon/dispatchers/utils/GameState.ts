@@ -190,7 +190,7 @@ function boardState(pos: number[]) {
             return cur > 0
                 ? { me: prev.me + cur, opp: prev.opp }
                 : cur < 0
-                ? { me: prev.me, opp: prev.opp + cur }
+                ? { me: prev.me, opp: prev.opp - cur }
                 : prev
         },
         { me: 0, opp: 0 }
