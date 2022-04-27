@@ -3,6 +3,7 @@ import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { toPositionID } from 'tsgammon-core/utils/toPositionID'
 import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import {
     asCheckerPlayState,
@@ -126,6 +127,8 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
 
     useDelayedTrigger(doRoll, 10)
 
+    const positionID = toPositionID(sgState.boardState)
+
     if (sgState.tag !== 'SGInPlay') {
         const { onClickDice } = decorate(props, {
             onClickDice() {
@@ -143,7 +146,12 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             ...layoutCube(cube),
             onClickDice,
         }
-        return <Board {...boardProps} />
+        return (
+            <>
+                <div>PositionID: {positionID}</div>
+                <Board {...boardProps} />
+            </>
+        )
     } else {
         // チェッカープレイ中の操作は専用のコンポーネントに任せる
         const dispatcher = singleGameDispatcher(props)
@@ -162,7 +170,12 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             },
         }
 
-        return <CheckerPlayBoard {...cpProps} />
+        return (
+            <>
+                <div>PositionID: {positionID}</div>
+                <CheckerPlayBoard {...cpProps} />
+            </>
+        )
     }
 }
 
