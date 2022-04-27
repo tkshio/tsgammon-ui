@@ -27,6 +27,7 @@ export type SGEoG = SGEoGRedWon | SGEoGWhiteWon
 
 export type SGGameState = {
     absBoard: AbsoluteBoardState
+    boardState:BoardState
 }
 
 export type SGOpening = Omit<SGGameState, 'lastPly'> & {
@@ -64,7 +65,6 @@ export type SGInPlayWhite = _SGInPlay & {
 
 type _SGToRoll = SGGameState & {
     tag: 'SGToRoll'
-    boardState: BoardState
     lastPly: Ply
 }
 
@@ -108,6 +108,7 @@ export function openingState(
         tag: 'SGOpening',
         dicePip,
         absBoard,
+        boardState,
         doOpening: (openingRoll: DiceRoll) => {
             if (openingRoll.dice1 === openingRoll.dice2) {
                 return openingState(boardState, openingRoll.dice1)
@@ -163,6 +164,7 @@ export function inPlayStateRedFromNode(
         curPly,
         tag: 'SGInPlay',
         boardStateNode,
+        boardState:boardStateNode.board,
         dices,
         absBoard,
         revertTo,
@@ -214,6 +216,7 @@ function inPlayStateWhiteFromNode(
         curPly,
         tag: 'SGInPlay',
         boardStateNode,
+        boardState:boardStateNode.board,
         dices,
         absBoard,
         revertTo,
@@ -311,7 +314,7 @@ export function eogStateRed(
     const stake = scoreAsRed(eogStatus.calcStake(stakeValue))
 
     return {
-        ...eogState(board.eogStatus(), stake, redViewAbsoluteBoard(board)),
+        ...eogState(board.eogStatus(), stake, redViewAbsoluteBoard(board), board),
         result: SGResult.REDWON,
         isRed: true,
         lastState: () => inPlayStateRedFromNode(committed, lastPly, revertTo),
@@ -329,7 +332,7 @@ export function eogStateWhite(
     const stake = scoreAsWhite(eogStatus.calcStake(stakeValue))
 
     return {
-        ...eogState(eogStatus, stake, whiteViewAbsoluteBoard(board)),
+        ...eogState(eogStatus, stake, whiteViewAbsoluteBoard(board), board),
         result: SGResult.WHITEWON,
         isRed: false,
         lastState: () => inPlayStateWhiteFromNode(committed, lastPly, revertTo),
@@ -339,11 +342,13 @@ export function eogStateWhite(
 function eogState(
     eogStatus: EOGStatus,
     stake: Score,
-    absBoard: AbsoluteBoardState
+    absBoard: AbsoluteBoardState,
+    boardState:BoardState
 ): _SGEoG {
     return {
         tag: 'SGEoG',
         absBoard,
+        boardState,
         dices: [],
         stake,
         eogStatus,
