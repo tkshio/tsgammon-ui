@@ -172,17 +172,8 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cbState,
         dispatcher
     )
-    const sgProps: SingleGameBoardProps = {
-        ...props,
-        ...sgListeners,
-        cube: cbState.cubeState,
-        onClickCube,
-        sgConfs,
-    }
-
-    return (
+    const dialog = (
         <Fragment>
-            <SingleGameBoard {...sgProps} />
             {!eogDialog && cbState && cbState.tag === 'CBEoG' && (
                 <EOGDialog
                     {...{
@@ -212,4 +203,14 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
             {cubeDialog}
         </Fragment>
     )
+    const sgProps: SingleGameBoardProps = {
+        ...props,
+        ...sgListeners,
+        cube: cbState.cubeState,
+        onClickCube,
+        sgConfs,
+        dialog,
+    }
+
+    return <SingleGameBoard {...sgProps} />
 }

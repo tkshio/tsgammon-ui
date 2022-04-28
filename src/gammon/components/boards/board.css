@@ -9,6 +9,13 @@
     --whitePieceColor: var(--whiteSideColor);
 }
 
+.boardContainer {
+    width: fit-content;
+    position: relative;
+    display:flex;
+    align-items: center;
+}
+
 .board {
     width: fit-content;
 

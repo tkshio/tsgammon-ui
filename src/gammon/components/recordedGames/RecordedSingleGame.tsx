@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import {
     plyRecordForCheckerPlay,
     plyRecordForEoG,
@@ -82,6 +83,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const minimalProps: SingleGameBoardProps = {
         sgState,
         cpState,
+        dialog:eogDialog,
         ...cpListeners,
     }
 
@@ -109,11 +111,10 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
 
     return (
         <RecordedGame {...recordedGameProps}>
-            <div className="boardContainer">
+            <Fragment>
                 <SingleGameBoard {...singleGameProps} key={key} />
-                {eogDialog}
                 <PlyInfo {...plyInfoProps} />
-            </div>
+            </Fragment>
         </RecordedGame>
     )
 }

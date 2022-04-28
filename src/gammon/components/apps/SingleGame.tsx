@@ -36,11 +36,25 @@ export function SingleGame(props: SingleGameProps) {
     const [cpState, cpListeners] = useCheckerPlayListeners()
     const [score, setScore] = useState(initScore())
 
+    const dialog =
+        sgState.tag === 'SGEoG' ? (
+            <EOGDialog
+                {...{
+                    stake: sgState.stake,
+                    eogStatus: sgState.eogStatus,
+                    score: score.add(sgState.stake),
+                    onClick: () => {
+                        doReset(score.add(sgState.stake))
+                    },
+                }}
+            />
+        ) : undefined
     const sgProps: SingleGameBoardProps = {
         ...props,
         sgState,
         cpState,
         sgConfs,
+        dialog,
         ...sgListeners,
         ...cpListeners,
     }
@@ -51,21 +65,5 @@ export function SingleGame(props: SingleGameProps) {
         setScore(scoreAfter)
     }
 
-    return (
-        <div className="boardContainer">
-            <SingleGameBoard {...sgProps} />
-            {sgState.tag === 'SGEoG' && (
-                <EOGDialog
-                    {...{
-                        stake: sgState.stake,
-                        eogStatus: sgState.eogStatus,
-                        score: score.add(sgState.stake),
-                        onClick: () => {
-                            doReset(score.add(sgState.stake))
-                        },
-                    }}
-                />
-            )}
-        </div>
-    )
+    return <SingleGameBoard {...sgProps} />
 }

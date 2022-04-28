@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { Fragment, useCallback } from 'react'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
@@ -65,6 +65,7 @@ export type SingleGameBoardProps = {
     cpState?: CheckerPlayState
     cube?: CubeState
     sgConfs?: SingleGameConfs
+    dialog?:JSX.Element
 } & Partial<
     SingleGameListeners &
         CheckerPlayListeners &
@@ -174,10 +175,10 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
     }
 
     return (
-        <>
+        <Fragment>
             {positionID}
             {board}
-        </>
+        </Fragment>
     )
 }
 

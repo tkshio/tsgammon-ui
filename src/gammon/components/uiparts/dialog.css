@@ -1,14 +1,7 @@
-.boardContainer {
-    width: fit-content;
-    position: relative;
-}
-
 .dialogContainer {
     width: 100%;
-    height: calc(var(--boardHeight) + var(--pieceSize));
 
     position: absolute;
-    top: 0;
     display: flex;
 
     justify-content: center;

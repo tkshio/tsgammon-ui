@@ -31,6 +31,7 @@ export type BoardProps = {
     redCube?: CubeProps
     whiteCube?: CubeProps
     cubeSpace?: JSX.Element | null
+    dialog?: JSX.Element
 } & Partial<BoardEventHandlers>
 
 /**
@@ -68,6 +69,7 @@ export function Board(props: BoardProps) {
         onClickPoint = () => {
             //
         },
+        dialog
     } = { ...props }
 
     function renderColumn(pos: number) {
@@ -111,7 +113,8 @@ export function Board(props: BoardProps) {
     }
 
     return (
-        <div data-testid={'tid_gammonboard'}>
+        <div className="boardContainer" data-testid={'tid_gammonboard'}>
+            {dialog}
             <div className="board">
                 <div className={'innerBox'}>
                     <div className={'side-bar'}>

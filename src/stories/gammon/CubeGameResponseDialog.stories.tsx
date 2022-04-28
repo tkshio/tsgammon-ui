@@ -18,21 +18,21 @@ const board = {
     whiteDices: { dices: [] },
     whiteScore: 0,
     redScore: 0,
+    dialog: (
+        <CubeResponseDialog
+            onTake={() => {
+                //
+            }}
+            onPass={() => {
+                //
+            }}
+        />
+    ),
 }
 
 const Template: Story<BoardProps> = () => (
     <>
-        <div className={'boardContainer'}>
-            <Board {...board} />
-            <CubeResponseDialog
-                onTake={() => {
-                    //
-                }}
-                onPass={() => {
-                    //
-                }}
-            />
-        </div>
+        <Board {...board} />
     </>
 )
 export const dialogWithBoard = Template.bind({})

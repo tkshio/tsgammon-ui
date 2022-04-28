@@ -20,12 +20,10 @@ const board = {
     redScore: 0,
 }
 const Template: Story<DialogProps> = (args) => {
+    const dialog = <Dialog {...args} />
     return (
         <>
-            <div className={'boardContainer'}>
-                <Board {...{ ...board }} />
-                <Dialog {...args} />
-            </div>
+            <Board {...{ ...board, dialog }} />
         </>
     )
 }

@@ -45,9 +45,5 @@ export function CubefulGame(props: CubefulGameProps) {
         ...cpListeners,
     }
 
-    return (
-        <div className="boardContainer">
-            <CubefulGameBoard {...cbProps} />
-        </div>
-    )
+    return <CubefulGameBoard {...cbProps} />
 }

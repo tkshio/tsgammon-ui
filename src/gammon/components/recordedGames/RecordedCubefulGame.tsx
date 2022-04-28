@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { eog, score, standardConf } from 'tsgammon-core'
 import {
     plyRecordForCheckerPlay,
@@ -138,10 +139,10 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
     return (
         <RecordedGame {...recordedGameProps}>
-            <div className="boardContainer">
+            <Fragment>
                 <CubefulGameBoard {...cubeGameProps} key={key} />
                 <PlyInfo {...plyInfoProps} />
-            </div>
+            </Fragment>
         </RecordedGame>
     )
 }
