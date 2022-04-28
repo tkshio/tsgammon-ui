@@ -3,38 +3,38 @@ import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { toPositionID } from 'tsgammon-core/utils/toPositionID'
 import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import {
     asCheckerPlayState,
     CheckerPlayState,
-    CheckerPlayStateCommitted,
+    CheckerPlayStateCommitted
 } from '../dispatchers/CheckerPlayState'
 import {
     RollListener,
     rollListeners,
-    singleGameDispatcherWithRD,
+    singleGameDispatcherWithRD
 } from '../dispatchers/RollDispatcher'
 import {
     singleGameDispatcher,
-    SingleGameListeners,
+    SingleGameListeners
 } from '../dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
-    SGToRoll,
+    SGToRoll
 } from '../dispatchers/SingleGameState'
 import {
     Board,
     BoardEventHandlers,
     decorate,
     DiceLayout,
-    layoutCube,
+    layoutCube
 } from './boards/Board'
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
+import { PositionID } from './uiparts/PositionID'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
 export type SingleGameConfs = {
@@ -42,6 +42,7 @@ export type SingleGameConfs = {
     diceSource?: DiceSource
     isRollHandlerEnabled?: boolean
     autoOperator?: SGOperator
+    showPositionID?: boolean
 }
 
 export type SGOperator = {
@@ -88,6 +89,7 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
         diceSource = randomDiceSource,
         isRollHandlerEnabled = false,
         autoOperator,
+        showPositionID = true,
     } = sgConfs
 
     const rollHandler = rollListeners({
@@ -127,8 +129,11 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
 
     useDelayedTrigger(doRoll, 10)
 
-    const positionID = toPositionID(sgState.boardState)
+    const positionID = showPositionID && (
+        <PositionID points={sgState.boardState.points} />
+    )
 
+    let board:JSX.Element
     if (sgState.tag !== 'SGInPlay') {
         const { onClickDice } = decorate(props, {
             onClickDice() {
@@ -146,12 +151,7 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             ...layoutCube(cube),
             onClickDice,
         }
-        return (
-            <>
-                <div>PositionID: {positionID}</div>
-                <Board {...boardProps} />
-            </>
-        )
+        board = <Board {...boardProps} />
     } else {
         // チェッカープレイ中の操作は専用のコンポーネントに任せる
         const dispatcher = singleGameDispatcher(props)
@@ -170,13 +170,15 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             },
         }
 
-        return (
-            <>
-                <div>PositionID: {positionID}</div>
-                <CheckerPlayBoard {...cpProps} />
-            </>
-        )
+        board = <CheckerPlayBoard {...cpProps} />
     }
+
+    return (
+        <>
+            {positionID}
+            {board}
+        </>
+    )
 }
 
 // InPlay時以外は、SGStateから直接表示するダイスのレイアウトも内容も決まる
