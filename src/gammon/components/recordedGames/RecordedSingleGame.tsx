@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { GameConf, standardConf } from 'tsgammon-core'
 import {
     plyRecordForCheckerPlay,
     plyRecordForEoG,
@@ -23,6 +24,7 @@ import { MatchRecorder, useMatchRecorder } from './useMatchRecorder'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedSingleGameProps = {
+    gameConf:GameConf
     sgState: SGState
     sgConfs: SingleGameConfs
     onStartNextGame: () => void
@@ -32,6 +34,7 @@ export type RecordedSingleGameProps = {
 
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
+        gameConf = standardConf,
         sgState: curSGState,
         sgConfs = {},
         onResumeState = () => {
@@ -47,7 +50,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         undefined,
         listeners
     )
-    const [matchRecord, matchRecorder] = useMatchRecorder<SGState>()
+    const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
     const {
         selectedState: { index, state: sgState },
         ssListeners,

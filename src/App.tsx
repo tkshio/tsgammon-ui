@@ -1,5 +1,5 @@
 import React from 'react'
-import { UnlimitedMatch } from './gammon/components/apps/UnlimitedMatch'
+import { PointMatch } from './gammon/components/apps/PointMatch'
 import {
     redCBAutoOperator,
     redSGAutoOperator,
@@ -16,7 +16,7 @@ function App() {
     }
     return (
         <div className="App">
-            <UnlimitedMatch {...args} />
+            <PointMatch {...args} />
         </div>
     )
 }

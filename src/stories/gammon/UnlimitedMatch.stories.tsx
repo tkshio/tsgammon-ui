@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
-import { UnlimitedMatch } from '../../gammon/components/apps/UnlimitedMatch'
+import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -14,12 +14,12 @@ import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 
 export default {
     title: 'UnlimitedMatch',
-    component: UnlimitedMatch,
+    component: PointMatch,
     parameters: {},
 } as Meta
 
-const Template: Story<ComponentProps<typeof UnlimitedMatch>> = (args) => (
-    <UnlimitedMatch {...args} />
+const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
+    <PointMatch {...args} />
 )
 
 export const cpuPlaysRed = Template.bind({})

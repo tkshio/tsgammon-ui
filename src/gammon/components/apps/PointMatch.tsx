@@ -1,5 +1,4 @@
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { Score } from 'tsgammon-core/Score'
 import { GameState } from '../../dispatchers/utils/GameState'
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import { BGState, toState } from '../recordedGames/BGState'
@@ -9,13 +8,12 @@ import {
 } from '../recordedGames/RecordedCubefulGame'
 import { useCubeGameListeners } from '../useCubeGameListeners'
 import { useSingleGameListeners } from '../useSingleGameListeners'
-
 import './main.css'
 
-export type UnlimitedMatchProps = {
+export type PointMatchProps = {
     gameConf?: GameConf
+    matchLength?: number
     board?: GameState
-    initialScore?: Score
     cbConfs?: CubefulGameConfs
 }
 
@@ -27,8 +25,12 @@ export type UnlimitedMatchProps = {
  * @param props.initialScore スコアの初期値
  * @constructor
  */
-export function UnlimitedMatch(props: UnlimitedMatchProps) {
-    const { gameConf = standardConf, cbConfs = { sgConfs: {} } } = props
+export function PointMatch(props: PointMatchProps) {
+    const {
+        gameConf = standardConf,
+        cbConfs = { sgConfs: {} },
+        matchLength = 0,
+    } = props
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
     const { cbState: openingCBState, sgState: openingSGState } = toState({
@@ -45,6 +47,8 @@ export function UnlimitedMatch(props: UnlimitedMatchProps) {
         useSingleGameListeners(initialSGState)
 
     const recordedMatchProps: RecordedCubefulGameProps = {
+        gameConf,
+        matchLength,
         bgState: { cbState, sgState },
         cbConfs,
         ...cbListeners,

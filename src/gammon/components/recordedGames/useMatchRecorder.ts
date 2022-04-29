@@ -1,18 +1,17 @@
 import { Dispatch, SetStateAction, useState } from 'react'
-import { standardConf } from 'tsgammon-core/GameConf'
+import { GameConf } from 'tsgammon-core/GameConf'
 import {
     GameRecordInPlay,
-    initGameRecord,
 } from 'tsgammon-core/records/GameRecord'
 import {
     addPlyRecord,
     MatchRecord,
+    matchRecord as initMatchRecord,
     recordFinishedGame,
     setEoGRecord,
     trimPlyRecords,
 } from 'tsgammon-core/records/MatchRecord'
 import { PlyRecordEoG, PlyRecordInPlay } from 'tsgammon-core/records/PlyRecord'
-import { score } from 'tsgammon-core/Score'
 
 export type MatchRecorder<T> = {
     recordPly: (plyRecord: PlyRecordInPlay, lastState: T) => void
@@ -26,21 +25,19 @@ export type MatchRecorder<T> = {
  *
  * 対局状態の変化、指し手の追加によってゲームの進行と同時に記録も更新される。
  */
-export function useMatchRecorder<T>(records?: {
-    matchRecord?: MatchRecord<T>
-    curGameRecord?: GameRecordInPlay<T>
-}): [
+export function useMatchRecorder<T>(
+    conf:GameConf,
+    matchLength?:number,
+    records?: {
+        matchRecord?: MatchRecord<T>
+        curGameRecord?: GameRecordInPlay<T>
+    }
+): [
     MatchRecord<T>,
     MatchRecorder<T>,
     Dispatch<SetStateAction<MatchRecord<T>>>
 ] {
-    const initialMatchRecord: MatchRecord<T> = records?.matchRecord ?? {
-        conf: standardConf,
-        gameRecords: [],
-        score: score(),
-        matchLength: 0,
-        curGameRecord: initGameRecord(score()),
-    }
+    const initialMatchRecord: MatchRecord<T> = records?.matchRecord ?? initMatchRecord(matchLength,conf)
     const [matchRecord, setMatchRecord] =
         useState<MatchRecord<T>>(initialMatchRecord)
 

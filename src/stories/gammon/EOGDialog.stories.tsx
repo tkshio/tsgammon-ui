@@ -29,7 +29,7 @@ pointMatch.args = {
     stake:scoreAsRed(1),
     eogStatus:eog(),
     score:score(),
-    matchPoint:7,
+    matchLength:7,
     isCrawfordNext:false
 }
 export const crawford = Template.bind({})
@@ -37,7 +37,7 @@ crawford.args = {
     stake:scoreAsRed(1),
     eogStatus:eog(),
     score:score(),
-    matchPoint:7,
+    matchLength:7,
     isCrawfordNext:true
 }
 

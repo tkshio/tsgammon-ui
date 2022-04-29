@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { eog, score, standardConf } from 'tsgammon-core'
+import { eog, GameConf, score, standardConf } from 'tsgammon-core'
 import {
     plyRecordForCheckerPlay,
     plyRecordForDouble,
@@ -34,10 +34,11 @@ import { MatchRecorder, useMatchRecorder } from './useMatchRecorder'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedCubefulGameProps = {
+    gameConf:GameConf
     bgState: BGState
-
     onStartNextGame: () => void
     onResumeState: (state: BGState) => void
+    matchLength: number
     cbConfs: CubefulGameConfs
 } & CubeGameListeners &
     SingleGameListeners &
@@ -45,7 +46,9 @@ export type RecordedCubefulGameProps = {
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
+        gameConf = standardConf,
         bgState: curBGState,
+        matchLength,
         cbConfs = {
             sgConfs: {},
         },
@@ -57,12 +60,13 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         },
         ...listeners
     } = props
-    const { stakeConf = standardConf } = cbConfs
+
+    const { stakeConf = gameConf } = cbConfs
     const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(
         undefined,
         listeners
     )
-    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>()
+    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(gameConf, matchLength)
     const {
         selectedState: { index, state: bgState },
         ssListeners,
@@ -98,6 +102,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
                     eogStatus,
                     stake,
                     score: matchRecord.score,
+                    matchLength:matchRecord.matchLength,
+                    isCrawfordNext: (cur.isEoG && cur.isCrawfordNext),
                     onClick: () => {
                         matchRecorder.resetCurGame()
                         onStartNextGame()
