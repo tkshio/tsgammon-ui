@@ -48,6 +48,6 @@ endOfMatch.args = {
     score:score(),
     matchLength:7,
     isCrawfordNext:true, // should be ignored
-    isEOM:true
+    isEoM:true
 }
 

@@ -1,30 +1,38 @@
 import { Fragment } from 'react'
-import { eog, GameConf, Score, score, standardConf } from 'tsgammon-core'
-import { matchRecord as initMatchRecord } from 'tsgammon-core/records/MatchRecord'
+import {
+    eog,
+    GameConf,
+    Score,
+    score, standardConf
+} from 'tsgammon-core'
+import {
+    matchRecord as initMatchRecord,
+    MatchRecord, setEoGRecord
+} from 'tsgammon-core/records/MatchRecord'
 import {
     plyRecordForCheckerPlay,
     plyRecordForDouble,
     plyRecordForEoG,
     plyRecordForPass,
-    plyRecordForTake,
+    plyRecordForTake
 } from 'tsgammon-core/records/PlyRecord'
 import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
 import {
     CubeGameListeners,
-    decorate as decorateCB,
+    decorate as decorateCB
 } from '../../dispatchers/CubeGameDispatcher'
 import { CBEoG, CBResponse, CBToRoll } from '../../dispatchers/CubeGameState'
 import { RollListener } from '../../dispatchers/RollDispatcher'
 import {
     decorate as decorateSG,
-    SingleGameListeners,
+    SingleGameListeners
 } from '../../dispatchers/SingleGameDispatcher'
 import { SGEoG, SGToRoll } from '../../dispatchers/SingleGameState'
 import { StakeConf } from '../../dispatchers/StakeConf'
 import {
     CubefulGameBoard,
     CubefulGameBoardProps,
-    CubefulGameConfs,
+    CubefulGameConfs
 } from '../CubefulGameBoard'
 import { EOGDialog } from '../uiparts/EOGDialog'
 import { PlyInfo } from '../uiparts/PlyInfo'
@@ -52,8 +60,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         gameConf = standardConf,
         bgState: curBGState,
         matchLength,
-        matchScore,
-        isCrawford,
+        matchScore = score(),
+        isCrawford = false,
         cbConfs = {
             sgConfs: {},
         },
@@ -71,10 +79,25 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         undefined,
         listeners
     )
+    // Propsで指定したマッチ情報は初期化の時に一回だけ参照される
+    const initialMatchRecord = setEoG(
+        initMatchRecord<BGState>( gameConf,matchLength, matchScore, isCrawford)
+    )
+    // 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する
+    function setEoG(mRecord: MatchRecord<BGState>) {
+        if (curBGState.cbState.tag === 'CBEoG') {
+            const eogRecord = plyRecordForEoG(
+                curBGState.cbState.calcStake(stakeConf).stake,
+                curBGState.cbState.result,
+                curBGState.cbState.eogStatus
+            )
+            return setEoGRecord(mRecord, eogRecord)
+        }
+        return mRecord
+    }
     const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
         gameConf,
-        matchLength,
-        initMatchRecord(matchLength, gameConf, matchScore, isCrawford)
+        initialMatchRecord
     )
     const {
         selectedState: { index, state: bgState },

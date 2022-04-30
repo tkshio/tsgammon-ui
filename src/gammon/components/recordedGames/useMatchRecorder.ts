@@ -25,15 +25,15 @@ export type MatchRecorder<T> = {
  */
 export function useMatchRecorder<T>(
     conf: GameConf,
-    matchLength?: number,
     initialMatchRecord?: MatchRecord<T>
 ): [
     MatchRecord<T>,
     MatchRecorder<T>,
     Dispatch<SetStateAction<MatchRecord<T>>>
 ] {
-    const [matchRecord, setMatchRecord] =
-        useState<MatchRecord<T>>(initialMatchRecord ?? initMatchRecord(matchLength, conf))
+    const [matchRecord, setMatchRecord] = useState<MatchRecord<T>>(
+        initialMatchRecord ?? initMatchRecord(conf, 0)
+    )
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
         setMatchRecord((prev: MatchRecord<T>) =>

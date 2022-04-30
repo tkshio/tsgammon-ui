@@ -9,7 +9,7 @@ export type EOGDialogProps = {
     score: Score
     matchLength?: number
     isCrawfordNext?: boolean
-    isEOM?: boolean
+    isEoM?: boolean
     onClick: () => void
 }
 
@@ -20,18 +20,18 @@ export function EOGDialog(props: EOGDialogProps) {
         score,
         matchLength,
         isCrawfordNext = false,
-        isEOM = false,
+        isEoM = false,
         onClick,
     } = { ...props }
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
     const msgs = [
         matchLength ? `${matchLength} points match` : 'Unlimited match',
         ZERO_WIDTH_SPACE,
-        formatStake(stake, eog) + (isEOM ? ' and won the match' : ''),
+        formatStake(stake, eog) + (isEoM ? ' and won the match' : ''),
         formatScore(score),
-        matchLength && isCrawfordNext && !isEOM
-                ? 'next game is crawford'
-                : ZERO_WIDTH_SPACE
+        !isEoM && matchLength && isCrawfordNext
+            ? '(next game is crawford game)'
+            : ZERO_WIDTH_SPACE,
     ]
 
     return <Dialog msgs={msgs} onClick={onClick} />

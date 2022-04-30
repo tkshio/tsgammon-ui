@@ -1,14 +1,24 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ComponentProps } from "react"
-import { DiceSource } from "tsgammon-core/utils/DiceSource"
-import { CubefulGameBoard } from "../../components/CubefulGameBoard"
-import { CheckerPlayListeners, setCPStateListener } from "../../dispatchers/CheckerPlayDispatcher"
-import { CheckerPlayState } from "../../dispatchers/CheckerPlayState"
-import { CubeGameListeners, setCBStateListener } from "../../dispatchers/CubeGameDispatcher"
-import { CBState } from "../../dispatchers/CubeGameState"
-import { setSGStateListener, SingleGameListeners } from "../../dispatchers/SingleGameDispatcher"
-import { SGState } from "../../dispatchers/SingleGameState"
+import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+import {
+    CubefulGameConfs,
+} from '../../components/CubefulGameBoard'
+import {
+    CheckerPlayListeners,
+    setCPStateListener,
+} from '../../dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
+import {
+    CubeGameListeners,
+    setCBStateListener,
+} from '../../dispatchers/CubeGameDispatcher'
+import { CBState } from '../../dispatchers/CubeGameState'
+import {
+    setSGStateListener,
+    SingleGameListeners,
+} from '../../dispatchers/SingleGameDispatcher'
+import { SGState } from '../../dispatchers/SingleGameState'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -46,7 +56,9 @@ export function setupListeners(
         cbState: CBState
     },
     diceSource: DiceSource
-): ComponentProps<typeof CubefulGameBoard> {
+): CheckerPlayListeners &
+    SingleGameListeners &
+    CubeGameListeners & { cbConfs: CubefulGameConfs } {
     const cpListeners: CheckerPlayListeners = setCPStateListener(
         (next: CheckerPlayState | undefined) => {
             state.cpState = next
