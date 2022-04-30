@@ -1,3 +1,4 @@
+import { score, Score } from 'tsgammon-core'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { GameState } from '../../dispatchers/utils/GameState'
 import { CubefulGameConfs } from '../CubefulGameBoard'
@@ -13,6 +14,8 @@ import './main.css'
 export type PointMatchProps = {
     gameConf?: GameConf
     matchLength?: number
+    matchScore?: Score
+    isCrawford?: boolean
     board?: GameState
     cbConfs?: CubefulGameConfs
 }
@@ -30,6 +33,8 @@ export function PointMatch(props: PointMatchProps) {
         gameConf = standardConf,
         cbConfs = { sgConfs: {} },
         matchLength = 0,
+        matchScore = score(),
+        isCrawford = false
     } = props
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
@@ -49,6 +54,8 @@ export function PointMatch(props: PointMatchProps) {
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
         matchLength,
+        matchScore, 
+        isCrawford,
         bgState: { cbState, sgState },
         cbConfs,
         ...cbListeners,

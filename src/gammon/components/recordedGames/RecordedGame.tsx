@@ -46,7 +46,7 @@ export function RecordedGame<T>(
     const plyRecordsProps: PlyRecordsProps<T> = {
         plyRecords,
         eogRecord,
-        matchScore: matchRecord.score,
+        matchScore: matchRecord.matchScore,
         selected: index,
         dispatcher: (index: number, state?: T) => {
             if (state) {

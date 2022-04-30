@@ -73,7 +73,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
             <EOGDialog
                 stake={sgState.stake}
                 eogStatus={sgState.eogStatus}
-                score={matchRecord.score}
+                score={matchRecord.matchScore}
                 onClick={() => {
                     matchRecorder.resetCurGame()
                     if (onStartNextGame) {
@@ -101,7 +101,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const key = isLatest ? 'latest' : 'past' + index
 
     const recordedGameProps = {
-        matchRecord: matchRecord,
+        matchRecord,
         index,
         ...ssListeners,
     }
@@ -109,7 +109,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const plyInfoProps = {
         sgState,
         cpState,
-        score: matchRecord.score,
+        score: matchRecord.matchScore,
     }
 
     return (

@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
-import { eog, GameConf, score, standardConf } from 'tsgammon-core'
+import { eog, GameConf, Score, score, standardConf } from 'tsgammon-core'
+import { matchRecord as initMatchRecord } from 'tsgammon-core/records/MatchRecord'
 import {
     plyRecordForCheckerPlay,
     plyRecordForDouble,
@@ -35,6 +36,8 @@ import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
+    matchScore?: Score
+    isCrawford?: boolean
     bgState: BGState
     onStartNextGame: () => void
     onResumeState: (state: BGState) => void
@@ -49,6 +52,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         gameConf = standardConf,
         bgState: curBGState,
         matchLength,
+        matchScore,
+        isCrawford,
         cbConfs = {
             sgConfs: {},
         },
@@ -68,7 +73,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     )
     const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
         gameConf,
-        matchLength
+        matchLength,
+        initMatchRecord(matchLength, gameConf, matchScore, isCrawford)
     )
     const {
         selectedState: { index, state: bgState },
@@ -102,28 +108,26 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
     const eogDialog =
         bgState.cbState.tag === 'CBEoG' ? (
-           (
-                <EOGDialog
-                    {...{
-                        eogStatus,
-                        stake,
-                        score: matchRecord.score,
-                        matchLength: matchRecord.matchLength,
-                        isCrawfordNext: cur.isEoG && cur.isCrawfordNext,
-                        isEoM,
-                        onClick: () => {
-                            matchRecorder.resetCurGame()
-                            onStartNextGame()
-                        },
-                    }}
-                />
-            )
+            <EOGDialog
+                {...{
+                    eogStatus,
+                    stake,
+                    score: matchRecord.matchScore,
+                    matchLength: matchRecord.matchLength,
+                    isCrawfordNext: cur.isEoG && cur.isCrawfordNext,
+                    isEoM,
+                    onClick: () => {
+                        matchRecorder.resetCurGame()
+                        onStartNextGame()
+                    },
+                }}
+            />
         ) : undefined
 
     const minimalProps = {
         ...bgState,
         cpState,
-        scoreBefore: matchRecord.score,
+        scoreBefore: matchRecord.matchScore,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameBoardProps = isLatest
@@ -148,7 +152,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         cbState: bgState.cbState,
         sgState: bgState.sgState,
         cpState,
-        score: matchRecord.score,
+        score: matchRecord.matchScore,
     }
 
     return (
