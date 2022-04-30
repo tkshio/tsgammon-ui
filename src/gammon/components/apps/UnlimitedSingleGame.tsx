@@ -37,6 +37,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         useSingleGameListeners(initialSGState)
 
     const recordedMatchProps: RecordedSingleGameProps = {
+        gameConf,
         sgState,
         sgConfs,
         ...listeners,
