@@ -34,7 +34,7 @@ import { MatchRecorder, useMatchRecorder } from './useMatchRecorder'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedCubefulGameProps = {
-    gameConf:GameConf
+    gameConf: GameConf
     bgState: BGState
     onStartNextGame: () => void
     onResumeState: (state: BGState) => void
@@ -66,7 +66,10 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         undefined,
         listeners
     )
-    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(gameConf, matchLength)
+    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
+        gameConf,
+        matchLength
+    )
     const {
         selectedState: { index, state: bgState },
         ssListeners,
@@ -87,6 +90,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         asSGListeners(matchRecorder, bgState),
         listeners
     )
+    const isEoM = matchRecord.isEndOfMatch
+
     const cur = matchRecord.curGameRecord
     const { eogStatus, stake } = cur.isEoG
         ? {
@@ -97,19 +102,22 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
     const eogDialog =
         bgState.cbState.tag === 'CBEoG' ? (
-            <EOGDialog
-                {...{
-                    eogStatus,
-                    stake,
-                    score: matchRecord.score,
-                    matchLength:matchRecord.matchLength,
-                    isCrawfordNext: (cur.isEoG && cur.isCrawfordNext),
-                    onClick: () => {
-                        matchRecorder.resetCurGame()
-                        onStartNextGame()
-                    },
-                }}
-            />
+           (
+                <EOGDialog
+                    {...{
+                        eogStatus,
+                        stake,
+                        score: matchRecord.score,
+                        matchLength: matchRecord.matchLength,
+                        isCrawfordNext: cur.isEoG && cur.isCrawfordNext,
+                        isEoM,
+                        onClick: () => {
+                            matchRecorder.resetCurGame()
+                            onStartNextGame()
+                        },
+                    }}
+                />
+            )
         ) : undefined
 
     const minimalProps = {

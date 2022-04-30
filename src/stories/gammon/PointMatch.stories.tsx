@@ -19,13 +19,12 @@ const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
 
 export const cpuPlaysRed3pt = Template.bind({})
 cpuPlaysRed3pt.args = {
-    matchLength:3,
+    matchLength: 3,
     cbConfs: {
         autoOperator: redCBAutoOperator(),
         sgConfs: { autoOperator: redSGAutoOperator() },
     },
 }
-
 
 const minimalPieces = [
     0, -3, 0, 0, 0, 0, 0, /* bar */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -33,11 +32,15 @@ const minimalPieces = [
 ]
 export const endGame3pt = Template.bind({})
 endGame3pt.args = {
-    matchLength:3,
+    matchLength: 3,
     board: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 2,
         absPos: minimalPieces,
+    },
+    cbConfs: {
+        autoOperator: redCBAutoOperator(),
+        sgConfs: { autoOperator: redSGAutoOperator() },
     },
 }

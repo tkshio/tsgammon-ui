@@ -41,3 +41,13 @@ crawford.args = {
     isCrawfordNext:true
 }
 
+export const endOfMatch = Template.bind({})
+endOfMatch.args = {
+    stake:scoreAsRed(1),
+    eogStatus:eog(),
+    score:score(),
+    matchLength:7,
+    isCrawfordNext:true, // should be ignored
+    isEOM:true
+}
+
