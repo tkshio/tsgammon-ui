@@ -50,7 +50,9 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
     }
 
     useEffect(() => {
-        ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        if (ref?.current?.scrollIntoView) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
     })
 
     function switchDirection(event: ChangeEvent<HTMLInputElement>) {
