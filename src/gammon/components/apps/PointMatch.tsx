@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { score, Score } from 'tsgammon-core'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { GameState } from '../../dispatchers/utils/GameState'
@@ -33,8 +34,8 @@ export function PointMatch(props: PointMatchProps) {
         gameConf = standardConf,
         cbConfs = { sgConfs: {} },
         matchLength = 0,
-        matchScore = score(),
-        isCrawford = false
+        matchScore:curScore = score(),
+        isCrawford = false,
     } = props
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
@@ -50,11 +51,13 @@ export function PointMatch(props: PointMatchProps) {
         useCubeGameListeners(initialCBState)
     const [sgState, sgListeners, setSGState] =
         useSingleGameListeners(initialSGState)
+    const [matchID, setMatchID] = useState(0)
+    const [matchScore, setMatchScore] = useState(curScore)
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
         matchLength,
-        matchScore, 
+        matchScore,
         isCrawford,
         bgState: { cbState, sgState },
         cbConfs,
@@ -68,7 +71,13 @@ export function PointMatch(props: PointMatchProps) {
             setCBState(lastState.cbState)
             setSGState(lastState.sgState)
         },
+        onEndOfMatch: () => {
+            setMatchID((mid) => mid + 1)
+            setMatchScore(score())
+            setCBState(openingCBState)
+            setSGState(openingSGState)
+        },
     }
 
-    return <RecordedCubefulGame {...recordedMatchProps} />
+    return <RecordedCubefulGame key={matchID} {...recordedMatchProps} />
 }

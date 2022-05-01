@@ -1,38 +1,34 @@
 import { Fragment } from 'react'
-import {
-    eog,
-    GameConf,
-    Score,
-    score, standardConf
-} from 'tsgammon-core'
+import { eog, GameConf, Score, score, standardConf } from 'tsgammon-core'
 import {
     matchRecord as initMatchRecord,
-    MatchRecord, setEoGRecord
+    MatchRecord,
+    setEoGRecord,
 } from 'tsgammon-core/records/MatchRecord'
 import {
     plyRecordForCheckerPlay,
     plyRecordForDouble,
     plyRecordForEoG,
     plyRecordForPass,
-    plyRecordForTake
+    plyRecordForTake,
 } from 'tsgammon-core/records/PlyRecord'
 import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
 import {
     CubeGameListeners,
-    decorate as decorateCB
+    decorate as decorateCB,
 } from '../../dispatchers/CubeGameDispatcher'
 import { CBEoG, CBResponse, CBToRoll } from '../../dispatchers/CubeGameState'
 import { RollListener } from '../../dispatchers/RollDispatcher'
 import {
     decorate as decorateSG,
-    SingleGameListeners
+    SingleGameListeners,
 } from '../../dispatchers/SingleGameDispatcher'
 import { SGEoG, SGToRoll } from '../../dispatchers/SingleGameState'
 import { StakeConf } from '../../dispatchers/StakeConf'
 import {
     CubefulGameBoard,
     CubefulGameBoardProps,
-    CubefulGameConfs
+    CubefulGameConfs,
 } from '../CubefulGameBoard'
 import { EOGDialog } from '../uiparts/EOGDialog'
 import { PlyInfo } from '../uiparts/PlyInfo'
@@ -44,13 +40,14 @@ import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
+    matchLength: number
+    cbConfs: CubefulGameConfs
     matchScore?: Score
     isCrawford?: boolean
     bgState: BGState
     onStartNextGame: () => void
     onResumeState: (state: BGState) => void
-    matchLength: number
-    cbConfs: CubefulGameConfs
+    onEndOfMatch:()=>void
 } & CubeGameListeners &
     SingleGameListeners &
     Partial<CheckerPlayListeners & RollListener>
@@ -71,6 +68,9 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         onStartNextGame = () => {
             //
         },
+        onEndOfMatch = ()=>{
+            //
+        },
         ...listeners
     } = props
 
@@ -81,7 +81,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     )
     // Propsで指定したマッチ情報は初期化の時に一回だけ参照される
     const initialMatchRecord = setEoG(
-        initMatchRecord<BGState>( gameConf,matchLength, matchScore, isCrawford)
+        initMatchRecord<BGState>(gameConf, matchLength, matchScore, isCrawford)
     )
     // 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する
     function setEoG(mRecord: MatchRecord<BGState>) {
@@ -140,8 +140,12 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
                     isCrawfordNext: cur.isEoG && cur.isCrawfordNext,
                     isEoM,
                     onClick: () => {
-                        matchRecorder.resetCurGame()
-                        onStartNextGame()
+                        if (isEoM) {
+                            onEndOfMatch()
+                        } else {
+                            matchRecorder.resetCurGame()
+                            onStartNextGame()
+                        }
                     },
                 }}
             />

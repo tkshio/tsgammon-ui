@@ -12,7 +12,7 @@ import {
     toCBState,
     toSGState,
 } from '../../dispatchers/utils/GameState'
-import {  setupListeners } from './CubefulGameBoard.common'
+import { setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 
@@ -30,7 +30,7 @@ const gameState: GameState = {
         0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0,-2,
         0,
     ],
-    stake:scoreAsWhite(1)
+    stake: scoreAsWhite(1),
 }
 
 const state = {
@@ -50,6 +50,9 @@ const props: RecordedCubefulGameProps = {
         //
     },
     onResumeState: () => {
+        //
+    },
+    onEndOfMatch: () => {
         //
     },
 }
