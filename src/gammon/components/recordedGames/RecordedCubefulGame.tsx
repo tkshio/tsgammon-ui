@@ -45,9 +45,9 @@ export type RecordedCubefulGameProps = {
     matchScore?: Score
     isCrawford?: boolean
     bgState: BGState
-    onStartNextGame: () => void
+    onStartNextGame: (matchRecord: MatchRecord<BGState>) => void
     onResumeState: (state: BGState) => void
-    onEndOfMatch:()=>void
+    onEndOfMatch: (matchRecord: MatchRecord<BGState>) => void
 } & CubeGameListeners &
     SingleGameListeners &
     Partial<CheckerPlayListeners & RollListener>
@@ -68,7 +68,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         onStartNextGame = () => {
             //
         },
-        onEndOfMatch = ()=>{
+        onEndOfMatch = () => {
             //
         },
         ...listeners
@@ -141,10 +141,10 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
                     isEoM,
                     onClick: () => {
                         if (isEoM) {
-                            onEndOfMatch()
+                            onEndOfMatch(matchRecord)
                         } else {
                             matchRecorder.resetCurGame()
-                            onStartNextGame()
+                            onStartNextGame(matchRecord)
                         }
                     },
                 }}
@@ -155,6 +155,8 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         ...bgState,
         cpState,
         scoreBefore: matchRecord.matchScore,
+        matchLength: matchRecord.matchLength,
+        isCrawford: cur.isCrawford,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameBoardProps = isLatest

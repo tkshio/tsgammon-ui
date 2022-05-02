@@ -14,7 +14,6 @@ import {
     SingleGameListeners,
 } from '../dispatchers/SingleGameDispatcher'
 import { SGState } from '../dispatchers/SingleGameState'
-import { StakeConf } from '../dispatchers/StakeConf'
 import { toCBState, toSGState } from '../dispatchers/utils/GameState'
 import { doPlay as doCheckerPlay } from './doPlay'
 
@@ -22,13 +21,13 @@ const engine = simpleNNEngine
 
 function doPlay(
     cbState: CBState,
+    skipCubeAction:boolean,
     cbDispatcher: CubeGameDispatcher,
-    stakeConf: StakeConf,
     sgState: SGState,
     sgListeners: SingleGameListeners
 ) {
     const sgDispatcher = singleGameDispatcher(
-        cubefulSGListener(sgListeners, cbState, cbDispatcher)
+        cubefulSGListener(sgListeners, cbState,skipCubeAction,  cbDispatcher)
     )
 
     switch (cbState.tag) {
@@ -96,7 +95,7 @@ function run() {
     let sgState = gState.sg
 
     while (cbState.tag !== 'CBEoG') {
-        doPlay(cbState, cbDispatcher, stakeConf, sgState, sgListener)
+        doPlay(cbState, false, cbDispatcher,  sgState, sgListener)
 
         cbState = gState.cb
         sgState = gState.sg

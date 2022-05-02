@@ -39,7 +39,7 @@ const props = setupListeners(state, presetDiceSource())
 
 describe('CubeGameBoard(eog)', () => {
     test('plays last move', async () => {
-        render(<CubefulGameBoard {...props} />)
+        render(<CubefulGameBoard {...{...props, ...state}} />)
 
         BoardOp.clickPoint(23)
         expect(state.sgState.tag).toEqual('SGInPlay')

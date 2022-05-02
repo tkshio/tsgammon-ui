@@ -62,6 +62,8 @@ export type CubefulGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState
     scoreBefore?: Score
+    matchLength?: number
+    isCrawford?: boolean
 
     cbConfs?: CubefulGameConfs
 
@@ -81,7 +83,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cbState,
         sgState,
         scoreBefore: score = initScore(),
-
+        isCrawford = false,
         eogDialog,
         cubeDialog,
         onCloseEOGDialog,
@@ -90,6 +92,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     } = props
     const { autoRoll = false } = cbConfs.sgConfs
     const { autoOperator, stakeConf = standardConf } = cbConfs
+    const skipCubeAction = isCrawford
     const dispatcher = cubeGameDispatcher(listeners)
     const doCubeActions = useCallback(() => {
         if (autoOperator) {
@@ -101,6 +104,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
                             : 'operateWhiteCubeAction'
                     ]
                 return cubeAction(
+                    // TODO: matchLength, score, isCrawfordを渡す
                     cbState.cubeState,
                     sgState.boardState,
                     () => {
@@ -170,6 +174,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const sgListeners: SingleGameListeners = cubefulSGListener(
         listeners,
         cbState,
+        skipCubeAction,
         dispatcher
     )
     const dialog = (

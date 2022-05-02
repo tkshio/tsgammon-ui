@@ -78,15 +78,14 @@ export type CBToRollWhite = _CBToRoll & {
 type _CBInPlay = CBGameState & {
     tag: 'CBInPlay'
     mayDouble: boolean
-    lastAction: LastCubeAction
 }
 export type CBInPlayRed = _CBInPlay & {
     isRed: true
-    doStartCubeAction: () => CBActionWhite | CBToRollWhite
+    doStartCubeAction: (skipCubeAction:boolean) => CBActionWhite | CBToRollWhite
 }
 export type CBInPlayWhite = _CBInPlay & {
     isRed: false
-    doStartCubeAction: () => CBActionRed | CBToRollRed
+    doStartCubeAction: (skipCubeAction:boolean) => CBActionRed | CBToRollRed
 }
 
 type _CBEoG = CBGameState & {
@@ -113,8 +112,8 @@ export function cbOpening(cubeState: CubeState): CBOpening {
     return {
         tag: 'CBOpening',
         cubeState,
-        doStartCheckerPlayRed: () => cbInPlayRed(cubeState, 'Skip'),
-        doStartCheckerPlayWhite: () => cbInPlayWhite(cubeState, 'Skip'),
+        doStartCheckerPlayRed: () => cbInPlayRed(cubeState),
+        doStartCheckerPlayWhite: () => cbInPlayWhite(cubeState),
     }
 }
 
@@ -127,7 +126,7 @@ export function cbActionRed(cubeState: CubeState): CBActionRed {
             return cbResponseWhite(cubeState)
         },
         doStartCheckerPlay: () => {
-            return cbInPlayRed(cubeState, 'Skip')
+            return cbInPlayRed(cubeState)
         },
         doSkipCubeAction: () => {
             return cbToRollRed(cubeState, 'Skip')
@@ -143,7 +142,7 @@ export function cbActionWhite(cubeState: CubeState): CBActionWhite {
             return cbResponseRed(cubeState)
         },
         doStartCheckerPlay: () => {
-            return cbInPlayWhite(cubeState, 'Skip')
+            return cbInPlayWhite(cubeState)
         },
         doSkipCubeAction: () => {
             return cbToRollWhite(cubeState, 'Skip')
@@ -152,7 +151,6 @@ export function cbActionWhite(cubeState: CubeState): CBActionWhite {
 }
 export function cbInPlayRed(
     cubeState: CubeState,
-    lastAction: LastCubeAction
 ): CBInPlayRed {
     const mayDouble = cubeState.mayDoubleFor(CubeOwner.WHITE)
     return {
@@ -160,17 +158,15 @@ export function cbInPlayRed(
         isRed: true,
         cubeState,
         mayDouble,
-        doStartCubeAction(): CBActionWhite | CBToRollWhite {
-            return mayDouble
+        doStartCubeAction(skipCubeAction:boolean): CBActionWhite | CBToRollWhite {
+            return mayDouble && !skipCubeAction
                 ? cbActionWhite(cubeState)
                 : cbToRollWhite(cubeState, 'Skip')
         },
-        lastAction,
     }
 }
 export function cbInPlayWhite(
     cubeState: CubeState,
-    lastAction: LastCubeAction
 ): CBInPlayWhite {
     const mayDouble = cubeState.mayDoubleFor(CubeOwner.RED)
     return {
@@ -178,12 +174,11 @@ export function cbInPlayWhite(
         isRed: false,
         cubeState,
         mayDouble,
-        doStartCubeAction(): CBActionRed | CBToRollRed {
-            return mayDouble
+        doStartCubeAction(skipCubeAction:boolean): CBActionRed | CBToRollRed {
+            return mayDouble && !skipCubeAction
                 ? cbActionRed(cubeState)
                 : cbToRollRed(cubeState, 'Skip')
         },
-        lastAction,
     }
 }
 export function cbResponseRed(cubeState: CubeState): CBResponseRed {
@@ -239,7 +234,7 @@ export function cbToRollRed(
         isRed: true,
         cubeState,
         doStartCheckerPlay: () => {
-            return cbInPlayRed(cubeState, lastAction)
+            return cbInPlayRed(cubeState)
         },
         lastAction,
     }
@@ -253,7 +248,7 @@ export function cbToRollWhite(
         isRed: false,
         cubeState,
         doStartCheckerPlay: () => {
-            return cbInPlayWhite(cubeState, lastAction)
+            return cbInPlayWhite(cubeState)
         },
         lastAction,
     }
