@@ -97,9 +97,9 @@ export function toCBState(
         case GameStatus.OPENING:
             return cbOpening(cubeState)
         case GameStatus.INPLAY_RED:
-            return cbInPlayRed(cubeState, 'Skip')
+            return cbInPlayRed(cubeState)
         case GameStatus.INPLAY_WHITE:
-            return cbInPlayWhite(cubeState, 'Skip')
+            return cbInPlayWhite(cubeState)
         case GameStatus.CUBEACTION_RED:
             return cbActionRed(cubeState)
         case GameStatus.CUBEACTION_WHITE:
