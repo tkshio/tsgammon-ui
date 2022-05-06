@@ -36,6 +36,7 @@ import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 import { PositionID } from './uiparts/PositionID'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
+import { SGOperator } from './operators/SGOperator'
 
 export type SingleGameConfs = {
     autoRoll?: boolean
@@ -43,21 +44,6 @@ export type SingleGameConfs = {
     isRollHandlerEnabled?: boolean
     autoOperator?: SGOperator
     showPositionID?: boolean
-}
-
-export type SGOperator = {
-    operateCheckerPlayRed: (
-        doCommitCheckerPlay: (nextNode: BoardStateNode) => void,
-        curBoardState: BoardStateNode,
-        cubeState?: CubeState
-    ) => boolean
-    operateCheckerPlayWhite: (
-        doCommitCheckerPlay: (nextNode: BoardStateNode) => void,
-        curBoardState: BoardStateNode,
-        cubeState?: CubeState
-    ) => boolean
-    operateRollRed: (doRoll: () => void) => boolean
-    operateRollWhite: (doRoll: () => void) => boolean
 }
 
 export type SingleGameBoardProps = {

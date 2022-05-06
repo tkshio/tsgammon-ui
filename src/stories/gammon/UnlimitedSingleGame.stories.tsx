@@ -5,7 +5,7 @@ import { UnlimitedSingleGame } from '../../gammon/components/apps/UnlimitedSingl
 import {
     bothSGAutoOperator,
     redSGAutoOperator
-} from '../../gammon/dispatchers/autoOperators'
+} from '../../gammon/components/operators/autoOperators'
 
 export default {
     title: 'UnlimitedSingleGame',

@@ -2,8 +2,8 @@ import { BoardState, CubeState } from 'tsgammon-core'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
-import { CBOperator } from '../components/CubefulGameBoard'
-import { SGOperator } from '../components/SingleGameBoard'
+import { CBOperator } from "./CBOperator"
+import { SGOperator } from "./SGOperator"
 
 const defaultEngine: GammonEngine = simpleNNEngine
 

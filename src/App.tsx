@@ -3,7 +3,7 @@ import { PointMatch } from './gammon/components/apps/PointMatch'
 import {
     redCBAutoOperator,
     redSGAutoOperator,
-} from './gammon/dispatchers/autoOperators'
+} from './gammon/components/operators/autoOperators'
 
 import './App.css'
 

@@ -15,7 +15,7 @@ import {
 import {
     bothSGAutoOperator,
     redSGAutoOperator
-} from '../../gammon/dispatchers/autoOperators'
+} from '../../gammon/components/operators/autoOperators'
 
 // this export is required.
 export default {

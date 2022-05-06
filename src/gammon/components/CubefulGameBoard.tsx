@@ -1,5 +1,5 @@
 import { Fragment, useCallback } from 'react'
-import { BoardState, CubeState, standardConf } from 'tsgammon-core'
+import { standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CubeGameListeners, cubeGameDispatcher } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
@@ -14,46 +14,20 @@ import {cubefulSGListener} from 'tsgammon-core/dispatchers/cubefulSGListener'
 
 import { BoardEventHandlers } from './boards/Board'
 import {
-    SGOperator,
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
 } from './SingleGameBoard'
+import { SGOperator } from "./operators/SGOperator"
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
+import { CBOperator } from './operators/CBOperator'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
     autoOperator?: CBOperator
     stakeConf?: StakeConf
-}
-
-export type CBOperator = {
-    operateRedCubeAction: (
-        cubeState: CubeState,
-        node: BoardState,
-        doDouble: () => void,
-        doSkipCubeAction: () => void
-    ) => boolean
-    operateRedCubeResponse: (
-        cubeState: CubeState,
-        node: BoardState,
-        doTake: () => void,
-        doPass: () => void
-    ) => boolean
-    operateWhiteCubeAction: (
-        cubeState: CubeState,
-        node: BoardState,
-        doDouble: () => void,
-        doSkipCubeAction: () => void
-    ) => boolean
-    operateWhiteCubeResponse: (
-        cubeState: CubeState,
-        node: BoardState,
-        doTake: () => void,
-        doPass: () => void
-    ) => boolean
 }
 
 export type CubefulGameBoardProps = {

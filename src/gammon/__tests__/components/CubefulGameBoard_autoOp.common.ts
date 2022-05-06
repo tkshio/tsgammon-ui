@@ -2,9 +2,10 @@ import { ComponentProps } from "react"
 import { BoardStateNode } from "tsgammon-core"
 import { GammonEngine } from "tsgammon-core/engines/GammonEngine"
 import { collectNodes } from "tsgammon-core/utils/collectNodes"
-import { CubefulGameBoard, CubefulGameConfs, CBOperator } from "../../components/CubefulGameBoard"
-import { SGOperator } from "../../components/SingleGameBoard"
-import { redSGAutoOperator, redCBAutoOperator, whiteSGAutoOperator, whiteCBAutoOperator } from "../../dispatchers/autoOperators"
+import { CubefulGameBoard, CubefulGameConfs } from "../../components/CubefulGameBoard"
+import { CBOperator } from "../../components/operators/CBOperator"
+import { SGOperator } from "../../components/operators/SGOperator"
+import { redSGAutoOperator, redCBAutoOperator, whiteSGAutoOperator, whiteCBAutoOperator } from "../../components/operators/autoOperators"
 
 
 export function setRedAutoOp(

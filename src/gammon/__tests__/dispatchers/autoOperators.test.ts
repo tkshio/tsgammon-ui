@@ -3,8 +3,8 @@ import {
     GammonEngine,
     simpleEvalEngine,
 } from 'tsgammon-core/engines/GammonEngine'
-import { CBOperator } from '../../components/CubefulGameBoard'
-import { SGOperator } from '../../components/SingleGameBoard'
+import { CBOperator } from "../../components/operators/CBOperator"
+import { SGOperator } from "../../components/operators/SGOperator"
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -12,7 +12,7 @@ import {
     redSGAutoOperator,
     whiteCBAutoOperator,
     whiteSGAutoOperator,
-} from '../../dispatchers/autoOperators'
+} from '../../components/operators/autoOperators'
 
 const rollRed = jest.fn(() => {
     //
