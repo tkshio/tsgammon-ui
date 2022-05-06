@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react'
-import { SGState } from '../dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     decorate,
     setSGStateListener,
     SingleGameListeners,
-} from '../dispatchers/SingleGameDispatcher'
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 
 export function useSingleGameListeners(
     initialState: SGState,

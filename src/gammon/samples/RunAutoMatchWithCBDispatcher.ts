@@ -1,21 +1,14 @@
+import { cubefulSGListener } from 'tsgammon-core/dispatchers/cubefulSGListener'
+import { CubeGameDispatcher, cubeGameDispatcher, setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { setSGStateListener, singleGameDispatcher, SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
 import { score } from 'tsgammon-core/Score'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
-import { cubefulSGListener } from '../dispatchers/cubefulSGListener'
-import {
-    cubeGameDispatcher,
-    CubeGameDispatcher,
-    setCBStateListener,
-} from '../dispatchers/CubeGameDispatcher'
-import { CBState } from '../dispatchers/CubeGameState'
-import {
-    setSGStateListener,
-    singleGameDispatcher,
-    SingleGameListeners,
-} from '../dispatchers/SingleGameDispatcher'
-import { SGState } from '../dispatchers/SingleGameState'
-import { toCBState, toSGState } from '../dispatchers/utils/GameState'
 import { doPlay as doCheckerPlay } from './doPlay'
+
 
 const engine = simpleNNEngine
 

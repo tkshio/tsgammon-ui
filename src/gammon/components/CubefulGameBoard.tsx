@@ -1,18 +1,17 @@
 import { Fragment, useCallback } from 'react'
 import { BoardState, CubeState, standardConf } from 'tsgammon-core'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { CubeGameListeners, cubeGameDispatcher } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score as initScore, Score } from 'tsgammon-core/Score'
-import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
-import { cubefulSGListener } from '../dispatchers/cubefulSGListener'
-import {
-    cubeGameDispatcher,
-    CubeGameListeners,
-} from '../dispatchers/CubeGameDispatcher'
-import { CBState } from '../dispatchers/CubeGameState'
-import { RollListener } from '../dispatchers/RollDispatcher'
-import { SingleGameListeners } from '../dispatchers/SingleGameDispatcher'
-import { SGState } from '../dispatchers/SingleGameState'
-import { StakeConf } from '../dispatchers/StakeConf'
+
+import {cubefulSGListener} from 'tsgammon-core/dispatchers/cubefulSGListener'
+
 import { BoardEventHandlers } from './boards/Board'
 import {
     SGOperator,

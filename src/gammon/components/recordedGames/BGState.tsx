@@ -1,10 +1,10 @@
-import { CBState } from '../../dispatchers/CubeGameState'
-import { SGState } from '../../dispatchers/SingleGameState'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     GameSetup,
     toCBState,
     toSGState,
-} from '../../dispatchers/utils/GameState'
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
 
 export type BGState = {
     cbState: CBState

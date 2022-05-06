@@ -3,28 +3,28 @@ import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     asCheckerPlayState,
     CheckerPlayState,
     CheckerPlayStateCommitted
-} from '../dispatchers/CheckerPlayState'
+} from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     RollListener,
     rollListeners,
     singleGameDispatcherWithRD
-} from '../dispatchers/RollDispatcher'
+} from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     singleGameDispatcher,
     SingleGameListeners
-} from '../dispatchers/SingleGameDispatcher'
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
     SGToRoll
-} from '../dispatchers/SingleGameState'
+} from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     Board,
     BoardEventHandlers,

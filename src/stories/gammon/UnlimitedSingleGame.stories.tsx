@@ -1,11 +1,11 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
+import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { UnlimitedSingleGame } from '../../gammon/components/apps/UnlimitedSingleGame'
 import {
     bothSGAutoOperator,
-    redSGAutoOperator,
+    redSGAutoOperator
 } from '../../gammon/dispatchers/autoOperators'
-import { GameStatus } from '../../gammon/dispatchers/utils/GameState'
 
 export default {
     title: 'UnlimitedSingleGame',

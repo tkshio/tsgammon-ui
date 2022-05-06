@@ -1,7 +1,8 @@
+import { SingleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { SingleGameDispatcher } from '../dispatchers/SingleGameDispatcher'
-import { SGState } from '../dispatchers/SingleGameState'
+
 
 const diceSource = randomDiceSource
 

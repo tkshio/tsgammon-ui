@@ -1,5 +1,7 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
+import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
     bothCBAutoOperator,
@@ -7,10 +9,8 @@ import {
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator,
+    whiteSGAutoOperator
 } from '../../gammon/dispatchers/autoOperators'
-import { GameStatus } from '../../gammon/dispatchers/utils/GameState'
-import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 
 export default {
     title: 'UnlimitedMatch',

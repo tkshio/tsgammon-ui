@@ -1,11 +1,11 @@
+import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { formatState } from 'tsgammon-core/dispatchers/utils/formatState'
 import { Score } from 'tsgammon-core/Score'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
-import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
-import { CBState } from '../../dispatchers/CubeGameState'
-import { SGState } from '../../dispatchers/SingleGameState'
-import { formatState } from '../../dispatchers/utils/formatState'
-
 import './plyInfo.css'
+
 
 export function PlyInfo(props: {
     cbState?: CBState

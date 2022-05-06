@@ -12,19 +12,19 @@ import {
     plyRecordForPass,
     plyRecordForTake,
 } from 'tsgammon-core/records/PlyRecord'
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     CubeGameListeners,
     decorate as decorateCB,
-} from '../../dispatchers/CubeGameDispatcher'
-import { CBEoG, CBResponse, CBToRoll } from '../../dispatchers/CubeGameState'
-import { RollListener } from '../../dispatchers/RollDispatcher'
+} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CBEoG, CBResponse, CBToRoll } from 'tsgammon-core/dispatchers/CubeGameState'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     decorate as decorateSG,
     SingleGameListeners,
-} from '../../dispatchers/SingleGameDispatcher'
-import { SGEoG, SGToRoll } from '../../dispatchers/SingleGameState'
-import { StakeConf } from '../../dispatchers/StakeConf'
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGEoG, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import {
     CubefulGameBoard,
     CubefulGameBoardProps,

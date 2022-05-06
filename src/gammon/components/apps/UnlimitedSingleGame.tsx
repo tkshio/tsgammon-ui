@@ -1,6 +1,6 @@
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { SGState } from '../../dispatchers/SingleGameState'
-import { GameSetup, toSGState } from '../../dispatchers/utils/GameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import {
     RecordedSingleGame,
     RecordedSingleGameProps,

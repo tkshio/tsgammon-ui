@@ -1,12 +1,12 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { score } from 'tsgammon-core'
+import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
     redCBAutoOperator,
-    redSGAutoOperator,
+    redSGAutoOperator
 } from '../../gammon/dispatchers/autoOperators'
-import { GameStatus } from '../../gammon/dispatchers/utils/GameState'
 
 export default {
     title: 'PointMatch',

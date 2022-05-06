@@ -7,7 +7,7 @@ import {
     GameStatus,
     toCBState,
     toSGState
-} from '../../dispatchers/utils/GameState'
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardOp, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
@@ -42,6 +42,7 @@ describe('stakeConf configures jacoby rule(on):', () => {
             sgConfs: {},
             stakeConf: { jacobyRule: true },
         },
+        ...state
     }
 
     test('do last move', () => {
@@ -74,6 +75,7 @@ describe('stakeConf configures jacoby rule off', () => {
             sgConfs: {},
             stakeConf: { jacobyRule: false },
         },
+        ...state
     }
 
     test('do last move', () => {

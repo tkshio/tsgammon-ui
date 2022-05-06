@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react'
-import { CBState } from '../dispatchers/CubeGameState'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     CubeGameListeners,
     decorate,
     setCBStateListener,
-} from '../dispatchers/CubeGameDispatcher'
+} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 
 export function useCubeGameListeners(
     initialState: CBState,

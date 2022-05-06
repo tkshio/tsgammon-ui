@@ -2,8 +2,13 @@ import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
-import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
-import { BoardOp, isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
+import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import {
+    BoardOp,
+    isRed,
+    isWhite,
+    setupListeners,
+} from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null
 
@@ -18,8 +23,8 @@ const state = {
     cbState: toCBState(),
 }
 
-const props = setupListeners(state, presetDiceSource(1, 3))
- 
+const props = { ...setupListeners(state, presetDiceSource(1, 3)), ...state }
+
 describe('CubeGameBoard', () => {
     test('does opening roll when dice gets clicked', async () => {
         render(<CubefulGameBoard {...props} />)

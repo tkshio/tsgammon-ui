@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react'
-import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
+import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     CheckerPlayListeners,
     decorate,
     setCPStateListener,
-} from '../dispatchers/CheckerPlayDispatcher'
+} from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 
 export function useCheckerPlayListeners(
     initialState: CheckerPlayState | undefined = undefined,

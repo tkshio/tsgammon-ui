@@ -1,21 +1,21 @@
 import { Meta, Story } from '@storybook/react'
+import { BoardState } from 'tsgammon-core/BoardState'
+import { DicePip, DiceRoll } from 'tsgammon-core/Dices'
+import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import {
+    GammonEngine,
+    simpleEvalEngine
+} from 'tsgammon-core/engines/GammonEngine'
+import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
+import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     SingleGame,
-    SingleGameProps,
+    SingleGameProps
 } from '../../gammon/components/apps/SingleGame'
 import {
     bothSGAutoOperator,
-    redSGAutoOperator,
+    redSGAutoOperator
 } from '../../gammon/dispatchers/autoOperators'
-import { GameStatus } from '../../gammon/dispatchers/utils/GameState'
-import {
-    GammonEngine,
-    simpleEvalEngine,
-} from 'tsgammon-core/engines/GammonEngine'
-import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
-import { BoardState } from 'tsgammon-core/BoardState'
-import { DicePip, DiceRoll } from 'tsgammon-core/Dices'
-import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 
 // this export is required.
 export default {

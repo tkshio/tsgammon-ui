@@ -12,7 +12,7 @@ import {
     GameStatus,
     toCBState,
     toSGState,
-} from '../../dispatchers/utils/GameState'
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { setupListeners } from './CubefulGameBoard.common'
 import { setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
 
@@ -43,7 +43,7 @@ const engine: GammonEngine = simpleEvalEngine((board) => {
     return ev.e
 })
 
-const props = {...setupListeners(state, presetDiceSource(1, 3)), ...state}
+const props = { ...setupListeners(state, presetDiceSource(1, 3)), ...state }
 
 describe('CubeGameBoard', () => {
     test('lets redAutoPlayer do cubeAction', async () => {

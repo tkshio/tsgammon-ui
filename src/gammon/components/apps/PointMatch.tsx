@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { score, Score } from 'tsgammon-core'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { GameSetup } from '../../dispatchers/utils/GameState'
+import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import { BGState, toState } from '../recordedGames/BGState'
 import {

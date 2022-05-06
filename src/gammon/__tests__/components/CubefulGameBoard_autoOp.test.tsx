@@ -6,7 +6,7 @@ import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     CubefulGameBoard
 } from '../../components/CubefulGameBoard'
-import { toCBState, toSGState } from '../../dispatchers/utils/GameState'
+import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardOp, isRed, isWhite, setupListeners } from './CubefulGameBoard.common'
 import { noDoubleEngine, setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
 
@@ -26,7 +26,7 @@ const state = {
     cbState: toCBState(),
 }
 const diceSource = presetDiceSource(3, 1)
-const props = setupListeners(state, diceSource)
+const props = {...setupListeners(state, diceSource), ...state}
 
 describe('CubeGameBoard(with autoOp)', () => {
     test('does opening roll when dice gets clicked', async () => {

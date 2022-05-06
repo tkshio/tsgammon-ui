@@ -1,4 +1,4 @@
-import { CheckerPlayState } from '../../dispatchers/CheckerPlayState'
+import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { MatchRecorder } from './useMatchRecorder'
 import { useSelectableState } from './useSelectableState'
 

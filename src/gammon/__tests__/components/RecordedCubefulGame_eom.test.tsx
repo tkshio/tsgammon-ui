@@ -1,18 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { score, scoreAsWhite, standardConf } from 'tsgammon-core'
+import { GameSetup, GameStatus, toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../../components/recordedGames/RecordedCubefulGame'
-import {
-    GameSetup,
-    GameStatus,
-    toCBState,
-    toSGState,
-} from '../../dispatchers/utils/GameState'
 import { setupListeners } from './CubefulGameBoard.common'
+
 
 let container: HTMLElement | null = null
 

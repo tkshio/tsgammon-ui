@@ -6,8 +6,8 @@ import {
     CheckerPlayDispatcher,
     CheckerPlayListeners,
     fill,
-} from '../dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from '../dispatchers/CheckerPlayState'
+} from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     Board,
     BoardEventHandlers,

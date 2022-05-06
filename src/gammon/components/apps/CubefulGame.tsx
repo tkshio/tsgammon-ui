@@ -1,19 +1,15 @@
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { GameSetup, toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { BoardEventHandlers } from '../boards/Board'
 import {
     CubefulGameBoard,
     CubefulGameBoardProps,
-    CubefulGameConfs,
+    CubefulGameConfs
 } from '../CubefulGameBoard'
-import { BoardEventHandlers } from '../boards/Board'
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import {
-    GameSetup,
-    toCBState,
-    toSGState,
-} from '../../dispatchers/utils/GameState'
 import { useCubeGameListeners } from '../useCubeGameListeners'
-import { CubeGameListeners } from '../../dispatchers/CubeGameDispatcher'
-import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
 import { useSingleGameListeners } from '../useSingleGameListeners'
 
 export type CubefulGameProps = {

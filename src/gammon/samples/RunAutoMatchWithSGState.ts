@@ -1,9 +1,9 @@
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
 import { score } from 'tsgammon-core/Score'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
-import { SGState } from '../dispatchers/SingleGameState'
-import { toSGState } from '../dispatchers/utils/GameState'
 
 const diceSource = randomDiceSource
 const engine = simpleNNEngine

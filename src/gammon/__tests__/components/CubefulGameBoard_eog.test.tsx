@@ -7,7 +7,7 @@ import {
     GameStatus,
     toCBState,
     toSGState
-} from '../../dispatchers/utils/GameState'
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardOp, isWhite, setupListeners } from './CubefulGameBoard.common'
 
 let container: HTMLElement | null = null

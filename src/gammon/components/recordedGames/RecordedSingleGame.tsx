@@ -4,13 +4,13 @@ import {
     plyRecordForCheckerPlay,
     plyRecordForEoG,
 } from 'tsgammon-core/records/PlyRecord'
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
-import { RollListener } from '../../dispatchers/RollDispatcher'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     decorate,
     SingleGameListeners,
-} from '../../dispatchers/SingleGameDispatcher'
-import { SGEoG, SGState, SGToRoll } from '../../dispatchers/SingleGameState'
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGEoG, SGState, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     SingleGameBoard,
     SingleGameBoardProps,

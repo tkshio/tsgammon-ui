@@ -1,10 +1,10 @@
 import { useState } from 'react'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { score as initScore, Score } from 'tsgammon-core/Score'
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
-import { RollListener } from '../../dispatchers/RollDispatcher'
-import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
-import { GameSetup, toSGState } from '../../dispatchers/utils/GameState'
+import { score, Score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from '../boards/Board'
 import {
     SingleGameBoard,
@@ -34,7 +34,7 @@ export function SingleGame(props: SingleGameProps) {
         props
     )
     const [cpState, cpListeners] = useCheckerPlayListeners()
-    const [score, setScore] = useState(initScore())
+    const [gameScore, setGameScore] = useState(score())
 
     const dialog =
         sgState.tag === 'SGEoG' ? (
@@ -42,9 +42,9 @@ export function SingleGame(props: SingleGameProps) {
                 {...{
                     stake: sgState.stake,
                     eogStatus: sgState.eogStatus,
-                    score: score.add(sgState.stake),
+                    score: gameScore.add(sgState.stake),
                     onClick: () => {
-                        doReset(score.add(sgState.stake))
+                        doReset(gameScore.add(sgState.stake))
                     },
                 }}
             />
@@ -62,7 +62,7 @@ export function SingleGame(props: SingleGameProps) {
     function doReset(scoreAfter: Score) {
         const state = toSGState({ absPos: gameConf.initialPos })
         setSGState(state)
-        setScore(scoreAfter)
+        setGameScore(scoreAfter)
     }
 
     return <SingleGameBoard {...sgProps} />
