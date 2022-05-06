@@ -1,7 +1,7 @@
 import { CBState } from '../../dispatchers/CubeGameState'
 import { SGState } from '../../dispatchers/SingleGameState'
 import {
-    GameState,
+    GameSetup,
     toCBState,
     toSGState,
 } from '../../dispatchers/utils/GameState'
@@ -11,7 +11,7 @@ export type BGState = {
     sgState: SGState
 }
 
-export function toState(gameState: GameState = {}): BGState {
+export function toState(gameState: GameSetup = {}): BGState {
     const cbState: CBState = toCBState(gameState)
     const sgState: SGState = toSGState(gameState)
     return { cbState, sgState }

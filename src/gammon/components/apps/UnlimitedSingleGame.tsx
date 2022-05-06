@@ -1,6 +1,6 @@
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { SGState } from '../../dispatchers/SingleGameState'
-import { GameState, toSGState } from '../../dispatchers/utils/GameState'
+import { GameSetup, toSGState } from '../../dispatchers/utils/GameState'
 import {
     RecordedSingleGame,
     RecordedSingleGameProps,
@@ -12,7 +12,7 @@ import './main.css'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
-    state?: GameState
+    state?: GameSetup
     sgConfs?: SingleGameConfs
 }
 

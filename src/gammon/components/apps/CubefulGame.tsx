@@ -7,7 +7,7 @@ import { BoardEventHandlers } from '../boards/Board'
 import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import {
-    GameState,
+    GameSetup,
     toCBState,
     toSGState,
 } from '../../dispatchers/utils/GameState'
@@ -17,7 +17,7 @@ import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
 import { useSingleGameListeners } from '../useSingleGameListeners'
 
 export type CubefulGameProps = {
-    state?: GameState
+    state?: GameSetup
     cbConfs?: CubefulGameConfs
 } & Partial<
     CubeGameListeners &

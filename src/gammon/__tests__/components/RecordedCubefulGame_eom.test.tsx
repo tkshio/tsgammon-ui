@@ -7,7 +7,7 @@ import {
     RecordedCubefulGameProps,
 } from '../../components/recordedGames/RecordedCubefulGame'
 import {
-    GameState,
+    GameSetup,
     GameStatus,
     toCBState,
     toSGState,
@@ -21,7 +21,7 @@ beforeEach(() => {
     document.body.appendChild(container)
 })
 
-const gameState: GameState = {
+const gameState: GameSetup = {
     gameStatus: GameStatus.EOG_WHITEWON,
     // prettier-ignore
     absPos: [

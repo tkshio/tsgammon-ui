@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { score, Score } from 'tsgammon-core'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { GameState } from '../../dispatchers/utils/GameState'
+import { GameSetup } from '../../dispatchers/utils/GameState'
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import { BGState, toState } from '../recordedGames/BGState'
 import {
@@ -17,7 +17,7 @@ export type PointMatchProps = {
     matchLength?: number
     matchScore?: Score
     isCrawford?: boolean
-    board?: GameState
+    board?: GameSetup
     cbConfs?: CubefulGameConfs
 }
 

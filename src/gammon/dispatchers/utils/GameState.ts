@@ -48,7 +48,7 @@ export enum GameStatus {
     EOG_WHITEWON,
 }
 
-export type GameState =
+export type GameSetup =
     | {
           gameStatus?: GameStatus.OPENING
           absPos?: number[]
@@ -87,7 +87,7 @@ export type GameState =
       }
 
 export function toCBState(
-    gameState: GameState = {},
+    gameState: GameSetup = {},
 ): CBState {
     const { gameStatus, cubeState = cube(1) } = gameState
     if (gameStatus === undefined) {
@@ -119,7 +119,7 @@ export function toCBState(
     }
 }
 
-export function toSGState(gameState: GameState = {}): SGState {
+export function toSGState(gameState: GameSetup = {}): SGState {
     if (gameState.gameStatus === undefined) {
         return openingState(
             boardState(gameState.absPos ?? standardConf.initialPos)

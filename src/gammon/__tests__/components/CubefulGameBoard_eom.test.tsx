@@ -7,7 +7,7 @@ import {
     CubefulGameBoardProps,
 } from '../../components/CubefulGameBoard'
 import {
-    GameState,
+    GameSetup,
     GameStatus,
     toCBState,
     toSGState,
@@ -21,7 +21,7 @@ beforeEach(() => {
     document.body.appendChild(container)
 })
 
-const gameState: GameState = {
+const gameState: GameSetup = {
     gameStatus: GameStatus.INPLAY_WHITE,
     // prettier-ignore
     absPos: [

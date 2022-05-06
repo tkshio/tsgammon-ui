@@ -4,7 +4,7 @@ import { score as initScore, Score } from 'tsgammon-core/Score'
 import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher'
 import { RollListener } from '../../dispatchers/RollDispatcher'
 import { SingleGameListeners } from '../../dispatchers/SingleGameDispatcher'
-import { GameState, toSGState } from '../../dispatchers/utils/GameState'
+import { GameSetup, toSGState } from '../../dispatchers/utils/GameState'
 import { BoardEventHandlers } from '../boards/Board'
 import {
     SingleGameBoard,
@@ -18,7 +18,7 @@ import { useSingleGameListeners } from '../useSingleGameListeners'
 export type SingleGameProps = {
     gameConf?: GameConf
     sgConfs?: SingleGameConfs
-} & GameState &
+} & GameSetup &
     Partial<
         SingleGameListeners &
             RollListener &

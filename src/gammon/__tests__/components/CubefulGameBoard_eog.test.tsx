@@ -3,7 +3,7 @@ import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import {
-    GameState,
+    GameSetup,
     GameStatus,
     toCBState,
     toSGState
@@ -17,7 +17,7 @@ beforeEach(() => {
     document.body.appendChild(container)
 })
 
-const gameState: GameState = {
+const gameState: GameSetup = {
     gameStatus: GameStatus.INPLAY_WHITE,
     // prettier-ignore
     absPos: [

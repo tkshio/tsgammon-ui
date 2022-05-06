@@ -3,7 +3,7 @@ import { unmountComponentAtNode } from 'react-dom'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import {
-    GameState,
+    GameSetup,
     GameStatus,
     toCBState,
     toSGState
@@ -16,7 +16,7 @@ beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
 })
-const gameState: GameState = {
+const gameState: GameSetup = {
     gameStatus: GameStatus.INPLAY_RED,
     // prettier-ignore
     absPos: [

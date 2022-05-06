@@ -8,7 +8,7 @@ import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import {
-    GameState,
+    GameSetup,
     GameStatus,
     toCBState,
     toSGState,
@@ -24,7 +24,7 @@ beforeEach(() => {
 
     jest.useFakeTimers()
 })
-const gameState: GameState = {
+const gameState: GameSetup = {
     gameStatus: GameStatus.CUBEACTION_RED,
     // prettier-ignore
     absPos:[-1,
@@ -43,7 +43,7 @@ const engine: GammonEngine = simpleEvalEngine((board) => {
     return ev.e
 })
 
-const props = setupListeners(state, presetDiceSource(1, 3))
+const props = {...setupListeners(state, presetDiceSource(1, 3)), ...state}
 
 describe('CubeGameBoard', () => {
     test('lets redAutoPlayer do cubeAction', async () => {
