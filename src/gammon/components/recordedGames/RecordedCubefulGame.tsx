@@ -26,10 +26,10 @@ import {
 import { SGEoG, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import {
-    CubefulGameBoard,
-    CubefulGameBoardProps,
+    CubefulGame,
+    CubefulGameProps,
     CubefulGameConfs,
-} from '../CubefulGameBoard'
+} from '../CubefulGame'
 import { EOGDialog } from '../uiparts/EOGDialog'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -159,13 +159,13 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         isCrawford: cur.isCrawford,
         ...cpListeners,
     }
-    const cubeGameProps: CubefulGameBoardProps = isLatest
+    const cubeGameProps: CubefulGameProps = isLatest
         ? {
               ...minimalProps,
               ...cbListeners,
               ...sgListeners,
               cbConfs,
-              eogDialog,
+              dialog:eogDialog,
           }
         : minimalProps
 
@@ -187,7 +187,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     return (
         <RecordedGame {...recordedGameProps}>
             <Fragment>
-                <CubefulGameBoard {...cubeGameProps} key={key} />
+                <CubefulGame {...cubeGameProps} key={key} />
                 <PlyInfo {...plyInfoProps} />
             </Fragment>
         </RecordedGame>

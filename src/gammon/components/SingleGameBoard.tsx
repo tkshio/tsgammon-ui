@@ -7,30 +7,32 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import {
     asCheckerPlayState,
     CheckerPlayState,
-    CheckerPlayStateCommitted
+    CheckerPlayStateCommitted,
 } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     RollListener,
     rollListeners,
-    singleGameDispatcherWithRD
+    SingleGameDispatcherWithRD,
+    singleGameDispatcherWithRD,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
+    SingleGameDispatcher,
     singleGameDispatcher,
-    SingleGameListeners
+    SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
-    SGToRoll
+    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     Board,
     BoardEventHandlers,
     decorate,
     DiceLayout,
-    layoutCube
+    layoutCube,
 } from './boards/Board'
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
@@ -51,7 +53,7 @@ export type SingleGameBoardProps = {
     cpState?: CheckerPlayState
     cube?: CubeState
     sgConfs?: SingleGameConfs
-    dialog?:JSX.Element
+    dialog?: JSX.Element
 } & Partial<
     SingleGameListeners &
         CheckerPlayListeners &
@@ -85,42 +87,13 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
         rollListener: { onRollRequest },
     })
     const dispatcher = singleGameDispatcherWithRD(sgListeners, rollHandler)
-    const doRoll = useCallback(() => {
-        if (sgState.tag === 'SGToRoll') {
-            if (autoRoll) {
-                dispatcher.doRoll(sgState)
-            } else if (autoOperator) {
-                const operation =
-                    autoOperator[
-                        sgState.isRed ? 'operateRollRed' : 'operateRollWhite'
-                    ]
-                const doRoll = () => dispatcher.doRoll(sgState)
-                return operation(doRoll)
-            }
-        } else if (sgState.tag === 'SGInPlay') {
-            if (autoOperator) {
-                const operation =
-                    autoOperator[
-                        sgState.isRed
-                            ? 'operateCheckerPlayRed'
-                            : 'operateCheckerPlayWhite'
-                    ]
-                const doCheckerPlay = (node: BoardStateNode) =>
-                    dispatcher.doCommitCheckerPlay(sgState, node)
-
-                return operation(doCheckerPlay, sgState.boardStateNode, cube)
-            }
-        }
-        return false
-    }, [sgState, autoRoll, autoOperator, dispatcher, cube])
-
-    useDelayedTrigger(doRoll, 10)
+    useSGAutoOperator(sgState, autoRoll, autoOperator, dispatcher, cube)
 
     const positionID = showPositionID && (
         <PositionID points={sgState.boardState.points} />
     )
 
-    let board:JSX.Element
+    let board: JSX.Element
     if (sgState.tag !== 'SGInPlay') {
         const { onClickDice } = decorate(props, {
             onClickDice() {
@@ -167,7 +140,44 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
         </Fragment>
     )
 }
+function useSGAutoOperator(
+    sgState: SGState,
+    autoRoll: boolean,
+    autoOperator: SGOperator | undefined,
+    dispatcher: SingleGameDispatcherWithRD,
+    cube?: CubeState
+) {
+    const doRoll = useCallback(() => {
+        if (sgState.tag === 'SGToRoll') {
+            if (autoRoll) {
+                dispatcher.doRoll(sgState)
+            } else if (autoOperator) {
+                const operation =
+                    autoOperator[
+                        sgState.isRed ? 'operateRollRed' : 'operateRollWhite'
+                    ]
+                const doRoll = () => dispatcher.doRoll(sgState)
+                return operation(doRoll)
+            }
+        } else if (sgState.tag === 'SGInPlay') {
+            if (autoOperator) {
+                const operation =
+                    autoOperator[
+                        sgState.isRed
+                            ? 'operateCheckerPlayRed'
+                            : 'operateCheckerPlayWhite'
+                    ]
+                const doCheckerPlay = (node: BoardStateNode) =>
+                    dispatcher.doCommitCheckerPlay(sgState, node)
 
+                return operation(doCheckerPlay, sgState.boardStateNode, cube)
+            }
+        }
+        return false
+    }, [sgState, autoRoll, autoOperator, dispatcher, cube])
+
+    useDelayedTrigger(doRoll, 10)
+}
 // InPlay時以外は、SGStateから直接表示するダイスのレイアウトも内容も決まる
 function layoutDices(sgState: SGOpening | SGToRoll | SGEoG): DiceLayout {
     switch (sgState.tag) {
