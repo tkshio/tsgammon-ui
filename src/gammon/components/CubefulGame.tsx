@@ -87,24 +87,23 @@ export function CubefulGame(props: CubefulGameProps) {
             cubeResponseDialog: cubeResponseDialog(dispatcher),
         })
 
-    const onDouble = dispatcher.doDouble
+    const onDoubleOffer = dispatcher.doDouble
     const sgListeners: SingleGameListeners = cubefulSGListener(
         listeners,
         cbState,
         dispatcher
     )
-        const {...cpListeners}:Partial<CheckerPlayListeners> = listeners
-        console.log(cpListeners)
+
     const cbProps = {
         cbState,
         sgState,
         cpState,
         isCrawford,
         cbConfs,
-        onDouble,
         dialog: cbDialog,
-        ...cpListeners,
+        ...listeners,
         ...sgListeners,
+        onDoubleOffer,
     }
     return <CubefulGameBoard {...cbProps} />
 }

@@ -21,7 +21,7 @@ export type CubefulGameBoardProps = {
     cpState?: CheckerPlayState
 
     cbConfs?: CubefulGameConfs
-    onDouble?:(cbState:CBAction)=>void
+    onDoubleOffer?:(cbState:CBAction)=>void
     dialog?: JSX.Element
 } & Partial<
         SingleGameListeners &
@@ -36,7 +36,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         sgState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onDouble = ()=>{
+        onDoubleOffer = ()=>{
             //
         },
         ...listeners
@@ -60,7 +60,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     // キューブでのダブル
     const onClickCube = () => {
         if (cbState.tag === 'CBAction') {
-            onDouble(cbState)
+            onDoubleOffer(cbState)
         }
     }
 
