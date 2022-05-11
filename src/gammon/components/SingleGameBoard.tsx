@@ -16,7 +16,6 @@ import {
     singleGameDispatcherWithRD,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
-    SingleGameDispatcher,
     singleGameDispatcher,
     SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
