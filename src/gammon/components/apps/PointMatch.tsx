@@ -1,13 +1,40 @@
 import { useState } from 'react'
-import { score, Score } from 'tsgammon-core'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { DiceRoll, score, Score } from 'tsgammon-core'
+import { cubefulSGListener } from 'tsgammon-core/dispatchers/cubefulSGListener'
+import {
+    CubeGameDispatcher,
+    cubeGameDispatcher,
+    decorate as decorateCB,
+} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import {
+    RollListener,
+    rollListeners,
+} from 'tsgammon-core/dispatchers/RollDispatcher'
+import {
+    decorate as decorateSG,
+    singleGameDispatcher,
+    SingleGameDispatcher,
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGOpening, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { CubefulGameConfs } from '../CubefulGameBoard'
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import {
+    matchRecord as initMatchRecord,
+    MatchRecord,
+    setEoGRecord,
+} from 'tsgammon-core/records/MatchRecord'
+import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { CubefulGameConfs, CubeGameEventHandlers } from '../CubefulGameBoard'
+import { asCBListeners, asSGListeners } from '../recordedGames/addRecorders'
 import { BGState, toState } from '../recordedGames/BGState'
 import {
     RecordedCubefulGame,
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
+import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
+import { SingleGameEventHandlers } from '../SingleGameBoard'
 import { useCubeGameListeners } from '../useCubeGameListeners'
 import { useSingleGameListeners } from '../useSingleGameListeners'
 import './main.css'
@@ -19,7 +46,9 @@ export type PointMatchProps = {
     isCrawford?: boolean
     board?: GameSetup
     cbConfs?: CubefulGameConfs
-}
+    isRollHandlerEnabled?: boolean
+    diceSource?: DiceSource
+} & Partial<RollListener>
 
 /**
  * 回数無制限の対戦を行うコンポーネント
@@ -34,9 +63,20 @@ export function PointMatch(props: PointMatchProps) {
         gameConf = standardConf,
         cbConfs = { sgConfs: {} },
         matchLength = 0,
-        matchScore:curScore = score(),
+        matchScore: curScore = score(),
         isCrawford = false,
+        isRollHandlerEnabled = false,
+        diceSource = randomDiceSource,
+        onRollRequest = () => {
+            //
+        },
     } = props
+
+    const rollListener = rollListeners({
+        isRollHandlerEnabled,
+        diceSource,
+        rollListener: { onRollRequest },
+    })
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
     const { cbState: openingCBState, sgState: openingSGState } = toState({
@@ -54,22 +94,74 @@ export function PointMatch(props: PointMatchProps) {
     const [matchID, setMatchID] = useState(0)
     const [matchScore, setMatchScore] = useState(curScore)
 
+    // Propsで指定したマッチ情報は初期化の時に一回だけ参照される
+    const initialMatchRecord = setEoG(
+        { cbState, sgState },
+        gameConf,
+        initMatchRecord<BGState>(gameConf, matchLength, matchScore, isCrawford)
+    )
+
+    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
+        gameConf,
+        initialMatchRecord
+    )
+    function cubeGameEH(dispatcher: CubeGameDispatcher): CubeGameEventHandlers {
+        return {
+            onDoubleOffer: dispatcher.doDouble,
+            onTake: dispatcher.doTake,
+            onPass: dispatcher.doPass,
+        }
+    }
+    const cbDispatcher = cubeGameDispatcher(
+        isCrawford,
+        decorateCB(
+            asCBListeners(matchRecorder, gameConf, { cbState, sgState }),
+            cbListeners
+        )
+    )
+    const cubeGameEventHandlers: CubeGameEventHandlers =
+        cubeGameEH(cbDispatcher)
+    function sgEH(dispatcher: SingleGameDispatcher): SingleGameEventHandlers {
+        return {
+            onCommit: dispatcher.doCommitCheckerPlay,
+            onRoll: (sgState: SGToRoll) =>
+                rollListener.onRollRequest((dices: DiceRoll) => {
+                    console.log(sgState, dices)
+                    dispatcher.doRoll(sgState, dices)
+                }),
+            onRollOpening: (sgState: SGOpening) =>
+                rollListener.onRollRequest((dices: DiceRoll) =>
+                    dispatcher.doOpeningRoll(sgState, dices)
+                ),
+        }
+    }
+    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(
+        singleGameDispatcher(
+            decorateSG(
+                asSGListeners(matchRecorder, { cbState, sgState }),
+                cubefulSGListener(sgListeners, cbState, cbDispatcher)
+            )
+        )
+    )
+
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
         matchLength,
         matchScore,
         isCrawford,
+        matchRecord,
         bgState: { cbState, sgState },
         cbConfs,
-        ...cbListeners,
-        ...sgListeners,
+        ...cubeGameEventHandlers,
+        ...singleGameEventHandlers,
         onStartNextGame: () => {
             setCBState(openingCBState)
             setSGState(openingSGState)
         },
-        onResumeState: (lastState: BGState) => {
+        onResumeState: (index: number, lastState: BGState) => {
             setCBState(lastState.cbState)
             setSGState(lastState.sgState)
+            matchRecorder.resumeTo(index)
         },
         onEndOfMatch: () => {
             setMatchID((mid) => mid + 1)
@@ -80,4 +172,21 @@ export function PointMatch(props: PointMatchProps) {
     }
 
     return <RecordedCubefulGame key={matchID} {...recordedMatchProps} />
+}
+
+// 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する
+function setEoG(
+    curBGState: BGState,
+    stakeConf: StakeConf,
+    mRecord: MatchRecord<BGState>
+) {
+    if (curBGState.cbState.tag === 'CBEoG') {
+        const eogRecord = plyRecordForEoG(
+            curBGState.cbState.calcStake(stakeConf).stake,
+            curBGState.cbState.result,
+            curBGState.cbState.eogStatus
+        )
+        return setEoGRecord(mRecord, eogRecord)
+    }
+    return mRecord
 }

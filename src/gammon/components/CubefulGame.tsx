@@ -3,30 +3,22 @@ import { standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
-    CubeGameListeners,
-    cubeGameDispatcher,
-    CubeGameDispatcher,
-} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import {
     CBEoG,
     CBResponse,
-    CBState,
+    CBState
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score as initScore, Score } from 'tsgammon-core/Score'
-
 import { BoardEventHandlers } from './boards/Board'
+import { CubefulGameBoard, CubeGameEventHandlers } from './CubefulGameBoard'
+import { CBOperator } from './operators/CBOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
-import { CBOperator } from './operators/CBOperator'
-import { useAutoOperator } from './useAutoOperator'
-import { CubefulGameBoard } from './CubefulGameBoard'
-import { cubefulSGListener } from 'tsgammon-core/dispatchers/cubefulSGListener'
-import { SGOperator } from './operators/SGOperator'
+
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
     autoOperator?: CBOperator
@@ -45,7 +37,7 @@ export type CubefulGameProps = {
     dialog?: JSX.Element
     onCloseEOGDialog?: () => void
 } & Partial<
-    CubeGameListeners &
+    CubeGameEventHandlers &
         SingleGameListeners &
         RollListener &
         CheckerPlayListeners &
@@ -60,15 +52,15 @@ export function CubefulGame(props: CubefulGameProps) {
         isCrawford = false,
         dialog,
         onCloseEOGDialog,
-        cbConfs: _cbConfs = { sgConfs: {} },
-        ...listeners
+        cbConfs = { sgConfs: {} },
+        ...eventHandlers
     } = props
 
-    const { autoOperator, stakeConf = standardConf } = _cbConfs
-    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
-    useAutoOperator(cbState, sgState, autoOperator, dispatcher)
+    const { stakeConf = standardConf } = cbConfs
+//    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
+  //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
 
-    // チェッカープレイに関係ない時はSingleGame上で自律操作させない
+/*    // チェッカープレイに関係ない時はSingleGame上で自律操作させない
     const sgAutoOperator: SGOperator | undefined =
         cbState.tag === 'CBAction' ||
         cbState.tag === 'CBResponse' ||
@@ -79,21 +71,21 @@ export function CubefulGame(props: CubefulGameProps) {
         ..._cbConfs,
         sgConfs: { ..._cbConfs.sgConfs, autoOperator: sgAutoOperator },
     }
+*/
 
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, {
             eogDialog: eogDialog(stakeConf, score, onCloseEOGDialog),
-            cubeResponseDialog: cubeResponseDialog(dispatcher),
+            cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
-
-    const onDoubleOffer = dispatcher.doDouble
+    /*
     const sgListeners: SingleGameListeners = cubefulSGListener(
         listeners,
         cbState,
         dispatcher
     )
-
+*/
     const cbProps = {
         cbState,
         sgState,
@@ -101,9 +93,7 @@ export function CubefulGame(props: CubefulGameProps) {
         isCrawford,
         cbConfs,
         dialog: cbDialog,
-        ...listeners,
-        ...sgListeners,
-        onDoubleOffer,
+        ...eventHandlers,
     }
     return <CubefulGameBoard {...cbProps} />
 }
@@ -128,16 +118,20 @@ function eogDialog(
     )
 }
 function cubeResponseDialog(
-    dispatcher: CubeGameDispatcher
+    eventHandlers: Partial<CubeGameEventHandlers>
 ): (cbState: CBResponse) => JSX.Element {
     return (cbState: CBResponse) => (
         <CubeResponseDialog
             {...{
                 onTake: () => {
-                    dispatcher.doTake(cbState)
+                    if (eventHandlers.onTake) {
+                        eventHandlers.onTake(cbState)
+                    }
                 },
                 onPass: () => {
-                    dispatcher.doPass(cbState)
+                    if (eventHandlers.onPass) {
+                        eventHandlers.onPass(cbState)
+                    }
                 },
             }}
         />

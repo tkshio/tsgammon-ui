@@ -1,20 +1,20 @@
 import { Fragment } from 'react'
 import { GameConf, standardConf } from 'tsgammon-core'
-import {
-    plyRecordForCheckerPlay,
-    plyRecordForEoG,
-} from 'tsgammon-core/records/PlyRecord'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     decorate,
-    SingleGameListeners,
+    SingleGameListeners
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG, SGState, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
+    plyRecordForCheckerPlay,
+    plyRecordForEoG
+} from 'tsgammon-core/records/PlyRecord'
+import {
     SingleGameBoard,
     SingleGameBoardProps,
-    SingleGameConfs,
+    SingleGameConfs
 } from '../SingleGameBoard'
 import { EOGDialog } from '../uiparts/EOGDialog'
 import { PlyInfo } from '../uiparts/PlyInfo'
@@ -28,7 +28,7 @@ export type RecordedSingleGameProps = {
     sgState: SGState
     sgConfs: SingleGameConfs
     onStartNextGame: () => void
-    onResumeState: (state: SGState) => void
+    onResumeState: (index:number, state: SGState) => void
 } & SingleGameListeners &
     Partial<CheckerPlayListeners & RollListener>
 
@@ -57,7 +57,6 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     } = useSelectableStateWithRecord(
         curSGState,
         setCPState,
-        matchRecorder,
         onResumeState
     )
 

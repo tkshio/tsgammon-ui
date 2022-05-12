@@ -1,16 +1,21 @@
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CBAction, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { CBAction, CBResponse, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
+    SingleGameEventHandlers,
 } from './SingleGameBoard'
 
+export type CubeGameEventHandlers = {
+    onTake:(cbState:CBResponse)=>void,
+    onPass:(cbState:CBResponse)=>void,
+    onDoubleOffer: (cbState: CBAction) => void
+}
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
 }
@@ -21,11 +26,10 @@ export type CubefulGameBoardProps = {
     cpState?: CheckerPlayState
 
     cbConfs?: CubefulGameConfs
-    onDoubleOffer?:(cbState:CBAction)=>void
     dialog?: JSX.Element
 } & Partial<
-        SingleGameListeners &
-        RollListener &
+    CubeGameEventHandlers &
+        SingleGameEventHandlers &
         CheckerPlayListeners &
         BoardEventHandlers
 >
@@ -34,23 +38,16 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const {
         cbState,
         sgState,
+        cpState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onDoubleOffer = ()=>{
+        onDoubleOffer = () => {
             //
         },
-        ...listeners
+        ...handlers
     } = props
 
-    const autoRoll: boolean =
-        // Takeの直後は自動的にロール
-        cbState.tag === 'CBToRoll' && cbState.lastAction === 'Take'
-            ? true
-            : // Actionできる場合は自動ロールなし
-            cbState.tag === 'CBAction'
-            ? false
-            : // それ以外は設定値次第
-              cbConfs.sgConfs.autoRoll??false
+    const autoRoll: boolean = mayAutoRoll(cbState, cbConfs.sgConfs.autoRoll)
 
     const sgConfs: SingleGameConfs = {
         ...cbConfs.sgConfs,
@@ -65,13 +62,25 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     }
 
     const sgProps: SingleGameBoardProps = {
-        ...props,
-        ...listeners,
+        sgState,
+        cpState,
         cube: cbState.cubeState,
         onClickCube,
         sgConfs,
         dialog,
+        ...handlers,
     }
 
     return <SingleGameBoard {...sgProps} />
+}
+
+function mayAutoRoll(cbState: CBState, fallback = false): boolean {
+    return cbState.tag === 'CBToRoll' && cbState.lastAction === 'Take'
+        ? // Takeの直後は自動的にロール
+          true
+        : // Actionできる場合は自動ロールなし
+        cbState.tag === 'CBAction'
+        ? false
+        : // それ以外は設定値次第
+          fallback
 }

@@ -1,15 +1,26 @@
 import { useState } from 'react'
+import { DiceRoll } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import {
+    RollListener,
+    rollListeners,
+} from 'tsgammon-core/dispatchers/RollDispatcher'
+import {
+    singleGameDispatcher,
+    SingleGameDispatcher,
+    SingleGameListeners,
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGOpening, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { score, Score } from 'tsgammon-core/Score'
+import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
+    SingleGameEventHandlers,
 } from '../SingleGameBoard'
 import { EOGDialog } from '../uiparts/EOGDialog'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -31,9 +42,12 @@ export function SingleGame(props: SingleGameProps) {
     const initialSGState = toSGState(state)
     const [sgState, sgListeners, setSGState] = useSingleGameListeners(
         initialSGState,
-        props
+        {
+            onStartCheckerPlay: (next) => {console.log(next)},
+        }
     )
     const [cpState, cpListeners] = useCheckerPlayListeners()
+    console.log(cpListeners)
     const [gameScore, setGameScore] = useState(score())
 
     const dialog =
@@ -49,13 +63,37 @@ export function SingleGame(props: SingleGameProps) {
                 }}
             />
         ) : undefined
+    const rollListener = rollListeners({
+        isRollHandlerEnabled: false,
+        diceSource: randomDiceSource,
+    })
+    function sgEH(dispatcher: SingleGameDispatcher): SingleGameEventHandlers {
+        return {
+            onCommit: (state, node) => {
+                const n = dispatcher.doCommitCheckerPlay(state, node)
+                console.log(state, n)
+            },
+            onRoll: (sgState: SGToRoll) =>
+                rollListener.onRollRequest((dices: DiceRoll) => {
+                    console.log(sgState, dices)
+                    dispatcher.doRoll(sgState, dices)
+                }),
+            onRollOpening: (sgState: SGOpening) =>
+                rollListener.onRollRequest((dices: DiceRoll) =>
+                    dispatcher.doOpeningRoll(sgState, dices)
+                ),
+        }
+    }
+    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(
+        singleGameDispatcher(sgListeners)
+    )
     const sgProps: SingleGameBoardProps = {
         ...props,
         sgState,
         cpState,
         sgConfs,
         dialog,
-        ...sgListeners,
+        ...singleGameEventHandlers,
         ...cpListeners,
     }
 
