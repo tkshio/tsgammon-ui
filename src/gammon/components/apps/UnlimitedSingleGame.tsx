@@ -6,9 +6,12 @@ import {
     RecordedSingleGameProps,
 } from '../recordedGames/RecordedSingleGame'
 import { SingleGameConfs } from '../SingleGameBoard'
-import { useSingleGameListeners } from '../useSingleGameListeners'
 
 import './main.css'
+import { useSingleGameState } from '../useSingleGameState'
+import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { MatchRecorder, useMatchRecorder } from '../recordedGames/useMatchRecorder'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
@@ -31,23 +34,48 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const initialSGState = toSGState(state)
 
     // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
-    const openingSGState = toSGState({ absPos: gameConf.initialPos })
 
-    const [sgState, listeners, setSGState] =
-        useSingleGameListeners(initialSGState)
-
+    const rollListener = rollListeners({
+        isRollHandlerEnabled: false,
+        diceSource: randomDiceSource,
+    })
+    const {sgState, singleGameEventHandlers} =
+        useSingleGameState(gameConf,initialSGState,rollListener)
+    const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
     const recordedMatchProps: RecordedSingleGameProps = {
-        gameConf,
         sgState,
         sgConfs,
-        ...listeners,
+        matchRecord,
+        ...singleGameEventHandlers,
         onStartNextGame: () => {
-            setSGState(openingSGState)
+            singleGameEventHandlers.onReset()
         },
-        onResumeState: (lastState: SGState) => {
-            setSGState(lastState)
+        onResumeState: (index:number, lastState: SGState) => {
+            singleGameEventHandlers.onSetSGState(lastState)
         },
     }
 
     return <RecordedSingleGame {...recordedMatchProps} />
 }
+
+/*
+function asListeners(
+    matchRecorder: MatchRecorder<SGState>
+): Partial<SingleGameListeners> {
+    return { onAwaitRoll, onEndOfGame }
+
+    function onAwaitRoll(nextState: SGToRoll) {
+        const lastState = nextState.lastState()
+        const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
+        matchRecorder.recordPly(plyRecord, lastState)
+    }
+
+    function onEndOfGame(nextState: SGEoG) {
+        const lastState = nextState.lastState()
+        const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
+        matchRecorder.recordPly(plyRecord, lastState)
+        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result, nextState.eogStatus)
+        matchRecorder.recordEoG(plyRecordEoG)
+    }
+}
+*/

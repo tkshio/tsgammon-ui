@@ -1,11 +1,28 @@
-import { CubeGameListeners } from "tsgammon-core/dispatchers/CubeGameDispatcher"
-import { CBEoG, CBResponse, CBToRoll } from "tsgammon-core/dispatchers/CubeGameState"
-import { SingleGameListeners } from "tsgammon-core/dispatchers/SingleGameDispatcher"
-import { SGEoG, SGToRoll } from "tsgammon-core/dispatchers/SingleGameState"
-import { StakeConf } from "tsgammon-core/dispatchers/StakeConf"
-import { plyRecordForCheckerPlay, plyRecordForDouble, plyRecordForEoG, plyRecordForPass, plyRecordForTake } from "tsgammon-core/records/PlyRecord"
-import { BGState } from "./BGState"
-import { MatchRecorder } from "./useMatchRecorder"
+import { BoardStateNode } from 'tsgammon-core'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import {
+    CBEoG,
+    CBResponse,
+    CBState,
+    CBToRoll
+} from 'tsgammon-core/dispatchers/CubeGameState'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import {
+    SGEoG,
+    SGInPlay,
+    SGToRoll
+} from 'tsgammon-core/dispatchers/SingleGameState'
+import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
+import {
+    plyRecordForCheckerPlay,
+    plyRecordForDouble,
+    plyRecordForEoG,
+    plyRecordForPass,
+    plyRecordForTake
+} from 'tsgammon-core/records/PlyRecord'
+import { SingleGameEventHandlers } from '../SingleGameBoard'
+import { BGState } from './BGState'
+import { MatchRecorder } from './useMatchRecorder'
 
 export function asCBListeners(
     matchRecorder: MatchRecorder<BGState>,
@@ -39,6 +56,19 @@ export function asCBListeners(
             nextState.eogStatus
         )
         matchRecorder.recordEoG(plyRecordEoG)
+    }
+}
+export function asSGEventHandlers(
+    cbState: CBState,
+    matchRecorder: MatchRecorder<BGState>
+): Partial<SingleGameEventHandlers> {
+    return {
+        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
+            matchRecorder.recordPly(plyRecordForCheckerPlay(sgState.curPly), {
+                cbState,
+                sgState,
+            })
+        },
     }
 }
 

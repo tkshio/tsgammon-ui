@@ -1,21 +1,11 @@
 import { useState } from 'react'
-import { DiceRoll, score, Score } from 'tsgammon-core'
-import { cubefulSGListener } from 'tsgammon-core/dispatchers/cubefulSGListener'
-import {
-    CubeGameDispatcher,
-    cubeGameDispatcher,
-    decorate as decorateCB,
-} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { score, Score } from 'tsgammon-core'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import {
-    decorate as decorateSG,
-    singleGameDispatcher,
-    SingleGameDispatcher,
-} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { SGOpening, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -26,17 +16,17 @@ import {
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGameConfs, CubeGameEventHandlers } from '../CubefulGameBoard'
-import { asCBListeners, asSGListeners } from '../recordedGames/addRecorders'
+import { CubefulGameConfs } from '../CubefulGameBoard'
+import { CubeGameEventHandlers } from '../CubeGameEventHandlers'
 import { BGState, toState } from '../recordedGames/BGState'
 import {
+    GameEventHandler,
     RecordedCubefulGame,
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameEventHandlers } from '../SingleGameBoard'
-import { useCubeGameListeners } from '../useCubeGameListeners'
-import { useSingleGameListeners } from '../useSingleGameListeners'
+import { useCubeGameState } from '../useCubeGameState'
 import './main.css'
 
 export type PointMatchProps = {
@@ -78,97 +68,43 @@ export function PointMatch(props: PointMatchProps) {
         rollListener: { onRollRequest },
     })
 
-    // 初期盤面（２回目以降の対局でも使用）はconfに応じて設定される
-    const { cbState: openingCBState, sgState: openingSGState } = toState({
-        absPos: gameConf.initialPos,
-    })
-
     // 盤面の指定があれば、そこから開始
     const { cbState: initialCBState, sgState: initialSGState } = toState(
         props.board
     )
-    const [cbState, cbListeners, setCBState] =
-        useCubeGameListeners(initialCBState)
-    const [sgState, sgListeners, setSGState] =
-        useSingleGameListeners(initialSGState)
-    const [matchID, setMatchID] = useState(0)
-    const [matchScore, setMatchScore] = useState(curScore)
 
     // Propsで指定したマッチ情報は初期化の時に一回だけ参照される
     const initialMatchRecord = setEoG(
-        { cbState, sgState },
+        { cbState: initialCBState, sgState: initialSGState },
         gameConf,
-        initMatchRecord<BGState>(gameConf, matchLength, matchScore, isCrawford)
+        initMatchRecord<BGState>(gameConf, matchLength, curScore, isCrawford)
     )
 
-    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
+    const {
+        cbState,
+        sgState,
+        eventHandlers: cbEventHandlers,
+    } = useCubeGameState(
         gameConf,
-        initialMatchRecord
-    )
-    function cubeGameEH(dispatcher: CubeGameDispatcher): CubeGameEventHandlers {
-        return {
-            onDoubleOffer: dispatcher.doDouble,
-            onTake: dispatcher.doTake,
-            onPass: dispatcher.doPass,
-        }
-    }
-    const cbDispatcher = cubeGameDispatcher(
         isCrawford,
-        decorateCB(
-            asCBListeners(matchRecorder, gameConf, { cbState, sgState }),
-            cbListeners
-        )
-    )
-    const cubeGameEventHandlers: CubeGameEventHandlers =
-        cubeGameEH(cbDispatcher)
-    function sgEH(dispatcher: SingleGameDispatcher): SingleGameEventHandlers {
-        return {
-            onCommit: dispatcher.doCommitCheckerPlay,
-            onRoll: (sgState: SGToRoll) =>
-                rollListener.onRollRequest((dices: DiceRoll) => {
-                    console.log(sgState, dices)
-                    dispatcher.doRoll(sgState, dices)
-                }),
-            onRollOpening: (sgState: SGOpening) =>
-                rollListener.onRollRequest((dices: DiceRoll) =>
-                    dispatcher.doOpeningRoll(sgState, dices)
-                ),
-        }
-    }
-    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(
-        singleGameDispatcher(
-            decorateSG(
-                asSGListeners(matchRecorder, { cbState, sgState }),
-                cubefulSGListener(sgListeners, cbState, cbDispatcher)
-            )
-        )
+        initialSGState,
+        initialCBState,
+        rollListener
     )
 
+    const { matchRecord, matchID, eventHandlers } =
+        useCubeGameEventHandlerWithMatchRecorder(
+            gameConf,
+            initialMatchRecord,
+            cbEventHandlers
+        )
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
-        matchLength,
-        matchScore,
-        isCrawford,
+        matchScore: matchRecord.matchScore,
         matchRecord,
         bgState: { cbState, sgState },
         cbConfs,
-        ...cubeGameEventHandlers,
-        ...singleGameEventHandlers,
-        onStartNextGame: () => {
-            setCBState(openingCBState)
-            setSGState(openingSGState)
-        },
-        onResumeState: (index: number, lastState: BGState) => {
-            setCBState(lastState.cbState)
-            setSGState(lastState.sgState)
-            matchRecorder.resumeTo(index)
-        },
-        onEndOfMatch: () => {
-            setMatchID((mid) => mid + 1)
-            setMatchScore(score())
-            setCBState(openingCBState)
-            setSGState(openingSGState)
-        },
+        ...eventHandlers,
     }
 
     return <RecordedCubefulGame key={matchID} {...recordedMatchProps} />
@@ -189,4 +125,45 @@ function setEoG(
         return setEoGRecord(mRecord, eogRecord)
     }
     return mRecord
+}
+
+export function useCubeGameEventHandlerWithMatchRecorder(
+    gameConf: GameConf,
+    initialMatchRecord: MatchRecord<BGState>,
+    eventHandlers: SingleGameEventHandlers & CubeGameEventHandlers
+): {
+    eventHandlers: GameEventHandler<BGState> &
+        CubeGameEventHandlers &
+        SingleGameEventHandlers
+    matchRecord: MatchRecord<BGState>
+    matchID: number
+} {
+    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
+        gameConf,
+        initialMatchRecord
+    )
+    const [matchID, setMatchID] = useState(0)
+    const gameEventHandlers: GameEventHandler<BGState> = {
+        onStartNextGame: () => {
+            eventHandlers.onReset()
+            matchRecorder.resetCurGame()
+        },
+        onResumeState: (index: number, lastState: BGState) => {
+            eventHandlers.onSetCBState(lastState.cbState)
+            eventHandlers.onSetSGState(lastState.sgState)
+            matchRecorder.resumeTo(index)
+        },
+        onEndOfMatch: () => {
+            eventHandlers.onReset()
+            setMatchID((mid) => mid + 1)
+        },
+    }
+    return {
+        eventHandlers: {
+            ...eventHandlers,
+            ...gameEventHandlers,
+        },
+        matchRecord,
+        matchID,
+    }
 }

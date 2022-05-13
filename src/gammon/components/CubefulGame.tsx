@@ -8,14 +8,14 @@ import {
     CBState
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score as initScore, Score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
-import { CubefulGameBoard, CubeGameEventHandlers } from './CubefulGameBoard'
+import { CubefulGameBoard } from './CubefulGameBoard'
+import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
 import { CBOperator } from './operators/CBOperator'
-import { SingleGameConfs } from './SingleGameBoard'
+import { SingleGameConfs, SingleGameEventHandlers } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 
@@ -30,15 +30,13 @@ export type CubefulGameProps = {
     sgState: SGState
     cpState?: CheckerPlayState
     scoreBefore?: Score
-    matchLength?: number
-    isCrawford?: boolean
 
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
     onCloseEOGDialog?: () => void
 } & Partial<
     CubeGameEventHandlers &
-        SingleGameListeners &
+        SingleGameEventHandlers &
         RollListener &
         CheckerPlayListeners &
         BoardEventHandlers
@@ -49,7 +47,6 @@ export function CubefulGame(props: CubefulGameProps) {
         sgState,
         cpState,
         scoreBefore: score = initScore(),
-        isCrawford = false,
         dialog,
         onCloseEOGDialog,
         cbConfs = { sgConfs: {} },
@@ -79,18 +76,11 @@ export function CubefulGame(props: CubefulGameProps) {
             eogDialog: eogDialog(stakeConf, score, onCloseEOGDialog),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
-    /*
-    const sgListeners: SingleGameListeners = cubefulSGListener(
-        listeners,
-        cbState,
-        dispatcher
-    )
-*/
+   
     const cbProps = {
         cbState,
         sgState,
         cpState,
-        isCrawford,
         cbConfs,
         dialog: cbDialog,
         ...eventHandlers,

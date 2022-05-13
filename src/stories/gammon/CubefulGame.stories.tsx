@@ -2,14 +2,14 @@ import React from 'react'
 import { Meta, Story } from '@storybook/react'
 
 import {
-    CubefulGame,
-    CubefulGameProps,
-} from '../../gammon/components/apps/CubefulGame'
+    MoneyGame,
+    MoneyGameProps,
+} from '../../gammon/components/apps/MoneyGame'
 
 // this export is required.
 export default {
     title: 'CubefulGame',
-    component: CubefulGame,
+    component: MoneyGame,
     parameters: {},
 } as Meta
 
@@ -17,7 +17,7 @@ export default {
 // define Story as Story<> object
 
 // default
-const Template: Story<CubefulGameProps> = (args) => <CubefulGame {...args} />
+const Template: Story<MoneyGameProps> = (args) => <MoneyGame {...args} />
 
 export const initialBoard = Template.bind({})
 initialBoard.args = {}

@@ -1,21 +1,18 @@
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CBAction, CBResponse, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-
+import {
+    CBState} from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
+import { CubeGameEventHandlers } from './CubeGameEventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
-    SingleGameEventHandlers,
+    SingleGameEventHandlers
 } from './SingleGameBoard'
 
-export type CubeGameEventHandlers = {
-    onTake:(cbState:CBResponse)=>void,
-    onPass:(cbState:CBResponse)=>void,
-    onDoubleOffer: (cbState: CBAction) => void
-}
+
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
 }
@@ -41,7 +38,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cpState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onDoubleOffer = () => {
+        onDouble = () => {
             //
         },
         ...handlers
@@ -57,7 +54,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     // キューブでのダブル
     const onClickCube = () => {
         if (cbState.tag === 'CBAction') {
-            onDoubleOffer(cbState)
+            onDouble(cbState)
         }
     }
 

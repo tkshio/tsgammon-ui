@@ -36,6 +36,8 @@ export type SingleGameEventHandlers = {
     onCommit: (sgState: SGInPlay, node: BoardStateNode) => void
     onRoll: (sgState: SGToRoll) => void
     onRollOpening: (sgState: SGOpening) => void
+    onReset: () => void
+    onSetSGState: (sgState: SGState) => void
 }
 export type SingleGameBoardProps = {
     sgState: SGState
@@ -45,6 +47,21 @@ export type SingleGameBoardProps = {
     dialog?: JSX.Element
 } & Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 
+function useAutoRoll(
+    sgState: SGState,
+    autoRoll: boolean,
+    onRoll: (sgState: SGToRoll) => void
+) {
+    const doRoll = useCallback(() => {
+        if (sgState.tag === 'SGToRoll') {
+            if (autoRoll) {
+                onRoll(sgState)
+            }
+        }
+        return false
+    }, [sgState, autoRoll, onRoll])
+    useDelayedTrigger(doRoll, 10)
+}
 export function SingleGameBoard(props: SingleGameBoardProps) {
     const doNothing = () => {
         //
@@ -59,23 +76,26 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
         onRollOpening = doNothing,
     } = props
     const { showPositionID = true, autoRoll = false } = sgConfs
-    const doRoll = useCallback(() => {
-        if (sgState.tag === 'SGToRoll') {
-            if (autoRoll) {
-                onRoll(sgState)
-            }
-        }
-        return false
-    }, [sgState, autoRoll, onRoll])
-    useDelayedTrigger(doRoll, 10)
+    useAutoRoll(sgState, autoRoll, onRoll)
     //    useSGAutoOperator(sgState, autoRoll, autoOperator, dispatcher, cube)
 
     const positionID = showPositionID && (
         <PositionID points={sgState.boardState.points} />
     )
 
-    let board: JSX.Element
-    if (sgState.tag !== 'SGInPlay') {
+    const board =
+        sgState.tag === 'SGInPlay'
+            ? renderBoardInPlay(sgState)
+            : renderBoard(sgState)
+
+    return (
+        <Fragment>
+            {positionID}
+            {board}
+        </Fragment>
+    )
+
+    function renderBoard(sgState: SGOpening | SGToRoll | SGEoG) {
         const { onClickDice } = decorate(props, {
             onClickDice() {
                 if (sgState.tag === 'SGOpening') {
@@ -92,8 +112,10 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             ...layoutCube(cube),
             onClickDice,
         }
-        board = <Board {...boardProps} />
-    } else {
+        return <Board {...boardProps} />
+    }
+
+    function renderBoardInPlay(sgState: SGInPlay) {
         // チェッカープレイ中の操作は専用のコンポーネントに任せる
         const cpProps: CheckerPlayBoardProps = {
             ...props,
@@ -108,15 +130,8 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
                 }
             },
         }
-        board = <CheckerPlayBoard {...cpProps} />
+        return <CheckerPlayBoard {...cpProps} />
     }
-
-    return (
-        <Fragment>
-            {positionID}
-            {board}
-        </Fragment>
-    )
 }
 // InPlay時以外は、SGStateから直接表示するダイスのレイアウトも内容も決まる
 function layoutDices(sgState: SGOpening | SGToRoll | SGEoG): DiceLayout {
