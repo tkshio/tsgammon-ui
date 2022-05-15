@@ -1,17 +1,17 @@
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     RecordedSingleGame,
     RecordedSingleGameProps,
 } from '../recordedGames/RecordedSingleGame'
+import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
-
-import './main.css'
 import { useSingleGameState } from '../useSingleGameState'
-import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { MatchRecorder, useMatchRecorder } from '../recordedGames/useMatchRecorder'
+import './main.css'
+import { addMatchRecorderToSG } from './PointMatch'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
@@ -39,18 +39,27 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         isRollHandlerEnabled: false,
         diceSource: randomDiceSource,
     })
-    const {sgState, singleGameEventHandlers} =
-        useSingleGameState(gameConf,initialSGState,rollListener)
+    const { sgState, singleGameEventHandlers } = useSingleGameState(
+        gameConf,
+        initialSGState,
+        rollListener
+    )
     const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
+    const eventHandlers = addMatchRecorderToSG(
+        singleGameEventHandlers,
+        matchRecorder
+    )
+
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
         sgConfs,
         matchRecord,
         ...singleGameEventHandlers,
+        ...eventHandlers,
         onStartNextGame: () => {
             singleGameEventHandlers.onReset()
         },
-        onResumeState: (index:number, lastState: SGState) => {
+        onResumeState: (_: number, lastState: SGState) => {
             singleGameEventHandlers.onSetSGState(lastState)
         },
     }

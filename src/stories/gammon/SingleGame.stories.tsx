@@ -9,9 +9,9 @@ import {
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
-    SingleGame,
-    SingleGameProps
-} from '../../gammon/components/apps/SingleGame'
+    Cubeless,
+    CubelessProps
+} from '../../gammon/components/apps/Cubeless'
 import {
     bothSGAutoOperator,
     redSGAutoOperator
@@ -20,7 +20,7 @@ import {
 // this export is required.
 export default {
     title: 'SingleGame',
-    component: SingleGame,
+    component: Cubeless,
     parameters: {},
 } as Meta
 
@@ -28,7 +28,7 @@ export default {
 // define Story as Story<> object
 
 // default
-const Template: Story<SingleGameProps> = (args) => <SingleGame {...args} />
+const Template: Story<CubelessProps> = (args) => <Cubeless {...args} />
 
 export const initialBoard = Template.bind({})
 initialBoard.args = {}

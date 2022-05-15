@@ -1,35 +1,24 @@
 import { Fragment } from 'react'
-import { GameConf, standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import {
-    SingleGameListeners
-} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { SGEoG, SGState, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { SingleGame, SingleGameProps } from '../SingleGame'
 import {
-    plyRecordForCheckerPlay,
-    plyRecordForEoG
-} from 'tsgammon-core/records/PlyRecord'
-import {
-    SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
     SingleGameEventHandlers
 } from '../SingleGameBoard'
-import { EOGDialog } from '../uiparts/EOGDialog'
-import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
-import { MatchRecorder } from './useMatchRecorder'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedSingleGameProps = {
     sgState: SGState
     sgConfs: SingleGameConfs
-    matchRecord:MatchRecord<SGState>
+    matchRecord: MatchRecord<SGState>
     onStartNextGame: () => void
-    onResumeState: (index:number, state: SGState) => void
+    onResumeState: (index: number, state: SGState) => void
 } & SingleGameEventHandlers &
     Partial<CheckerPlayListeners & RollListener>
 
@@ -54,42 +43,22 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
         selectedState: { index, state: sgState },
         ssListeners,
-    } = useSelectableStateWithRecord(
-        curSGState,
-        setCPState,
-        onResumeState
-    )
+    } = useSelectableStateWithRecord(curSGState, setCPState, onResumeState)
 
     const isLatest = index === undefined
-
-
-
-    const eogDialog =
-        sgState.tag === 'SGEoG' ? (
-            <EOGDialog
-                stake={sgState.stake}
-                eogStatus={sgState.eogStatus}
-                score={matchRecord.matchScore}
-                onClick={() => {
-                    if (onStartNextGame) {
-                        onStartNextGame()
-                    }
-                }}
-            />
-        ) : undefined
 
     const minimalProps: SingleGameBoardProps = {
         sgState,
         cpState,
-        dialog:eogDialog,
+        sgConfs,
         ...cpListeners,
     }
 
-    const singleGameProps: SingleGameBoardProps = isLatest
+    const singleGameProps: SingleGameProps = isLatest
         ? {
               ...minimalProps,
+              onStartNextGame,
               ...listeners,
-              sgConfs,
           }
         : minimalProps
 
@@ -101,17 +70,10 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         ...ssListeners,
     }
 
-    const plyInfoProps = {
-        sgState,
-        cpState,
-        score: matchRecord.matchScore,
-    }
-
     return (
         <RecordedGame {...recordedGameProps}>
             <Fragment>
-                <SingleGameBoard {...singleGameProps} key={key} />
-                <PlyInfo {...plyInfoProps} />
+                <SingleGame {...singleGameProps} key={key} />
             </Fragment>
         </RecordedGame>
     )

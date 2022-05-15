@@ -2,24 +2,23 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { score, Score } from 'tsgammon-core/Score'
+import { score } from 'tsgammon-core/Score'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
+import { SingleGame, SingleGameProps } from '../SingleGame'
 import {
-    SingleGameBoard,
-    SingleGameBoardProps,
-    SingleGameConfs,
+    SingleGameConfs
 } from '../SingleGameBoard'
-import { EOGDialog } from '../uiparts/EOGDialog'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useSingleGameState } from '../useSingleGameState'
 
-export type SingleGameProps = {
+export type CubelessProps = {
     gameConf?: GameConf
     sgConfs?: SingleGameConfs
 } & GameSetup &
@@ -30,8 +29,8 @@ export type SingleGameProps = {
             BoardEventHandlers
     >
 
-export function SingleGame(props: SingleGameProps) {
-    const { gameConf = standardConf, sgConfs } = props
+export function Cubeless(props: CubelessProps) {
+    const { gameConf = standardConf, sgConfs, ...listeners } = props
 
     const rollListener = rollListeners({
         isRollHandlerEnabled: false,
@@ -46,36 +45,24 @@ export function SingleGame(props: SingleGameProps) {
     )
 
     const [cpState, cpListeners] = useCheckerPlayListeners()
-    const [gameScore, setGameScore] = useState(score())
+    const [matchScore, setMatchScore] = useState(score())
 
-    const dialog =
-        sgState.tag === 'SGEoG' ? (
-            <EOGDialog
-                {...{
-                    stake: sgState.stake,
-                    eogStatus: sgState.eogStatus,
-                    score: gameScore.add(sgState.stake),
-                    onClick: () => {
-                        doReset(gameScore.add(sgState.stake))
-                    },
-                }}
-            />
-        ) : undefined
-
-    const sgProps: SingleGameBoardProps = {
-        ...props,
+    const sgProps: SingleGameProps = {
         sgState,
         cpState,
         sgConfs,
-        dialog,
+        matchScore,
+        onStartNextGame: (sgState: SGEoG) => {
+            doReset(sgState)
+        },
+        ...listeners,
         ...singleGameEventHandlers,
         ...cpListeners,
     }
 
-    function doReset(scoreAfter: Score) {
-        singleGameEventHandlers.onReset()
-        setGameScore(scoreAfter)
+    function doReset(sgState: SGEoG) {
+        setMatchScore((prev) => prev.add(sgState.stake))
     }
 
-    return <SingleGameBoard {...sgProps} />
+    return <SingleGame {...sgProps} />
 }
