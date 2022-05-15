@@ -4,12 +4,11 @@ import {
     CBState} from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
-import { CubeGameEventHandlers } from './CubeGameEventHandlers'
+import { CubeGameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
-    SingleGameEventHandlers
 } from './SingleGameBoard'
 
 
@@ -62,10 +61,10 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         sgState,
         cpState,
         cube: cbState.cubeState,
-        onClickCube,
         sgConfs,
         dialog,
         ...handlers,
+        onClickCube,
     }
 
     return <SingleGameBoard {...sgProps} />

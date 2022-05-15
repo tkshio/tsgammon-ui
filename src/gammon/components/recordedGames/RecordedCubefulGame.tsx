@@ -1,30 +1,24 @@
 import { Fragment } from 'react'
-import { eog, GameConf, Score, score } from 'tsgammon-core'
+import { GameConf, Score } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { CubeGameEventHandlers } from "../CubeGameEventHandlers"
-import { SingleGameEventHandlers } from '../SingleGameBoard'
-import { EOGDialog } from '../uiparts/EOGDialog'
+import { CubeGameEventHandlers, GameEventHandlers, SingleGameEventHandlers } from '../EventHandlers'
+import { } from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { BGState } from './BGState'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type GameEventHandler<T> = {
-    onStartNextGame: (matchRecord: MatchRecord<T>) => void
-    onResumeState: (index: number, state: T) => void
-    onEndOfMatch: (matchRecord: MatchRecord<T>) => void
-}
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
     matchScore?: Score
     matchRecord: MatchRecord<BGState>
     bgState: BGState
-} & GameEventHandler<BGState> &
+} & GameEventHandlers &
     Partial<
         CubeGameEventHandlers &
             SingleGameEventHandlers &
@@ -42,12 +36,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         onResumeState = () => {
             //
         },
-        onStartNextGame = () => {
-            //
-        },
-        onEndOfMatch = () => {
-            //
-        },
         ...eventHandlers
     } = props
 
@@ -63,43 +51,15 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
     const isLatest = index === undefined
 
-    const isEoM = matchRecord.isEndOfMatch
-
     const cur = matchRecord.curGameRecord
-    const { eogStatus, stake } = cur.isEoG
-        ? {
-              eogStatus: cur.eogRecord.eogStatus,
-              stake: cur.eogRecord.stake,
-          }
-        : { eogStatus: eog(), stake: score() }
-
-    const eogDialog =
-        bgState.cbState.tag === 'CBEoG' ? (
-            <EOGDialog
-                {...{
-                    eogStatus,
-                    stake,
-                    score: matchRecord.matchScore,
-                    matchLength: matchRecord.matchLength,
-                    isCrawfordNext: cur.isEoG && cur.isCrawfordNext,
-                    isEoM,
-                    onClick: () => {
-                        if (isEoM) {
-                            onEndOfMatch(matchRecord)
-                        } else {
-                            onStartNextGame(matchRecord)
-                        }
-                    },
-                }}
-            />
-        ) : undefined
 
     const minimalProps = {
         ...bgState,
         cpState,
         scoreBefore: matchRecord.matchScore,
         matchLength: matchRecord.matchLength,
-        isCrawford: cur.isCrawford,
+        isCrawfordNext: cur.isEoG && cur.isCrawford,
+        isEoM: matchRecord.isEndOfMatch,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest
@@ -107,7 +67,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
               ...minimalProps,
               ...eventHandlers,
               cbConfs,
-              dialog: eogDialog,
           }
         : minimalProps
 

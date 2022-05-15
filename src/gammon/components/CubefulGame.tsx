@@ -5,17 +5,21 @@ import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     CBEoG,
     CBResponse,
-    CBState
+    CBState,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
-import { score as initScore, Score } from 'tsgammon-core/Score'
+import { score, Score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
+import {
+    CubeGameEventHandlers,
+    GameEventHandlers,
+    SingleGameEventHandlers,
+} from './EventHandlers'
 import { CBOperator } from './operators/CBOperator'
-import { SingleGameConfs, SingleGameEventHandlers } from './SingleGameBoard'
+import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 
@@ -30,12 +34,13 @@ export type CubefulGameProps = {
     sgState: SGState
     cpState?: CheckerPlayState
     scoreBefore?: Score
-
+    isCrawfordNext?: boolean
+    isEoM?: boolean
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
-    onCloseEOGDialog?: () => void
 } & Partial<
-    CubeGameEventHandlers &
+    GameEventHandlers &
+        CubeGameEventHandlers &
         SingleGameEventHandlers &
         RollListener &
         CheckerPlayListeners &
@@ -46,18 +51,19 @@ export function CubefulGame(props: CubefulGameProps) {
         cbState,
         sgState,
         cpState,
-        scoreBefore: score = initScore(),
+        scoreBefore = score(),
+        isCrawfordNext = false,
+        isEoM = false,
         dialog,
-        onCloseEOGDialog,
         cbConfs = { sgConfs: {} },
         ...eventHandlers
     } = props
 
     const { stakeConf = standardConf } = cbConfs
-//    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
-  //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
+    //    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
+    //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
 
-/*    // チェッカープレイに関係ない時はSingleGame上で自律操作させない
+    /*    // チェッカープレイに関係ない時はSingleGame上で自律操作させない
     const sgAutoOperator: SGOperator | undefined =
         cbState.tag === 'CBAction' ||
         cbState.tag === 'CBResponse' ||
@@ -73,10 +79,16 @@ export function CubefulGame(props: CubefulGameProps) {
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, {
-            eogDialog: eogDialog(stakeConf, score, onCloseEOGDialog),
+            eogDialog: eogDialog(
+                stakeConf,
+                scoreBefore,
+                isCrawfordNext,
+                isEoM,
+                eventHandlers
+            ),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
-   
+
     const cbProps = {
         cbState,
         sgState,
@@ -91,21 +103,36 @@ export function CubefulGame(props: CubefulGameProps) {
 function eogDialog(
     stakeConf: StakeConf,
     score: Score,
-    onCloseEOGDialog?: () => void
+    isCrawfordNext: boolean,
+    isEoM: boolean,
+    eventHandlers: Partial<GameEventHandlers>
 ): (cbState: CBEoG) => JSX.Element {
-    return (cbState: CBEoG) => (
-        <EOGDialog
-            {...{
-                ...cbState.calcStake(stakeConf),
-                score: score,
-                onClick: () => {
-                    if (onCloseEOGDialog) {
-                        onCloseEOGDialog()
-                    }
-                },
-            }}
-        />
-    )
+    return (cbState: CBEoG) => {
+        const { eogStatus, stake } = cbState.calcStake(stakeConf)
+
+        return (
+            <EOGDialog
+                {...{
+                    eogStatus,
+                    stake,
+                    score,
+                    isCrawfordNext,
+                    isEoM,
+                    onClick: () => {
+                        if (isEoM) {
+                            if (eventHandlers.onEndOfMatch) {
+                                eventHandlers.onEndOfMatch()
+                            }
+                        } else {
+                            if (eventHandlers.onStartNextGame) {
+                                eventHandlers.onStartNextGame()
+                            }
+                        }
+                    },
+                }}
+            />
+        )
+    }
 }
 function cubeResponseDialog(
     eventHandlers: Partial<CubeGameEventHandlers>

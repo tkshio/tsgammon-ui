@@ -1,44 +1,38 @@
 import { Fragment, useCallback } from 'react'
-import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     asCheckerPlayState,
     CheckerPlayState,
-    CheckerPlayStateCommitted,
+    CheckerPlayStateCommitted
 } from 'tsgammon-core/dispatchers/CheckerPlayState'
-
 import {
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
-    SGToRoll,
+    SGToRoll
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     Board,
     BoardEventHandlers,
     decorate,
     DiceLayout,
-    layoutCube,
+    layoutCube
 } from './boards/Board'
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
+import { SingleGameEventHandlers } from './EventHandlers'
 import { PositionID } from './uiparts/PositionID'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
+
 
 export type SingleGameConfs = {
     showPositionID?: boolean
     autoRoll?: boolean
 }
-export type SingleGameEventHandlers = {
-    onCommit: (sgState: SGInPlay, node: BoardStateNode) => void
-    onRoll: (sgState: SGToRoll) => void
-    onRollOpening: (sgState: SGOpening) => void
-    onReset: () => void
-    onSetSGState: (sgState: SGState) => void
-}
+
 export type SingleGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState

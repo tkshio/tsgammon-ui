@@ -1,4 +1,4 @@
-import { GameConf } from 'tsgammon-core'
+import { GameConf, standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     CubeGameListeners
@@ -30,7 +30,7 @@ export type MoneyGameProps = {
 >
 
 export function MoneyGame(props: MoneyGameProps) {
-    const { gameConf, state } = props
+    const { gameConf = standardConf, state } = props
     const initialCBState = toCBState(state)
     const initialSGState = toSGState(state)
     const rollListener = rollListeners({
@@ -39,7 +39,7 @@ export function MoneyGame(props: MoneyGameProps) {
     })
 
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
-    const { cbState, sgState, eventHandlers } = useCubeGameState(
+    const { cbState, sgState, eventHandlers ,gameEventHandlers} = useCubeGameState(
         gameConf,
         false,
         initialSGState,
@@ -53,6 +53,7 @@ export function MoneyGame(props: MoneyGameProps) {
         cpState,
         ...props,
 
+        ...gameEventHandlers,
         ...eventHandlers,
         ...cpListeners,
     }

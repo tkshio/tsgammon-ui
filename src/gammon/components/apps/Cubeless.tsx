@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -12,9 +12,7 @@ import { score } from 'tsgammon-core/Score'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { SingleGame, SingleGameProps } from '../SingleGame'
-import {
-    SingleGameConfs
-} from '../SingleGameBoard'
+import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useSingleGameState } from '../useSingleGameState'
 
@@ -37,7 +35,7 @@ export function Cubeless(props: CubelessProps) {
         diceSource: randomDiceSource,
     })
 
-    const { sgState, singleGameEventHandlers } = useSingleGameState(
+    const { sgState, singleGameEventHandlers,gameEventHandlers } = useSingleGameState(
         gameConf,
         toSGState(props),
         rollListener,
@@ -52,16 +50,15 @@ export function Cubeless(props: CubelessProps) {
         cpState,
         sgConfs,
         matchScore,
-        onStartNextGame: (sgState: SGEoG) => {
-            doReset(sgState)
+        onStartNextGame: () => {
+            if (sgState.tag === 'SGEoG') {
+                setMatchScore((prev) => prev.add(sgState.stake))
+            }
+            gameEventHandlers.onStartNextGame()
         },
         ...listeners,
         ...singleGameEventHandlers,
         ...cpListeners,
-    }
-
-    function doReset(sgState: SGEoG) {
-        setMatchScore((prev) => prev.add(sgState.stake))
     }
 
     return <SingleGame {...sgProps} />

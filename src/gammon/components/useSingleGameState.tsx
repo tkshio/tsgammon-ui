@@ -1,28 +1,35 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import { boardState, DiceRoll, GameConf } from 'tsgammon-core'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import {
+    rollDispatcher,
+    RollListener,
+} from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     decorate,
     decorate as decorateSG,
     setSGStateListener,
     singleGameDispatcher,
     SingleGameDispatcher,
-    SingleGameListeners
+    SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     openingState,
     SGOpening,
     SGState,
-    SGToRoll
+    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SingleGameEventHandlers } from './SingleGameBoard'
+import { GameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
 
 export function useSingleGameState(
     gameConf: GameConf,
     initialSGState: SGState,
     rollListener: RollListener,
     ...listeners: Partial<SingleGameListeners>[]
-): { sgState: SGState; singleGameEventHandlers: SingleGameEventHandlers } {
+): {
+    sgState: SGState
+    singleGameEventHandlers: SingleGameEventHandlers
+    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
+} {
     const [sgState, sgListeners, setSGState] = useSingleGameListeners(
         initialSGState,
         ...listeners
@@ -43,17 +50,20 @@ export function useSingleGameState(
                 rollListener.onRollRequest((dices: DiceRoll) =>
                     dispatcher.doOpeningRoll(sgState, dices)
                 ),
-            onReset: () => {
-                const state = openingState(boardState(gameConf.initialPos))
-                setSGState(state)
-            },
-            onSetSGState: (sgState: SGState) => {
+            onSetSGState: (
+                sgState: SGState = openingState(boardState(gameConf.initialPos))
+            ) => {
                 setSGState(sgState)
-            }
+            },
         }
     }
     const singleGameEventHandlers: SingleGameEventHandlers = sgEH(sgListeners)
-    return { sgState, singleGameEventHandlers }
+    const gameEventHandlers = {
+        onStartNextGame: () => {
+            singleGameEventHandlers.onSetSGState()
+        },
+    }
+    return { sgState, singleGameEventHandlers, gameEventHandlers }
 }
 
 function useSingleGameListeners(

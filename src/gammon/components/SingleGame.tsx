@@ -3,12 +3,12 @@ import { score, Score } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { GameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
-    SingleGameEventHandlers,
 } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
@@ -19,9 +19,8 @@ export type SingleGameProps = {
     sgConfs?: SingleGameConfs
     matchScore?: Score
     dialog?: JSX.Element
-    onStartNextGame?: (sgState: SGEoG) => void
-    onResumeState?: (index: number, state: SGState) => void
-} & Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
+} & Pick<GameEventHandlers, 'onStartNextGame'> &
+    Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
 
 export function SingleGame(props: SingleGameProps) {
     const {
@@ -30,7 +29,7 @@ export function SingleGame(props: SingleGameProps) {
         sgConfs = {},
         matchScore = score(),
         dialog,
-        onStartNextGame = (_: SGEoG) => {
+        onStartNextGame = () => {
             //
         },
         ...listeners
@@ -44,12 +43,7 @@ export function SingleGame(props: SingleGameProps) {
                 eogStatus={sgState.eogStatus}
                 score={matchScore}
                 onClick={() => {
-                    if (listeners.onReset) {
-                        listeners.onReset()
-                    }
-                    if (onStartNextGame) {
-                        onStartNextGame(sgState)
-                    }
+                    onStartNextGame()
                 }}
             />
         ) : undefined)

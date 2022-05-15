@@ -1,7 +1,7 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { UnlimitedSingleGame } from '../../gammon/components/apps/UnlimitedSingleGame'
+import { UnlimitedSingleGame } from '../../gammon/components/apps/RecordedCubeless'
 import {
     bothSGAutoOperator,
     redSGAutoOperator

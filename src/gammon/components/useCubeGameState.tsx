@@ -17,13 +17,16 @@ import {
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { CubeGameEventHandlers } from './CubeGameEventHandlers'
-import { SingleGameEventHandlers } from './SingleGameBoard'
+import {
+    CubeGameEventHandlers,
+    GameEventHandlers,
+    SingleGameEventHandlers,
+} from './EventHandlers'
 import { useSingleGameState } from './useSingleGameState'
 
 export function useCubeGameState(
     gameConf: GameConf,
-    isCrawford:boolean,
+    isCrawford: boolean,
     initialSGState: SGState,
     initialCBState: CBState,
     rollListener: RollListener,
@@ -32,28 +35,36 @@ export function useCubeGameState(
     cbState: CBState
     sgState: SGState
     eventHandlers: CubeGameEventHandlers & SingleGameEventHandlers
+    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
 } {
     const [cbState, cbListeners, setCBState] = useCubeGameListeners(
         initialCBState,
         ...listeners
     )
 
-    const cubeGameEventHandlers: CubeGameEventHandlers = cubeGameEH(
-        cubeGameDispatcher(isCrawford, decorateCB(cbListeners))
-    )
+    const dispatcher = cubeGameDispatcher(isCrawford, decorateCB(cbListeners))
+
+    const cubeGameEventHandlers: CubeGameEventHandlers = cubeGameEH(dispatcher)
 
     const sglisteners = cubefulSGEventHandler(cbState, cubeGameEventHandlers)
 
-    const { sgState, singleGameEventHandlers } = useSingleGameState(
+    const { sgState, singleGameEventHandlers, gameEventHandlers:sgGameEventHandlers } = useSingleGameState(
         gameConf,
         initialSGState,
         rollListener,
         ...[sglisteners, ...listeners]
     )
+    const gameEventHandlers = {
+        onStartNextGame: () => {
+            cubeGameEventHandlers.onSetCBState()
+            sgGameEventHandlers.onStartNextGame()
+        },
+    }
     return {
         cbState,
         sgState,
         eventHandlers: { ...singleGameEventHandlers, ...cubeGameEventHandlers },
+        gameEventHandlers,
     }
 
     function cubeGameEH(dispatcher: CubeGameDispatcher): CubeGameEventHandlers {
@@ -67,8 +78,8 @@ export function useCubeGameState(
             onStartCubeAction: dispatcher.doStartCubeAction,
             onSkipCubeAction: dispatcher.doSkipCubeAction,
             onEndOfCubeGame: dispatcher.doEndOfCubeGame,
-            onReset: () => setCBState(cbOpening(cube(1))),
-            onSetCBState: (cbState: CBState) => setCBState(cbState),
+            onSetCBState: (cbState: CBState = cbOpening(cube(1))) =>
+                setCBState(cbState),
         }
     }
 }
