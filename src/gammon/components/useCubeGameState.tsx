@@ -36,6 +36,9 @@ export function useCubeGameState(
     sgState: SGState
     eventHandlers: CubeGameEventHandlers & SingleGameEventHandlers
     gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
+    setCBState: (cbState?: CBState) => void
+    setSGState:(sgState?:SGState)=>void
+
 } {
     const [cbState, cbListeners, setCBState] = useCubeGameListeners(
         initialCBState,
@@ -48,15 +51,21 @@ export function useCubeGameState(
 
     const sglisteners = cubefulSGEventHandler(cbState, cubeGameEventHandlers)
 
-    const { sgState, singleGameEventHandlers, gameEventHandlers:sgGameEventHandlers } = useSingleGameState(
+    const {
+        sgState,
+        singleGameEventHandlers,
+        gameEventHandlers: sgGameEventHandlers,
+        setSGState
+    } = useSingleGameState(
         gameConf,
         initialSGState,
         rollListener,
         ...[sglisteners, ...listeners]
     )
+    const defaultCBState = cbOpening(cube(1))
     const gameEventHandlers = {
         onStartNextGame: () => {
-            cubeGameEventHandlers.onSetCBState()
+            setCBState(defaultCBState)
             sgGameEventHandlers.onStartNextGame()
         },
     }
@@ -65,6 +74,10 @@ export function useCubeGameState(
         sgState,
         eventHandlers: { ...singleGameEventHandlers, ...cubeGameEventHandlers },
         gameEventHandlers,
+        setCBState: (cbState: CBState = defaultCBState) => {
+            setCBState(cbState)
+        },
+        setSGState
     }
 
     function cubeGameEH(dispatcher: CubeGameDispatcher): CubeGameEventHandlers {
@@ -78,8 +91,6 @@ export function useCubeGameState(
             onStartCubeAction: dispatcher.doStartCubeAction,
             onSkipCubeAction: dispatcher.doSkipCubeAction,
             onEndOfCubeGame: dispatcher.doEndOfCubeGame,
-            onSetCBState: (cbState: CBState = cbOpening(cube(1))) =>
-                setCBState(cbState),
         }
     }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { BoardStateNode, score, Score } from 'tsgammon-core'
 import {
     CBAction,
@@ -103,6 +103,8 @@ export function PointMatch(props: PointMatchProps) {
         sgState,
         eventHandlers: cbEventHandlers,
         gameEventHandlers,
+        setCBState,
+        setSGState,
     } = useCubeGameState(
         gameConf,
         isCrawford,
@@ -115,11 +117,16 @@ export function PointMatch(props: PointMatchProps) {
         initialMatchRecord
     )
 
-    const { matchID, eventHandlers } = useCubeGameEventHandlerWithMatchRecorder(
-        { ...cbEventHandlers, ...gameEventHandlers }
-    )
-
-    const sgRec = bgMatchRecorderToSG(matchRecorder, cbState)
+    const { matchKey, eventHandlers } =
+        useCubeGameEventHandlerWithMatchRecorder(
+            gameConf,
+            sgState,
+            cbState,
+            setCBState,
+            setSGState,
+            { ...cbEventHandlers, ...gameEventHandlers },
+            matchRecorder
+        )
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
@@ -128,17 +135,9 @@ export function PointMatch(props: PointMatchProps) {
         bgState: { cbState, sgState },
         cbConfs,
         ...eventHandlers,
-        ...addMatchRecorderToG(
-            cbState,
-            eventHandlers,
-            matchRecord,
-            matchRecorder
-        ),
-        ...addMatchRecorderToCB(sgState, eventHandlers, matchRecorder),
-        ...addMatchRecorderToSG(eventHandlers, sgRec),
     }
 
-    return <RecordedCubefulGame key={matchID} {...recordedMatchProps} />
+    return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />
 }
 
 // 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する
@@ -157,18 +156,18 @@ function setEoG(
     }
     return mRecord
 }
-
-export function useCubeGameEventHandlerWithMatchRecorder(
+function addMatchKey(
     eventHandlers: Partial<GameEventHandlers> &
         SingleGameEventHandlers &
-        CubeGameEventHandlers
+        CubeGameEventHandlers,
+    matchKey: number,
+    setMatchKey: Dispatch<SetStateAction<number>>
 ): {
     eventHandlers: GameEventHandlers &
         CubeGameEventHandlers &
         SingleGameEventHandlers
-    matchID: number
+    matchKey: number
 } {
-    const [matchID, setMatchID] = useState(0)
     const gameEventHandlers: GameEventHandlers = {
         onStartNextGame: () => {
             //
@@ -185,65 +184,121 @@ export function useCubeGameEventHandlerWithMatchRecorder(
             if (eventHandlers.onEndOfMatch) {
                 eventHandlers.onEndOfMatch()
             }
-            setMatchID((mid) => mid + 1)
+            setMatchKey((mid) => mid + 1)
         },
     }
     return {
-        eventHandlers: {
-            ...eventHandlers,
-            ...gameEventHandlers,
-        },
-        matchID,
+        matchKey,
+        eventHandlers: { ...eventHandlers, ...gameEventHandlers },
     }
 }
-function addMatchRecorderToG<T>(
+export function useCubeGameEventHandlerWithMatchRecorder(
+    gameConf:GameConf,
+    sgState: SGState,
     cbState: CBState,
+    setCBState: (cbState?: CBState) => void,
+    setSGState: (sgState?: SGState) => void,
+
+    eventHandlers: Partial<GameEventHandlers> &
+        SingleGameEventHandlers &
+        CubeGameEventHandlers,
+    matchRecorder: MatchRecorder<BGState>
+): {
+    eventHandlers: GameEventHandlers &
+        CubeGameEventHandlers &
+        SingleGameEventHandlers
+    matchKey: number
+} {
+    const [matchKey, setMatchKey] = useState(0)
+
+    const { eventHandlers: eventHandlers_matchKey } = addMatchKey(
+        eventHandlers,
+        matchKey,
+        setMatchKey
+    )
+    const { eventHandlers: eventHandlers_matchRecord } = addMatchRecorderToG(
+        gameConf,
+        cbState,
+        setCBState,
+        setSGState,
+        eventHandlers_matchKey,
+        matchRecorder
+    )
+    const { eventHandlers: eventHandlers_matchRecordCB } = addMatchRecorderToCB(
+        sgState,
+        eventHandlers_matchRecord,
+        matchRecorder
+    )
+
+    const { eventHandlers: eventHandlers_matchRecordSG } = addMatchRecorderToSG(
+        eventHandlers_matchRecordCB,
+        eventHandlers_matchRecordCB,
+        setSGState,
+        bgMatchRecorderToSG(matchRecorder, cbState)
+    )
+    return {
+        eventHandlers: {
+            ...eventHandlers_matchRecordCB,
+            ...eventHandlers_matchRecordSG,
+        },
+        matchKey: matchKey,
+    }
+}
+function addMatchRecorderToG(
+    gameConf: GameConf,
+    cbState: CBState,
+    setCBState: (cbState?: CBState) => void,
+    setSGState: (sgState?: SGState) => void,
+
     eventHandlers: GameEventHandlers &
         SingleGameEventHandlers &
         CubeGameEventHandlers,
-    matchRecord: MatchRecord<BGState>,
-    matchRecorder: MatchRecorder<T>
-): GameEventHandlers {
+    matchRecorder: MatchRecorder<BGState>
+): {
+    eventHandlers: GameEventHandlers &
+        SingleGameEventHandlers &
+        CubeGameEventHandlers
+} {
     return {
-        onStartNextGame: () => {
-            if (cbState.tag === 'CBEoG') {
-                const { stake, eogStatus } = cbState.calcStake(matchRecord.conf)
-                const plyRecordEoG = plyRecordForEoG(
-                    stake,
-                    cbState.result,
-                    eogStatus
-                )
-                matchRecorder.recordEoG(plyRecordEoG)
-            }
-            eventHandlers.onStartNextGame()
-            matchRecorder.resetCurGame()
+        eventHandlers: {
+            ...eventHandlers,
+            onStartNextGame: () => {
+                eventHandlers.onStartNextGame()
+                if (cbState.tag === 'CBEoG') {
+                    const { stake, eogStatus } = cbState.calcStake(gameConf)
+                    const plyRecordEoG = plyRecordForEoG(
+                        stake,
+                        cbState.result,
+                        eogStatus
+                    )
+                    matchRecorder.recordEoG(plyRecordEoG)
+                }
+                matchRecorder.resetCurGame()
+            },
+            onResumeState: (index: number) => {
+                eventHandlers.onResumeState(index)
+                const lastState: BGState = matchRecorder.resumeTo(index)
+
+                setCBState(lastState.cbState)
+                setSGState(lastState.sgState)
+            },
+            onEndOfMatch: eventHandlers.onEndOfMatch,
         },
-        onResumeState: (index: number) => {
-            eventHandlers.onResumeState(index)
-            const lastState = matchRecord.curGameRecord.plyRecords[index].state
-            eventHandlers.onSetCBState(lastState.cbState)
-            eventHandlers.onSetSGState(lastState.sgState)
-            matchRecorder.resumeTo(index)
-        },
-        onEndOfMatch: eventHandlers.onEndOfMatch,
     }
 }
 
-/*
-        const stake = nextState.calcStake(stakeConf).stake
-        const plyRecordEoG = plyRecordForEoG(
-            stake,
-            nextState.result,
-            nextState.eogStatus
-        )
-        matchRecorder.recordEoG(plyRecordEoG)*/
-
 function addMatchRecorderToCB(
     sgState: SGState,
-    eventHandlers: CubeGameEventHandlers,
+    eventHandlers: GameEventHandlers &
+        SingleGameEventHandlers &
+        CubeGameEventHandlers,
     matchRecorder: MatchRecorder<BGState>
-): Partial<CubeGameEventHandlers> {
-    return { onDouble, onTake, onPass }
+): {
+    eventHandlers: GameEventHandlers &
+        SingleGameEventHandlers &
+        CubeGameEventHandlers
+} {
+    return { eventHandlers: { ...eventHandlers, onDouble, onTake, onPass } }
     function onDouble(cbState: CBAction) {
         eventHandlers.onDouble(cbState)
         const plyRecord = plyRecordForDouble(cbState.cubeState, cbState.isRed)
@@ -280,24 +335,37 @@ function bgMatchRecorderToSG(
             matchRecorder.resetCurGame()
         },
         resumeTo: (index: number) => {
-            matchRecorder.resumeTo(index)
+            return matchRecorder.resumeTo(index).sgState
         },
     }
 }
 
 export function addMatchRecorderToSG(
     singleGameEventHandlers: SingleGameEventHandlers,
+    gameEventHandlers: Partial<GameEventHandlers>,
+    setSGState: (sgState: SGState) => void,
     matchRecorder: MatchRecorder<SGState>
-): Partial<SingleGameEventHandlers> {
+): { eventHandlers: SingleGameEventHandlers & Partial<GameEventHandlers> } {
     return {
-        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-            singleGameEventHandlers.onCommit(sgState, node)
+        eventHandlers: {
+            ...singleGameEventHandlers,
+            ...gameEventHandlers,
+            onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
+                singleGameEventHandlers.onCommit(sgState, node)
 
-            // curPlyは常に空なので、あまり意味がない：廃止しないといけない＆ここではPlyを作るかcpStateをもらわないといけない
-            matchRecorder.recordPly(
-                plyRecordForCheckerPlay(sgState.toPly(node)),
-                sgState
-            )
+                matchRecorder.recordPly(
+                    plyRecordForCheckerPlay(sgState.toPly(node)),
+                    sgState
+                )
+            },
+
+            onResumeState: (index: number) => {
+                if (gameEventHandlers.onResumeState) {
+                    gameEventHandlers.onResumeState(index)
+                }
+                const sgState: SGState = matchRecorder.resumeTo(index)
+                setSGState(sgState)
+            },
         },
     }
 }

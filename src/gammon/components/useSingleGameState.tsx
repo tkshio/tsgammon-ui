@@ -1,12 +1,8 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import { boardState, DiceRoll, GameConf } from 'tsgammon-core'
-import {
-    rollDispatcher,
-    RollListener,
-} from 'tsgammon-core/dispatchers/RollDispatcher'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     decorate,
-    decorate as decorateSG,
     setSGStateListener,
     singleGameDispatcher,
     SingleGameDispatcher,
@@ -29,41 +25,45 @@ export function useSingleGameState(
     sgState: SGState
     singleGameEventHandlers: SingleGameEventHandlers
     gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
+    setSGState: (sgState?: SGState) => void
 } {
     const [sgState, sgListeners, setSGState] = useSingleGameListeners(
         initialSGState,
         ...listeners
     )
-    function sgEH(
-        ...listeners: Partial<SingleGameListeners>[]
-    ): SingleGameEventHandlers {
-        const dispatcher: SingleGameDispatcher = singleGameDispatcher(
-            decorateSG({}, ...listeners)
-        )
-        return {
-            onCommit: dispatcher.doCommitCheckerPlay,
-            onRoll: (sgState: SGToRoll) =>
-                rollListener.onRollRequest((dices: DiceRoll) => {
-                    dispatcher.doRoll(sgState, dices)
-                }),
-            onRollOpening: (sgState: SGOpening) =>
-                rollListener.onRollRequest((dices: DiceRoll) =>
-                    dispatcher.doOpeningRoll(sgState, dices)
-                ),
-            onSetSGState: (
-                sgState: SGState = openingState(boardState(gameConf.initialPos))
-            ) => {
-                setSGState(sgState)
-            },
-        }
-    }
-    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(sgListeners)
+    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(
+        rollListener,
+        sgListeners
+    )
+    const defaultState = openingState(boardState(gameConf.initialPos))
     const gameEventHandlers = {
         onStartNextGame: () => {
-            singleGameEventHandlers.onSetSGState()
+            setSGState(defaultState)
         },
     }
-    return { sgState, singleGameEventHandlers, gameEventHandlers }
+    return {
+        sgState,
+        singleGameEventHandlers,
+        gameEventHandlers,
+        setSGState: (sgState: SGState = defaultState) => setSGState(sgState),
+    }
+}
+function sgEH(
+    rollListener: RollListener,
+    sgListeners: SingleGameListeners
+): SingleGameEventHandlers {
+    const dispatcher: SingleGameDispatcher = singleGameDispatcher(sgListeners)
+    return {
+        onCommit: dispatcher.doCommitCheckerPlay,
+        onRoll: (sgState: SGToRoll) =>
+            rollListener.onRollRequest((dices: DiceRoll) => {
+                dispatcher.doRoll(sgState, dices)
+            }),
+        onRollOpening: (sgState: SGOpening) =>
+            rollListener.onRollRequest((dices: DiceRoll) =>
+                dispatcher.doOpeningRoll(sgState, dices)
+            ),
+    }
 }
 
 function useSingleGameListeners(

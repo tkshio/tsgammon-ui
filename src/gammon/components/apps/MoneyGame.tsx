@@ -1,21 +1,21 @@
-import { GameConf, standardConf } from 'tsgammon-core'
+import { useState } from 'react'
+import { GameConf, score, Score, standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import {
-    CubeGameListeners
-} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import {
-    rollListeners
-} from 'tsgammon-core/dispatchers/RollDispatcher'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import {
     GameSetup,
     toCBState,
-    toSGState
+    toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CubefulGameConfs } from '../CubefulGameBoard'
+import { GameEventHandlers } from '../EventHandlers'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 export type MoneyGameProps = {
@@ -28,9 +28,38 @@ export type MoneyGameProps = {
         CheckerPlayListeners &
         BoardEventHandlers
 >
+export function useScoreForCubefulGame(
+    cbState: CBState,
+    stakeConf: StakeConf,
+    matchLength:number,
+    gameEventHandlers: Partial<GameEventHandlers>
+): {
+    matchScore: Score
+    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'> &
+        Partial<Omit<GameEventHandlers, 'onStartNextGame>'>>
+} {
+    const [matchScore, setMatchScore] = useState(score())
+
+    return {
+        matchScore,
+        gameEventHandlers: {
+            ...gameEventHandlers,
+            onStartNextGame: () => {
+                if (cbState.tag === 'CBEoG') {
+                    const { stake } = cbState.calcStake(stakeConf)
+                    setMatchScore((prev) => prev.add(stake))
+                }
+                if (gameEventHandlers.onStartNextGame) {
+                    gameEventHandlers.onStartNextGame()
+                }
+            },
+        },
+    }
+}
 
 export function MoneyGame(props: MoneyGameProps) {
-    const { gameConf = standardConf, state } = props
+    const { gameConf = { ...standardConf, jacobyRule: true }, state } = props
+    const matchLength = 0
     const initialCBState = toCBState(state)
     const initialSGState = toSGState(state)
     const rollListener = rollListeners({
@@ -39,7 +68,12 @@ export function MoneyGame(props: MoneyGameProps) {
     })
 
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
-    const { cbState, sgState, eventHandlers ,gameEventHandlers} = useCubeGameState(
+    const {
+        cbState,
+        sgState,
+        eventHandlers,
+        gameEventHandlers: _gameEventHandlers,
+    } = useCubeGameState(
         gameConf,
         false,
         initialSGState,
@@ -47,12 +81,19 @@ export function MoneyGame(props: MoneyGameProps) {
         rollListener,
         props
     )
+    const { matchScore, gameEventHandlers } = useScoreForCubefulGame(
+        cbState,
+        gameConf,
+        matchLength,
+        _gameEventHandlers
+    )
     const cbProps: CubefulGameProps = {
         cbState,
         sgState,
         cpState,
         ...props,
-
+        matchLength:0,
+        matchScore,
         ...gameEventHandlers,
         ...eventHandlers,
         ...cpListeners,

@@ -33,9 +33,8 @@ export type CubefulGameProps = {
     cbState: CBState
     sgState: SGState
     cpState?: CheckerPlayState
-    scoreBefore?: Score
-    isCrawfordNext?: boolean
-    isEoM?: boolean
+    matchLength?: number
+    matchScore?: Score
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
@@ -51,9 +50,8 @@ export function CubefulGame(props: CubefulGameProps) {
         cbState,
         sgState,
         cpState,
-        scoreBefore = score(),
-        isCrawfordNext = false,
-        isEoM = false,
+        matchLength = 0,
+        matchScore = score(),
         dialog,
         cbConfs = { sgConfs: {} },
         ...eventHandlers
@@ -81,9 +79,8 @@ export function CubefulGame(props: CubefulGameProps) {
         dialogForCubefulGame(cbState, {
             eogDialog: eogDialog(
                 stakeConf,
-                scoreBefore,
-                isCrawfordNext,
-                isEoM,
+                matchLength,
+                matchScore,
                 eventHandlers
             ),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
@@ -102,20 +99,30 @@ export function CubefulGame(props: CubefulGameProps) {
 
 function eogDialog(
     stakeConf: StakeConf,
+    matchLength: number,
     score: Score,
-    isCrawfordNext: boolean,
-    isEoM: boolean,
     eventHandlers: Partial<GameEventHandlers>
 ): (cbState: CBEoG) => JSX.Element {
     return (cbState: CBEoG) => {
         const { eogStatus, stake } = cbState.calcStake(stakeConf)
+        // TODO: CBEoGに組み入れる
+        const scoreAfter = score.add(stake)
+        const isCrawfordNext =
+            matchLength !== 0 &&
+            (scoreAfter.redScore === matchLength - 1 ||
+                scoreAfter.whiteScore === matchLength - 1)
+        const isEoM =
+            matchLength !== 0 &&
+            (scoreAfter.redScore >= matchLength ||
+                scoreAfter.whiteScore >= matchLength)
 
         return (
             <EOGDialog
                 {...{
                     eogStatus,
                     stake,
-                    score,
+                    score: scoreAfter,
+                    matchLength,
                     isCrawfordNext,
                     isEoM,
                     onClick: () => {

@@ -15,7 +15,7 @@ export type MatchRecorder<T> = {
     recordPly: (plyRecord: PlyRecordInPlay, lastState: T) => void
     recordEoG: (plyRecord: PlyRecordEoG) => void
     resetCurGame: () => void
-    resumeTo: (index: number) => void
+    resumeTo: (index: number) => T
 }
 
 /**
@@ -36,24 +36,20 @@ export function useMatchRecorder<T>(
     )
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
-        setMatchRecord((prev: MatchRecord<T>) =>
-            addPlyRecord(prev, plyRecord, state)
-        )
+        setMatchRecord(addPlyRecord(matchRecord, plyRecord, state))
     }
 
     function recordEoG(eogRecord: PlyRecordEoG) {
-        setMatchRecord(
-            (prev: MatchRecord<T>): MatchRecord<T> =>
-                setEoGRecord(prev, eogRecord)
-        )
+        setMatchRecord(setEoGRecord(matchRecord, eogRecord))
     }
 
     function resetCurGame() {
-        setMatchRecord((prev) => recordFinishedGame(prev))
+        setMatchRecord(recordFinishedGame(matchRecord))
     }
 
-    function resumeTo(index: number): void {
-        setMatchRecord((prev) => trimPlyRecords(prev, index))
+    function resumeTo(index: number): T {
+        setMatchRecord(trimPlyRecords(matchRecord, index))
+        return matchRecord.curGameRecord.plyRecords[index].state
     }
 
     const matchRecorder: MatchRecorder<T> = {

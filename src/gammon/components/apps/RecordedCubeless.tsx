@@ -39,11 +39,13 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         isRollHandlerEnabled: false,
         diceSource: randomDiceSource,
     })
-    const { sgState, singleGameEventHandlers, gameEventHandlers } =
+    const { sgState, singleGameEventHandlers, gameEventHandlers, setSGState } =
         useSingleGameState(gameConf, initialSGState, rollListener)
     const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
-    const eventHandlers = addMatchRecorderToSG(
+    const { eventHandlers } = addMatchRecorderToSG(
         singleGameEventHandlers,
+        gameEventHandlers,
+        setSGState,
         matchRecorder
     )
 
@@ -51,17 +53,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         sgState,
         sgConfs,
         matchRecord,
-        ...singleGameEventHandlers,
         ...eventHandlers,
-        onStartNextGame: () => {
-            gameEventHandlers?.onStartNextGame ??
-                (() => {
-                    //
-                })()
-        },
-        onResumeState: (_: number, lastState: SGState) => {
-            singleGameEventHandlers.onSetSGState(lastState)
-        },
     }
 
     return <RecordedSingleGame {...recordedMatchProps} />

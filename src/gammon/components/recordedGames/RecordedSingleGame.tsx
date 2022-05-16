@@ -3,12 +3,9 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { GameEventHandlers, SingleGameEventHandlers } from '../EventHandlers'
 import { SingleGame, SingleGameProps } from '../SingleGame'
-import {
-    SingleGameBoardProps,
-    SingleGameConfs,
-    SingleGameEventHandlers
-} from '../SingleGameBoard'
+import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
@@ -17,10 +14,8 @@ export type RecordedSingleGameProps = {
     sgState: SGState
     sgConfs: SingleGameConfs
     matchRecord: MatchRecord<SGState>
-    onStartNextGame: () => void
-    onResumeState: (index: number, state: SGState) => void
 } & SingleGameEventHandlers &
-    Partial<CheckerPlayListeners & RollListener>
+    Partial<GameEventHandlers & CheckerPlayListeners & RollListener>
 
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
@@ -47,7 +42,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
 
     const isLatest = index === undefined
 
-    const minimalProps: SingleGameBoardProps = {
+    const minimalProps: Omit<SingleGameProps, 'onStartNextGame'> = {
         sgState,
         cpState,
         sgConfs,
@@ -60,7 +55,12 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
               onStartNextGame,
               ...listeners,
           }
-        : minimalProps
+        : {
+              ...minimalProps,
+              onStartNextGame: () => {
+                  //
+              },
+          }
 
     const key = isLatest ? 'latest' : 'past' + index
 

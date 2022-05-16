@@ -7,7 +7,7 @@ import {
     CBState,
     CBToRoll
 } from 'tsgammon-core/dispatchers/CubeGameState';
-import { SGInPlay, SGOpening, SGState, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState';
+import { SGInPlay, SGOpening, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState';
 import { SGResult } from 'tsgammon-core/records/SGResult';
 
 
@@ -31,12 +31,10 @@ export type CubeGameEventHandlers = {
         result: SGResult.REDWON | SGResult.WHITEWON,
         eogStatus: EOGStatus
     ) => void
-    onSetCBState: (cbState?: CBState) => void
 }
 
 export type SingleGameEventHandlers = {
     onCommit: (sgState: SGInPlay, node: BoardStateNode) => void
     onRoll: (sgState: SGToRoll) => void
     onRollOpening: (sgState: SGOpening) => void
-    onSetSGState: (sgState?: SGState) => void
 }
