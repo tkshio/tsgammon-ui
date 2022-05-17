@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react'
-import { BoardStateNode, score, Score } from 'tsgammon-core'
+import { BoardStateNode, EOGStatus, score, Score } from 'tsgammon-core'
 import {
     CBAction,
     CBResponse,
@@ -180,12 +180,13 @@ function addMatchKey(
                 eventHandlers.onResumeState(index)
             }
         },
-        onEndOfMatch: () => {
-            if (eventHandlers.onEndOfMatch) {
-                eventHandlers.onEndOfMatch()
+        /*
+        onEndOfGame: (eog:{eogStatus:EOGStatus, sgResult:SGResult, stake:Score}) => {
+            if (eventHandlers.onEndOfGame) {
+                eventHandlers.onEndOfGame(eog)
             }
             setMatchKey((mid) => mid + 1)
-        },
+        },*/
     }
     return {
         matchKey,
@@ -193,7 +194,7 @@ function addMatchKey(
     }
 }
 export function useCubeGameEventHandlerWithMatchRecorder(
-    gameConf:GameConf,
+    gameConf: GameConf,
     sgState: SGState,
     cbState: CBState,
     setCBState: (cbState?: CBState) => void,
@@ -232,8 +233,6 @@ export function useCubeGameEventHandlerWithMatchRecorder(
 
     const { eventHandlers: eventHandlers_matchRecordSG } = addMatchRecorderToSG(
         eventHandlers_matchRecordCB,
-        eventHandlers_matchRecordCB,
-        setSGState,
         bgMatchRecorderToSG(matchRecorder, cbState)
     )
     return {
@@ -282,7 +281,7 @@ function addMatchRecorderToG(
                 setCBState(lastState.cbState)
                 setSGState(lastState.sgState)
             },
-            onEndOfMatch: eventHandlers.onEndOfMatch,
+            onEndOfGame: eventHandlers.onEndOfGame,
         },
     }
 }
@@ -340,32 +339,15 @@ function bgMatchRecorderToSG(
     }
 }
 
-export function addMatchRecorderToSG(
-    singleGameEventHandlers: SingleGameEventHandlers,
-    gameEventHandlers: Partial<GameEventHandlers>,
-    setSGState: (sgState: SGState) => void,
+export function sgEventHandlersForMatchRecorder(
     matchRecorder: MatchRecorder<SGState>
-): { eventHandlers: SingleGameEventHandlers & Partial<GameEventHandlers> } {
+): Pick<SingleGameEventHandlers, 'onCommit'> {
     return {
-        eventHandlers: {
-            ...singleGameEventHandlers,
-            ...gameEventHandlers,
-            onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-                singleGameEventHandlers.onCommit(sgState, node)
-
-                matchRecorder.recordPly(
-                    plyRecordForCheckerPlay(sgState.toPly(node)),
-                    sgState
-                )
-            },
-
-            onResumeState: (index: number) => {
-                if (gameEventHandlers.onResumeState) {
-                    gameEventHandlers.onResumeState(index)
-                }
-                const sgState: SGState = matchRecorder.resumeTo(index)
-                setSGState(sgState)
-            },
+        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
+            matchRecorder.recordPly(
+                plyRecordForCheckerPlay(sgState.toPly(node)),
+                sgState
+            )
         },
     }
 }

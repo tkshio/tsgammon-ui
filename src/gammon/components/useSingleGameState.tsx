@@ -14,41 +14,43 @@ import {
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { GameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
+import { SingleGameEventHandlers } from './EventHandlers'
+
+export function singleGameListeners(
+    setSGState: (sgState?: SGState) => void,
+    ...listeners: Partial<SingleGameListeners>[]
+): SingleGameListeners {
+    return decorate(setSGStateListener(setSGState), ...listeners)
+}
 
 export function useSingleGameState(
     gameConf: GameConf,
     initialSGState: SGState,
-    rollListener: RollListener,
-    ...listeners: Partial<SingleGameListeners>[]
+    //    rollListener: RollListener,
+    //...listeners: Partial<SingleGameListeners>[]
 ): {
     sgState: SGState
-    singleGameEventHandlers: SingleGameEventHandlers
-    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
     setSGState: (sgState?: SGState) => void
 } {
-    const [sgState, sgListeners, setSGState] = useSingleGameListeners(
-        initialSGState,
+    const defaultState = openingState(boardState(gameConf.initialPos))
+    const [sgState, setSGState] = useState(initialSGState)
+    return {
+        sgState,
+        setSGState: (state: SGState = defaultState) => setSGState(state),
+    }
+} /*
+    const sgListeners = singleGameListeners(
+        (state: SGState = defaultState) => setSGState(state),
         ...listeners
     )
-    const singleGameEventHandlers: SingleGameEventHandlers = sgEH(
+
+    const singleGameEventHandlers: SingleGameEventHandlers = singleGameEventHandlers(
         rollListener,
         sgListeners
     )
-    const defaultState = openingState(boardState(gameConf.initialPos))
-    const gameEventHandlers = {
-        onStartNextGame: () => {
-            setSGState(defaultState)
-        },
-    }
-    return {
-        sgState,
-        singleGameEventHandlers,
-        gameEventHandlers,
-        setSGState: (sgState: SGState = defaultState) => setSGState(sgState),
-    }
-}
-function sgEH(
+}*/
+
+export function singleGameEventHandlers(
     rollListener: RollListener,
     sgListeners: SingleGameListeners
 ): SingleGameEventHandlers {
@@ -64,16 +66,4 @@ function sgEH(
                 dispatcher.doOpeningRoll(sgState, dices)
             ),
     }
-}
-
-function useSingleGameListeners(
-    initialState: SGState,
-    listeners: Partial<SingleGameListeners> = {}
-): [SGState, SingleGameListeners, Dispatch<SetStateAction<SGState>>] {
-    const [state, setState] = useState(initialState)
-    const _listeners: SingleGameListeners = decorate(
-        setSGStateListener(setState),
-        listeners
-    )
-    return [state, _listeners, setState]
 }

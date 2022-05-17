@@ -48,7 +48,7 @@ const props: RecordedCubefulGameProps = {
     onResumeState: () => {
         //
     },
-    onEndOfMatch: () => {
+    onEndOfGame: () => {
         //
     },
 }

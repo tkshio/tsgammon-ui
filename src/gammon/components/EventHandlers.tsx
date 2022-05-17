@@ -1,22 +1,22 @@
-import { BoardStateNode, EOGStatus } from 'tsgammon-core';
+import { BoardStateNode, EOGStatus, Score } from 'tsgammon-core'
 import {
     CBAction,
     CBInPlay,
     CBOpening,
     CBResponse,
     CBState,
-    CBToRoll
-} from 'tsgammon-core/dispatchers/CubeGameState';
-import { SGInPlay, SGOpening, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState';
-import { SGResult } from 'tsgammon-core/records/SGResult';
+    CBToRoll,
+} from 'tsgammon-core/dispatchers/CubeGameState'
+import {
+    SGInPlay,
+    SGOpening,
+    SGToRoll,
+} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 
-
-export type GameEventHandlers = {
-    onEndOfMatch: () => void;
-    onStartNextGame: () => void;
-    onResumeState: (index: number) => void;    
-};
-
+export type StartNextGameHandler = {
+    onStartNextGame: () => void
+}
 export type CubeGameEventHandlers = {
     onTake: (cbState: CBResponse) => void
     onPass: (cbState: CBResponse) => void

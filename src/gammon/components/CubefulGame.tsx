@@ -15,8 +15,8 @@ import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
 import {
     CubeGameEventHandlers,
-    GameEventHandlers,
     SingleGameEventHandlers,
+    StartNextGameHandler,
 } from './EventHandlers'
 import { CBOperator } from './operators/CBOperator'
 import { SingleGameConfs } from './SingleGameBoard'
@@ -38,7 +38,7 @@ export type CubefulGameProps = {
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
-    GameEventHandlers &
+    StartNextGameHandler &
         CubeGameEventHandlers &
         SingleGameEventHandlers &
         RollListener &
@@ -54,6 +54,9 @@ export function CubefulGame(props: CubefulGameProps) {
         matchScore = score(),
         dialog,
         cbConfs = { sgConfs: {} },
+        onStartNextGame = ()=>{
+            //
+        },
         ...eventHandlers
     } = props
 
@@ -81,7 +84,7 @@ export function CubefulGame(props: CubefulGameProps) {
                 stakeConf,
                 matchLength,
                 matchScore,
-                eventHandlers
+                onStartNextGame
             ),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
@@ -101,7 +104,7 @@ function eogDialog(
     stakeConf: StakeConf,
     matchLength: number,
     score: Score,
-    eventHandlers: Partial<GameEventHandlers>
+    onStartNextGame: () => void
 ): (cbState: CBEoG) => JSX.Element {
     return (cbState: CBEoG) => {
         const { eogStatus, stake } = cbState.calcStake(stakeConf)
@@ -126,15 +129,7 @@ function eogDialog(
                     isCrawfordNext,
                     isEoM,
                     onClick: () => {
-                        if (isEoM) {
-                            if (eventHandlers.onEndOfMatch) {
-                                eventHandlers.onEndOfMatch()
-                            }
-                        } else {
-                            if (eventHandlers.onStartNextGame) {
-                                eventHandlers.onStartNextGame()
-                            }
-                        }
+                        onStartNextGame()
                     },
                 }}
             />

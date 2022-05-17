@@ -4,7 +4,7 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { GameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
+import { SingleGameEventHandlers, StartNextGameHandler } from './EventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
@@ -19,8 +19,12 @@ export type SingleGameProps = {
     sgConfs?: SingleGameConfs
     matchScore?: Score
     dialog?: JSX.Element
-} & Pick<GameEventHandlers, 'onStartNextGame'> &
-    Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
+} & Partial<
+    StartNextGameHandler &
+        SingleGameEventHandlers &
+        CheckerPlayListeners &
+        RollListener
+>
 
 export function SingleGame(props: SingleGameProps) {
     const {

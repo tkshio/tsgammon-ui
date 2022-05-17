@@ -15,7 +15,7 @@ import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { GameEventHandlers } from '../EventHandlers'
+import { StartNextGameHandler } from '../EventHandlers'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 export type MoneyGameProps = {
@@ -31,27 +31,22 @@ export type MoneyGameProps = {
 export function useScoreForCubefulGame(
     cbState: CBState,
     stakeConf: StakeConf,
-    matchLength:number,
-    gameEventHandlers: Partial<GameEventHandlers>
+    startNextGameHandler: StartNextGameHandler
 ): {
     matchScore: Score
-    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'> &
-        Partial<Omit<GameEventHandlers, 'onStartNextGame>'>>
+    gameEventHandlers: StartNextGameHandler
 } {
     const [matchScore, setMatchScore] = useState(score())
 
     return {
         matchScore,
         gameEventHandlers: {
-            ...gameEventHandlers,
             onStartNextGame: () => {
                 if (cbState.tag === 'CBEoG') {
                     const { stake } = cbState.calcStake(stakeConf)
                     setMatchScore((prev) => prev.add(stake))
                 }
-                if (gameEventHandlers.onStartNextGame) {
-                    gameEventHandlers.onStartNextGame()
-                }
+                startNextGameHandler.onStartNextGame()
             },
         },
     }
@@ -59,7 +54,6 @@ export function useScoreForCubefulGame(
 
 export function MoneyGame(props: MoneyGameProps) {
     const { gameConf = { ...standardConf, jacobyRule: true }, state } = props
-    const matchLength = 0
     const initialCBState = toCBState(state)
     const initialSGState = toSGState(state)
     const rollListener = rollListeners({
@@ -84,7 +78,6 @@ export function MoneyGame(props: MoneyGameProps) {
     const { matchScore, gameEventHandlers } = useScoreForCubefulGame(
         cbState,
         gameConf,
-        matchLength,
         _gameEventHandlers
     )
     const cbProps: CubefulGameProps = {
@@ -92,7 +85,7 @@ export function MoneyGame(props: MoneyGameProps) {
         sgState,
         cpState,
         ...props,
-        matchLength:0,
+        matchLength: 0,
         matchScore,
         ...gameEventHandlers,
         ...eventHandlers,
