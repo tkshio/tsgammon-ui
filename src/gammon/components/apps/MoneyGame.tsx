@@ -5,17 +5,15 @@ import {
     cubeGameDispatcher,
     CubeGameListeners,
     decorate as decorateCB,
-    setCBStateListener
+    setCBStateListener,
 } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { cbOpening, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {
-    SGState
-} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
@@ -23,7 +21,7 @@ import { CubefulGameConfs } from '../CubefulGameBoard'
 import {
     CubeGameEventHandlers,
     SingleGameEventHandlers,
-    StartNextGameHandler
+    StartNextGameHandler,
 } from '../EventHandlers'
 import { toState } from '../recordedGames/BGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -48,21 +46,18 @@ export function MoneyGame(props: MoneyGameProps) {
         setup,
         ...listeners
     } = props
-    const { sgState, setSGState } = useSingleGameState(
-        gameConf,
-        toState(setup).sgState
-    )
-    const { cbState, setCBState } = useCBState(toState(setup).cbState)
+    const { sgState: initialSGState, cbState: initialCBState } = toState(setup)
+    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
+    const { cbState, setCBState } = useCBState(initialCBState)
     const { matchScore, matchScoreListener } =
         useMatchScoreForCubeGame(gameConf)
 
-    const rollListener = rollListeners()
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
     const { handlers } = useCubefulGameState(
         cbState,
         setSGState,
         setCBState,
-        rollListener,
+        rollListeners(),
         matchScoreListener,
         props
     )
@@ -80,7 +75,7 @@ export function MoneyGame(props: MoneyGameProps) {
 
     return <CubefulGame {...cbProps} />
 }
-export function useCBState( initialCBState: CBState) {
+export function useCBState(initialCBState: CBState) {
     const [cbState, setCBState] = useState(initialCBState)
     const defaultCBState = cbOpening(cube(1))
     return {
@@ -114,13 +109,13 @@ export function useCubefulGameState(
         sgListeners,
         ...listeners
     )
-    const { onStartNextGame: _, ...sgHandlers } = sgHandlers_and_startNext
+    const { onStartNextGame, ...sgHandlers } = sgHandlers_and_startNext
 
     const handlers = {
         ...sgHandlers,
         ...cbEventHandlers,
         onStartNextGame: () => {
-            setSGState()
+            onStartNextGame()
             setCBState()
         },
     }
