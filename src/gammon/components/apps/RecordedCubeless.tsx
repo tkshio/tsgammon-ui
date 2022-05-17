@@ -19,6 +19,7 @@ import {
     useMatchRecorder
 } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
+import { useSingleGameState } from '../useSingleGameState'
 import { useCubelessGameState } from './Cubeless'
 import './main.css'
 import {
@@ -44,10 +45,11 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
     const initialSGState = toSGState(state)
     const rollListener = rollListeners()
+    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
 
-    const { sgState, handlers, matchRecord } = useRecordedCubeless(
+    const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
-        initialSGState,
+        setSGState,
         rollListener
     )
     const recordedMatchProps: RecordedSingleGameProps = {
@@ -62,7 +64,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
 function useRecordedCubeless(
     gameConf: GameConf,
-    initialSGState: SGState,
+    setSGState:(sgState?:SGState)=>void,
     rollListener: RollListener = rollListeners()
 ) {
     const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
@@ -73,15 +75,13 @@ function useRecordedCubeless(
 
     const sgHM = sgEventHandlersForMatchRecorder(matchRecorder)
 
-    const { sgState, handlers: _handlers } = useCubelessGameState(
-        gameConf,
-        initialSGState,
+    const {  handlers: _handlers } = useCubelessGameState(
+        setSGState,
         rollListener,
         { onEndOfGame }
     )
 
     return {
-        sgState,
         handlers: {
             ..._handlers,
             onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
@@ -92,6 +92,11 @@ function useRecordedCubeless(
                 _handlers.onStartNextGame()
                 matchRecorder.resetCurGame()
             },
+            onResumeState:(index:number)=>{
+                const resumed = matchRecorder.resumeTo(index)
+                setSGState(resumed)
+            }
+    
         },
         matchRecord,
     }

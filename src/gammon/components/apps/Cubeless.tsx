@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -17,7 +17,7 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import {
     singleGameEventHandlers,
     singleGameListeners,
-    useSingleGameState,
+    useSingleGameState
 } from '../useSingleGameState'
 
 export type CubelessProps = {
@@ -34,11 +34,11 @@ export type CubelessProps = {
 export function Cubeless(props: CubelessProps) {
     const { gameConf = standardConf, sgConfs, ...listeners } = props
     const initialSGState = toSGState(props)
-
     const { matchScore, matchScoreListener } = useMatchScore()
-    const { sgState, handlers } = useCubelessGameState(
-        gameConf,
-        initialSGState,
+    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
+
+    const { handlers } = useCubelessGameState(
+        setSGState,
         rollListeners(),
         listeners,
         matchScoreListener
@@ -58,16 +58,12 @@ export function Cubeless(props: CubelessProps) {
 }
 
 export function useCubelessGameState(
-    gameConf: GameConf,
-    initialSGState: SGState,
+    setSGState: (sgState?: SGState) => void,
     rollListener: RollListener = rollListeners(),
     ...listeners: Partial<SingleGameListeners>[]
 ): {
-    sgState: SGState
     handlers: SingleGameEventHandlers & StartNextGameHandler
 } {
-    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
-
     const sgEventHandlers = singleGameEventHandlers(
         rollListener,
         singleGameListeners(setSGState, ...listeners)
@@ -79,10 +75,10 @@ export function useCubelessGameState(
         },
     }
     const handlers = { ...sgEventHandlers, ...gameEventHandlers }
-    return { sgState, handlers }
+    return { handlers }
 }
 
-function useMatchScore(): {
+export function useMatchScore(): {
     matchScore: Score
     matchScoreListener: Pick<SingleGameListeners, 'onEndOfGame'>
 } {

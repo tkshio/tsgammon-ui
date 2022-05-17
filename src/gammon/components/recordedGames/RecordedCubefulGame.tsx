@@ -4,7 +4,7 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { CubeGameEventHandlers, GameEventHandlers, SingleGameEventHandlers } from '../EventHandlers'
+import { CubeGameEventHandlers,  SingleGameEventHandlers, StartNextGameHandler } from '../EventHandlers'
 import { } from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -18,7 +18,8 @@ export type RecordedCubefulGameProps = {
     matchScore?: Score
     matchRecord: MatchRecord<BGState>
     bgState: BGState
-} & GameEventHandlers &
+    onResumeState?:(index:number)=>void
+} & StartNextGameHandler &
     Partial<
         CubeGameEventHandlers &
             SingleGameEventHandlers &

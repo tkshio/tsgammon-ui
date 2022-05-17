@@ -24,7 +24,7 @@ initialBoard.args = {}
 
 export const almostEnd = Template.bind({})
 almostEnd.args = {
-    state: {
+    setup: {
         absPos: [
             0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
             0, 0, 0, 0,

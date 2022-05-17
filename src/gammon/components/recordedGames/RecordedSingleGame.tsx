@@ -3,7 +3,7 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { GameEventHandlers, SingleGameEventHandlers } from '../EventHandlers'
+import { StartNextGameHandler, SingleGameEventHandlers } from '../EventHandlers'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -14,8 +14,9 @@ export type RecordedSingleGameProps = {
     sgState: SGState
     sgConfs: SingleGameConfs
     matchRecord: MatchRecord<SGState>
+    onResumeState?:(index:number)=>void
 } & SingleGameEventHandlers &
-    Partial<GameEventHandlers & CheckerPlayListeners & RollListener>
+    Partial<StartNextGameHandler & CheckerPlayListeners & RollListener>
 
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {

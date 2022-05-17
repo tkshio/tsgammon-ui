@@ -1,101 +1,14 @@
-import { Dispatch, SetStateAction, useState } from 'react'
-import { cube, GameConf } from 'tsgammon-core'
-import {
-    CubeGameDispatcher,
-    cubeGameDispatcher,
-    CubeGameListeners,
-    decorate,
-    decorate as decorateCB,
-    setCBStateListener,
-} from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import { cbOpening, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
-    SGInPlay,
-    SGState,
-    SGToRoll,
+    SGInPlay, SGToRoll
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
-    CubeGameEventHandlers,
-    GameEventHandlers,
-    SingleGameEventHandlers,
+    CubeGameEventHandlers
 } from './EventHandlers'
-import { useSingleGameState } from './useSingleGameState'
 
-export function useCubeGameState(
-    gameConf: GameConf,
-    isCrawford: boolean,
-    initialSGState: SGState,
-    initialCBState: CBState,
-    rollListener: RollListener,
-    ...listeners: Partial<SingleGameListeners & CubeGameListeners>[]
-): {
-    cbState: CBState
-    sgState: SGState
-    eventHandlers: CubeGameEventHandlers & SingleGameEventHandlers
-    gameEventHandlers: Pick<GameEventHandlers, 'onStartNextGame'>
-    setCBState: (cbState?: CBState) => void
-    setSGState:(sgState?:SGState)=>void
-
-} {
-    const [cbState, cbListeners, setCBState] = useCubeGameListeners(
-        initialCBState,
-        ...listeners
-    )
-
-    const dispatcher = cubeGameDispatcher(isCrawford, decorateCB(cbListeners))
-
-    const cubeGameEventHandlers: CubeGameEventHandlers = cubeGameEH(dispatcher)
-
-    const sglisteners = cubefulSGEventHandler(cbState, cubeGameEventHandlers)
-
-    const {
-        sgState,
-        singleGameEventHandlers,
-        gameEventHandlers: sgGameEventHandlers,
-        setSGState
-    } = useSingleGameState(
-        gameConf,
-        initialSGState,
-        rollListener,
-        ...[sglisteners, ...listeners]
-    )
-    const defaultCBState = cbOpening(cube(1))
-    const gameEventHandlers = {
-        onStartNextGame: () => {
-            setCBState(defaultCBState)
-            sgGameEventHandlers.onStartNextGame()
-        },
-    }
-    return {
-        cbState,
-        sgState,
-        eventHandlers: { ...singleGameEventHandlers, ...cubeGameEventHandlers },
-        gameEventHandlers,
-        setCBState: (cbState: CBState = defaultCBState) => {
-            setCBState(cbState)
-        },
-        setSGState
-    }
-
-    function cubeGameEH(dispatcher: CubeGameDispatcher): CubeGameEventHandlers {
-        return {
-            onDouble: dispatcher.doDouble,
-            onTake: dispatcher.doTake,
-            onPass: dispatcher.doPass,
-
-            onStartOpeningCheckerPlay: dispatcher.doStartOpeningCheckerPlay,
-            onStartCheckerPlay: dispatcher.doStartCheckerPlay,
-            onStartCubeAction: dispatcher.doStartCubeAction,
-            onSkipCubeAction: dispatcher.doSkipCubeAction,
-            onEndOfCubeGame: dispatcher.doEndOfCubeGame,
-        }
-    }
-}
-
-export function cubefulSGEventHandler(
+export function cubefulSGListener(
     state: CBState,
     cubeGameEH: CubeGameEventHandlers
 ): Partial<SingleGameListeners> {
@@ -132,16 +45,4 @@ export function cubefulSGEventHandler(
             cubeGameEH.onEndOfCubeGame(state, sgEoG.result, sgEoG.eogStatus)
         },
     }
-}
-
-function useCubeGameListeners(
-    initialState: CBState,
-    listeners: Partial<CubeGameListeners> = {}
-): [CBState, CubeGameListeners, Dispatch<SetStateAction<CBState>>] {
-    const [state, setState] = useState(initialState)
-    const _listeners: CubeGameListeners = decorate(
-        setCBStateListener(setState),
-        listeners
-    )
-    return [state, _listeners, setState]
 }
