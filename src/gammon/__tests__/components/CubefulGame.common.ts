@@ -1,16 +1,19 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { CheckerPlayListeners, setCPStateListener } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import {
+    CheckerPlayListeners,
+    setCPStateListener
+} from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CubeGameListeners, setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { setSGStateListener, SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+import { cubefulGameEventHandlers } from '../../components/apps/MoneyGame'
 import {
-    CubefulGameConfs
-} from '../../components/CubefulGameBoard'
-
+    CubeGameEventHandlers,
+    SingleGameEventHandlers
+} from '../../components/EventHandlers'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -41,7 +44,7 @@ export function isWhite(sgState: SGState): boolean {
     return !sgState.isRed
 }
 
-export function setupListeners(
+export function setupEventHandlers(
     state: {
         cpState?: CheckerPlayState
         sgState: SGState
@@ -49,33 +52,29 @@ export function setupListeners(
     },
     diceSource: DiceSource
 ): CheckerPlayListeners &
-    SingleGameListeners &
-    CubeGameListeners & { cbConfs: CubefulGameConfs } {
+    SingleGameEventHandlers &
+    CubeGameEventHandlers & {
+        diceSource: DiceSource
+    } {
     const cpListeners: CheckerPlayListeners = setCPStateListener(
         (next: CheckerPlayState | undefined) => {
             state.cpState = next
         }
     )
-    const sgListeners: SingleGameListeners = setSGStateListener(
-        (next: SGState) => {
+    const handlers = cubefulGameEventHandlers(
+        state.cbState,
+        (next: SGState = state.sgState) => {
             state.sgState = next
-        }
-    )
-    const cbListeners: CubeGameListeners = setCBStateListener(
-        (next: CBState) => {
+        },
+        (next: CBState = state.cbState) => {
             state.cbState = next
-        }
-    )
+        },
+        rollListeners({ isRollHandlerEnabled: false, diceSource })
+    ).handlers
 
     return {
-        ...state,
-        ...cbListeners,
-        ...sgListeners,
         ...cpListeners,
-        cbConfs: {
-            sgConfs: {
-                diceSource,
-            },
-        },
+        ...handlers,
+        diceSource,
     }
 }

@@ -28,7 +28,7 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { cubefulSGListener } from '../useCubeGameState'
 import { useMatchScoreForCubeGame } from '../useMatchScoreForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
-import { useCubelessGameState } from './Cubeless'
+import { cubelessEventHandlers } from './Cubeless'
 
 export type MoneyGameProps = {
     gameConf: GameConf
@@ -53,7 +53,7 @@ export function MoneyGame(props: MoneyGameProps) {
         useMatchScoreForCubeGame(gameConf)
 
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
-    const { handlers } = useCubefulGameState(
+    const { handlers } = cubefulGameEventHandlers(
         cbState,
         setSGState,
         setCBState,
@@ -83,7 +83,7 @@ export function useCBState(initialCBState: CBState) {
         setCBState: (cbState: CBState = defaultCBState) => setCBState(cbState),
     }
 }
-export function useCubefulGameState(
+export function cubefulGameEventHandlers(
     cbState: CBState,
     setSGState: (sgState?: SGState) => void,
     setCBState: (cbState?: CBState) => void,
@@ -103,7 +103,7 @@ export function useCubefulGameState(
     const cbEventHandlers = cubeGameEH(false, cbListeners)
     // SGStateの管理に追加する
     const sgListeners = cubefulSGListener(cbState, cbEventHandlers)
-    const { handlers: sgHandlers_and_startNext } = useCubelessGameState(
+    const { handlers: sgHandlers_and_startNext } = cubelessEventHandlers(
         setSGState,
         rollListener,
         sgListeners,
@@ -126,7 +126,7 @@ function cubeGameEH(
     isCrawford: boolean,
     cbListeners: CubeGameListeners
 ): CubeGameEventHandlers {
-    const dispatcher = cubeGameDispatcher(isCrawford, decorateCB(cbListeners))
+    const dispatcher = cubeGameDispatcher(isCrawford, cbListeners)
 
     return {
         onDouble: dispatcher.doDouble,

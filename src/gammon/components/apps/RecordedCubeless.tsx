@@ -20,7 +20,7 @@ import {
 } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useSingleGameState } from '../useSingleGameState'
-import { useCubelessGameState } from './Cubeless'
+import { cubelessEventHandlers } from './Cubeless'
 import './main.css'
 import {
     sgEventHandlersForMatchRecorder
@@ -75,7 +75,7 @@ function useRecordedCubeless(
 
     const sgHM = sgEventHandlersForMatchRecorder(matchRecorder)
 
-    const {  handlers: _handlers } = useCubelessGameState(
+    const {  handlers: _handlers } = cubelessEventHandlers(
         setSGState,
         rollListener,
         { onEndOfGame }

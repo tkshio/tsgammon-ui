@@ -2,12 +2,15 @@ import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { score, scoreAsWhite, standardConf } from 'tsgammon-core'
 import { GameSetup, GameStatus, toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { BGState } from '../../components/recordedGames/BGState'
 import {
     RecordedCubefulGame,
     RecordedCubefulGameProps
 } from '../../components/recordedGames/RecordedCubefulGame'
-import { setupListeners } from './CubefulGameBoard.common'
+import { CubefulGameConfs } from '../../components/CubefulGame'
+import { setupEventHandlers } from './CubefulGame.common'
 
 
 let container: HTMLElement | null = null
@@ -36,21 +39,19 @@ const state = {
 }
 
 const props: RecordedCubefulGameProps = {
-    ...setupListeners(state, presetDiceSource()),
+    ...setupEventHandlers(state, presetDiceSource()),
     gameConf: standardConf,
     bgState: state,
     matchScore: score({ redScore: 0, whiteScore: 2 }),
-    matchLength: 3,
-    isCrawford: true,
+    matchRecord:{} as unknown as MatchRecord<BGState>,
+    cbConfs:{} as unknown as CubefulGameConfs,
     onStartNextGame: () => {
         //
     },
     onResumeState: () => {
         //
     },
-    onEndOfGame: () => {
-        //
-    },
+
 }
 
 describe('RecordedCubeGame(eom)', () => {

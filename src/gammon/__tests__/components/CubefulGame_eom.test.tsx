@@ -3,11 +3,8 @@ import { unmountComponentAtNode } from 'react-dom'
 import { cube, score } from 'tsgammon-core'
 import { GameSetup, GameStatus, toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import {
-    CubefulGameBoard,
-    CubefulGameBoardProps
-} from '../../components/CubefulGameBoard'
-import { BoardOp, setupListeners } from './CubefulGameBoard.common'
+import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
+import { BoardOp, setupEventHandlers } from './CubefulGame.common'
 
 
 let container: HTMLElement | null = null
@@ -17,6 +14,7 @@ beforeEach(() => {
     document.body.appendChild(container)
 })
 
+// 白の手番だが、オンザバーなので手がなく、即コミットしかない状態
 const gameState: GameSetup = {
     gameStatus: GameStatus.INPLAY_WHITE,
     // prettier-ignore
@@ -36,15 +34,15 @@ const state = {
     cbState: toCBState(gameState),
 }
 
-const props: CubefulGameBoardProps = {
-    ...setupListeners(state, presetDiceSource()),
-    scoreBefore: score({ redScore: 3, whiteScore: 3 }),
+const props: CubefulGameProps = {
+    ...setupEventHandlers(state, presetDiceSource()),
+    matchScore: score({ redScore: 3, whiteScore: 3 }),
     ...state,
 }
 
-describe('CubeGameBoard', () => {
+describe('CubefulGame', () => {
     test('skips cube action when the game is crawford', async () => {
-        render(<CubefulGameBoard {...{ ...props, isCrawford:true }} />)
+        render(<CubefulGame {...{ ...props, isCrawford:true }} />)
 
         BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGToRoll')
@@ -52,7 +50,7 @@ describe('CubeGameBoard', () => {
         expect(state.cbState.tag === 'CBToRoll' ?state.cbState.lastAction:undefined).toEqual('Skip')
     })
     test('doesn\'t skip cube action when the game is not crawford', async () => {
-        render(<CubefulGameBoard {...{ ...props, isCrawford:false }} />)
+        render(<CubefulGame {...{ ...props, isCrawford:false }} />)
 
         BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGToRoll')

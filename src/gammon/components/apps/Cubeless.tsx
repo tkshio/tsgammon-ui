@@ -37,7 +37,7 @@ export function Cubeless(props: CubelessProps) {
     const { matchScore, matchScoreListener } = useMatchScore()
     const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
 
-    const { handlers } = useCubelessGameState(
+    const { handlers } = cubelessEventHandlers(
         setSGState,
         rollListeners(),
         listeners,
@@ -57,7 +57,7 @@ export function Cubeless(props: CubelessProps) {
     return <SingleGame {...sgProps} />
 }
 
-export function useCubelessGameState(
+export function cubelessEventHandlers(
     setSGState: (sgState?: SGState) => void,
     rollListener: RollListener = rollListeners(),
     ...listeners: Partial<SingleGameListeners>[]

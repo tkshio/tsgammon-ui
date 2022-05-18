@@ -48,7 +48,7 @@ import {
 import { useMatchScoreForCubeGame } from '../useMatchScoreForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-import { useCBState, useCubefulGameState } from './MoneyGame'
+import { useCBState, cubefulGameEventHandlers } from './MoneyGame'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -121,7 +121,7 @@ export function PointMatch(props: PointMatchProps) {
             )
         )
 
-    const { handlers } = useCubefulGameState(
+    const { handlers } = cubefulGameEventHandlers(
         cbState,
         setSGState,
         setCBState,

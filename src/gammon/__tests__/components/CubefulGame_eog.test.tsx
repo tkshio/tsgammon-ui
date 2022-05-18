@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
-import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import {
     GameSetup,
     GameStatus,
     toCBState,
     toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { BoardOp, isWhite, setupListeners } from './CubefulGameBoard.common'
+import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { CubefulGame } from '../../components/CubefulGame'
+import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
 
 let container: HTMLElement | null = null
 
@@ -35,11 +35,11 @@ const state = {
     cbState: toCBState(gameState),
 }
 
-const props = setupListeners(state, presetDiceSource())
+const props = setupEventHandlers(state, presetDiceSource())
 
-describe('CubeGameBoard(eog)', () => {
+describe('CubeGame(eog)', () => {
     test('plays last move', async () => {
-        render(<CubefulGameBoard {...{...props, ...state}} />)
+        render(<CubefulGame {...{...props, ...state}} />)
 
         BoardOp.clickPoint(23)
         expect(state.sgState.tag).toEqual('SGInPlay')
@@ -47,7 +47,7 @@ describe('CubeGameBoard(eog)', () => {
 
     test('commits last move', async () => {
         const next = { ...props, ...state }
-        render(<CubefulGameBoard {...next} />)
+        render(<CubefulGame {...next} />)
 
         BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGEoG')
@@ -64,7 +64,7 @@ describe('CubeGameBoard(eog)', () => {
 
     test('shows dialog after end of game', async () => {
         const next = { ...props, ...state }
-        render(<CubefulGameBoard {...next} />)
+        render(<CubefulGame {...next} />)
 
         expect(state.sgState.tag).toEqual('SGEoG')
         expect(screen.getByText('White wins 1 pt.')).toBeTruthy()

@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGameBoard } from '../../components/CubefulGameBoard'
 import {
     GameSetup,
     GameStatus,
     toCBState,
     toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { BoardOp, setupListeners } from './CubefulGameBoard.common'
+import { BoardOp, setupEventHandlers } from './CubefulGame.common'
+import { CubefulGame } from '../../components/CubefulGame'
 
 let container: HTMLElement | null = null
 
@@ -37,7 +37,7 @@ describe('stakeConf configures jacoby rule(on):', () => {
     }
 
     const props = {
-        ...setupListeners(state, randomDiceSource),
+        ...setupEventHandlers(state, randomDiceSource),
         cbConfs: {
             sgConfs: {},
             stakeConf: { jacobyRule: true },
@@ -46,13 +46,13 @@ describe('stakeConf configures jacoby rule(on):', () => {
     }
 
     test('do last move', () => {
-        render(<CubefulGameBoard {...props} />)
+        render(<CubefulGame {...props} />)
         BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {
         render(
-            <CubefulGameBoard
+            <CubefulGame
                 {...{
                     ...props,
                     ...state,
@@ -70,7 +70,7 @@ describe('stakeConf configures jacoby rule off', () => {
     }
 
     const props = {
-        ...setupListeners(state, randomDiceSource),
+        ...setupEventHandlers(state, randomDiceSource),
         cbConfs: {
             sgConfs: {},
             stakeConf: { jacobyRule: false },
@@ -79,13 +79,13 @@ describe('stakeConf configures jacoby rule off', () => {
     }
 
     test('do last move', () => {
-        render(<CubefulGameBoard {...props} />)
+        render(<CubefulGame {...props} />)
         BoardOp.clickLeftDice()
         expect(state.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {
         render(
-            <CubefulGameBoard
+            <CubefulGame
                 {...{
                     ...props,
                     ...state,
