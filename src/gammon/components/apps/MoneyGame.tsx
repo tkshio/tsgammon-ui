@@ -17,6 +17,7 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
+import { MatchState } from "../MatchState"
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import {
     CubeGameEventHandlers,
@@ -26,7 +27,7 @@ import {
 import { toState } from '../recordedGames/BGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { cubefulSGListener } from '../useCubeGameState'
-import { useMatchScoreForCubeGame } from '../useMatchScoreForCubeGame'
+import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import { cubelessEventHandlers } from './Cubeless'
 
@@ -46,35 +47,42 @@ export function MoneyGame(props: MoneyGameProps) {
         setup,
         ...listeners
     } = props
+    const matchLength = 0
     const { sgState: initialSGState, cbState: initialCBState } = toState(setup)
     const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
     const { cbState, setCBState } = useCBState(initialCBState)
-    const { matchScore, matchScoreListener } =
-        useMatchScoreForCubeGame(gameConf)
+    const { matchState,  matchStateListener, matchStateEventHandler } = useMatchStateForCubeGame(
+        matchLength,
+        gameConf
+    )
 
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
     const { handlers } = cubefulGameEventHandlers(
+        false,
         cbState,
         setSGState,
         setCBState,
         rollListeners(),
-        matchScoreListener,
+        matchStateListener,
         props
     )
-
     const cbProps: CubefulGameProps = {
         sgState,
         cbState,
         cpState,
         ...listeners,
-        matchLength: 0,
-        matchScore,
+        matchState,
         ...handlers,
+        onStartNextGame:()=>{
+            handlers.onStartNextGame()
+            matchStateEventHandler.onStartNextGame()
+        },
         ...cpListeners,
     }
 
     return <CubefulGame {...cbProps} />
 }
+
 export function useCBState(initialCBState: CBState) {
     const [cbState, setCBState] = useState(initialCBState)
     const defaultCBState = cbOpening(cube(1))
@@ -84,6 +92,7 @@ export function useCBState(initialCBState: CBState) {
     }
 }
 export function cubefulGameEventHandlers(
+    isCrawford:boolean,
     cbState: CBState,
     setSGState: (sgState?: SGState) => void,
     setCBState: (cbState?: CBState) => void,
@@ -100,7 +109,7 @@ export function cubefulGameEventHandlers(
         ...listeners
     )
 
-    const cbEventHandlers = cubeGameEH(false, cbListeners)
+    const cbEventHandlers = cubeGameEH(isCrawford, cbListeners)
     // SGStateの管理に追加する
     const sgListeners = cubefulSGListener(cbState, cbEventHandlers)
     const { handlers: sgHandlers_and_startNext } = cubelessEventHandlers(

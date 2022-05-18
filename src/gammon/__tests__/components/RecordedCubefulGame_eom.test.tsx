@@ -1,17 +1,22 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { score, scoreAsWhite, standardConf } from 'tsgammon-core'
-import { GameSetup, GameStatus, toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
+import {
+    GameSetup,
+    GameStatus,
+    toCBState,
+    toSGState
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { matchRecord } from 'tsgammon-core/records/MatchRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { matchStateEOG, pointMatchState } from '../../components/MatchState'
 import { BGState } from '../../components/recordedGames/BGState'
 import {
     RecordedCubefulGame,
     RecordedCubefulGameProps
 } from '../../components/recordedGames/RecordedCubefulGame'
-import { CubefulGameConfs } from '../../components/CubefulGame'
 import { setupEventHandlers } from './CubefulGame.common'
-
 
 let container: HTMLElement | null = null
 
@@ -37,23 +42,24 @@ const state = {
     sgState: toSGState(gameState),
     cbState: toCBState(gameState),
 }
-
+const initialMatchRecord = matchRecord<BGState>()
 const props: RecordedCubefulGameProps = {
     ...setupEventHandlers(state, presetDiceSource()),
     gameConf: standardConf,
     bgState: state,
-    matchScore: score({ redScore: 0, whiteScore: 2 }),
-    matchRecord:{} as unknown as MatchRecord<BGState>,
-    cbConfs:{} as unknown as CubefulGameConfs,
+    matchState: matchStateEOG(
+        pointMatchState(3, score({ redScore: 0, whiteScore: 2 })),
+        state.cbState as CBEoG
+    ),
+    matchRecord: initialMatchRecord,
+    cbConfs: { sgConfs: {} },
     onStartNextGame: () => {
         //
     },
     onResumeState: () => {
         //
     },
-
 }
-
 describe('RecordedCubeGame(eom)', () => {
     test('shows dialog for End of Match', async () => {
         const next = { ...props, ...state }

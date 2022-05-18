@@ -5,11 +5,11 @@ import {
     CBAction,
     CBEoG,
     CBResponse,
-    CBState
+    CBState,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
@@ -18,7 +18,7 @@ import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import {
     matchRecord as initMatchRecord,
     MatchRecord,
-    setEoGRecord
+    setEoGRecord,
 } from 'tsgammon-core/records/MatchRecord'
 import {
     PlyRecordEoG,
@@ -27,25 +27,25 @@ import {
     plyRecordForEoG,
     plyRecordForPass,
     plyRecordForTake,
-    PlyRecordInPlay
+    PlyRecordInPlay,
 } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import {
     CubeGameEventHandlers,
-    SingleGameEventHandlers
+    SingleGameEventHandlers,
 } from '../EventHandlers'
 import { BGState, toState } from '../recordedGames/BGState'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import {
     MatchRecorder,
-    useMatchRecorder
+    useMatchRecorder,
 } from '../recordedGames/useMatchRecorder'
-import { useMatchScoreForCubeGame } from '../useMatchScoreForCubeGame'
+import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 import { useCBState, cubefulGameEventHandlers } from './MoneyGame'
@@ -102,8 +102,8 @@ export function PointMatch(props: PointMatchProps) {
     const { matchKey, listeners: matchKeyListener } = useMatchKey()
 
     // スコアの管理に必要なListener
-    const { matchScore, matchScoreListener } =
-        useMatchScoreForCubeGame(gameConf)
+    const { matchState, matchStateListener, matchStateEventHandler } =
+        useMatchStateForCubeGame(matchLength, gameConf)
 
     // マッチの記録に必要なListener
     const { matchRecord, matchRecorder, matchRecorderListener } =
@@ -122,12 +122,13 @@ export function PointMatch(props: PointMatchProps) {
         )
 
     const { handlers } = cubefulGameEventHandlers(
+        matchState.isCrawford,
         cbState,
         setSGState,
         setCBState,
         rollListener,
         matchKeyListener,
-        matchScoreListener,
+        matchStateListener,
         matchRecorderListener
     )
     // マッチの記録は、Handlerでも行われる
@@ -137,7 +138,7 @@ export function PointMatch(props: PointMatchProps) {
     )
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
-        matchScore,
+        matchState,
         matchRecord,
         bgState: { sgState, cbState },
         cbConfs,
@@ -161,6 +162,7 @@ export function PointMatch(props: PointMatchProps) {
         onStartNextGame: () => {
             handlers.onStartNextGame()
             matchRecorder.resetCurGame()
+            matchStateEventHandler.onStartNextGame()
         },
         onResumeState: (index: number) => {
             const resumed = matchRecorder.resumeTo(index)

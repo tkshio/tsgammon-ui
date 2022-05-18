@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
     CheckerPlayListeners,
-    setCPStateListener
+    setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
@@ -12,7 +12,7 @@ import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { cubefulGameEventHandlers } from '../../components/apps/MoneyGame'
 import {
     CubeGameEventHandlers,
-    SingleGameEventHandlers
+    SingleGameEventHandlers,
 } from '../../components/EventHandlers'
 
 export const BoardOp = {
@@ -44,13 +44,15 @@ export function isWhite(sgState: SGState): boolean {
     return !sgState.isRed
 }
 
+// TODO: replace with cubefulGameEventHandlers, useCheckerPlayListeners
 export function setupEventHandlers(
     state: {
         cpState?: CheckerPlayState
         sgState: SGState
         cbState: CBState
     },
-    diceSource: DiceSource
+    diceSource: DiceSource,
+    isCrawford = false
 ): CheckerPlayListeners &
     SingleGameEventHandlers &
     CubeGameEventHandlers & {
@@ -62,6 +64,7 @@ export function setupEventHandlers(
         }
     )
     const handlers = cubefulGameEventHandlers(
+        isCrawford,
         state.cbState,
         (next: SGState = state.sgState) => {
             state.sgState = next

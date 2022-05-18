@@ -9,6 +9,7 @@ import {
     setupEventHandlers,
 } from './CubefulGame.common'
 import { CubefulGame } from '../../components/CubefulGame'
+import { unlimitedMatchState } from '../../components/MatchState'
 
 let container: HTMLElement | null = null
 
@@ -23,11 +24,16 @@ const state = {
     cbState: toCBState(),
 }
 const diceSource = presetDiceSource(1, 3)
+const matchState = unlimitedMatchState()
 describe('CubeGame', () => {
     test('does opening roll when dice gets clicked', async () => {
         render(
             <CubefulGame
-                {...{ ...state, ...setupEventHandlers(state, diceSource) }}
+                {...{
+                    ...state,
+                    matchState,
+                    ...setupEventHandlers(state, diceSource),
+                }}
             />
         )
 
@@ -43,7 +49,7 @@ describe('CubeGame', () => {
     test('moves a piece when point 19 gets clicked', async () => {
         const handlers = setupEventHandlers(state, diceSource)
         const onCheckerPlay = jest.fn(handlers.onCheckerPlay)
-        const next = { ...state, ...handlers, onCheckerPlay }
+        const next = { ...state, matchState, ...handlers, onCheckerPlay }
         render(<CubefulGame {...next} />)
         BoardOp.clickPoint(19)
         expect(onCheckerPlay).toBeCalled()
@@ -52,7 +58,7 @@ describe('CubeGame', () => {
     test('moves a piece when point 17 gets clicked', async () => {
         const handlers = setupEventHandlers(state, diceSource)
         const onCheckerPlay = jest.fn(handlers.onCheckerPlay)
-        const next = { ...state, ...handlers, onCheckerPlay }
+        const next = { ...state, matchState, ...handlers, onCheckerPlay }
         render(<CubefulGame {...next} />)
 
         BoardOp.clickPoint(17)
@@ -60,7 +66,11 @@ describe('CubeGame', () => {
     })
 
     test("commits one's ply when dice gets clicked", async () => {
-        const next = { ...state, ...setupEventHandlers(state, diceSource) }
+        const next = {
+            ...state,
+            matchState,
+            ...setupEventHandlers(state, diceSource),
+        }
         render(<CubefulGame {...next} />)
         BoardOp.clickRightDice()
         expect(state.sgState.tag).toEqual('SGToRoll')

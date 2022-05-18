@@ -1,10 +1,11 @@
 import { Fragment } from 'react'
-import { GameConf, Score } from 'tsgammon-core'
+import { GameConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { CubeGameEventHandlers,  SingleGameEventHandlers, StartNextGameHandler } from '../EventHandlers'
+import { CubeGameEventHandlers, SingleGameEventHandlers, StartNextGameHandler } from '../EventHandlers'
+import { MatchState } from '../MatchState'
 import { } from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
@@ -15,7 +16,7 @@ import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
-    matchScore?: Score
+    matchState:MatchState,
     matchRecord: MatchRecord<BGState>
     bgState: BGState
     onResumeState?:(index:number)=>void
@@ -31,6 +32,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
         bgState: curBGState,
         matchRecord,
+        matchState,
         cbConfs = {
             sgConfs: {},
         },
@@ -49,18 +51,12 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         selectedState: { index, state: bgState },
         ssListeners,
     } = useSelectableStateWithRecord(curBGState, setCPState, onResumeState)
-
     const isLatest = index === undefined
-
-    const cur = matchRecord.curGameRecord
 
     const minimalProps = {
         ...bgState,
         cpState,
-        scoreBefore: matchRecord.matchScore,
-        matchLength: matchRecord.matchLength,
-        isCrawfordNext: cur.isEoG && cur.isCrawford,
-        isEoM: matchRecord.isEndOfMatch,
+        matchState,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest
@@ -74,7 +70,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const key = isLatest ? 'latest' : 'past' + index
 
     const recordedGameProps = {
-        matchRecord: matchRecord,
+        matchRecord,
         index,
         ...ssListeners,
     }
@@ -83,7 +79,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         cbState: bgState.cbState,
         sgState: bgState.sgState,
         cpState,
-        score: matchRecord.matchScore,
+        score: matchState.scoreBefore,
     }
 
     return (

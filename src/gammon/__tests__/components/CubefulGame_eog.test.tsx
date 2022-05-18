@@ -4,10 +4,11 @@ import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState
+    toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
+import { unlimitedMatchState } from '../../components/MatchState'
 import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
 
 let container: HTMLElement | null = null
@@ -34,12 +35,12 @@ const state = {
     sgState: toSGState(gameState),
     cbState: toCBState(gameState),
 }
-
-const props = setupEventHandlers(state, presetDiceSource())
+const matchState = unlimitedMatchState()
+const props = { matchState, ...setupEventHandlers(state, presetDiceSource()) }
 
 describe('CubeGame(eog)', () => {
     test('plays last move', async () => {
-        render(<CubefulGame {...{...props, ...state}} />)
+        render(<CubefulGame {...{ ...props, ...state }} />)
 
         BoardOp.clickPoint(23)
         expect(state.sgState.tag).toEqual('SGInPlay')
