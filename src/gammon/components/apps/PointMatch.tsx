@@ -92,9 +92,7 @@ export function PointMatch(props: PointMatchProps) {
     // 盤面の指定があれば、そこから開始
     const initialBGState = toState(props.board)
     // 状態管理
-    const { sgState, setSGState } = useSingleGameState(
-        initialBGState.sgState
-    )
+    const { sgState, setSGState } = useSingleGameState(initialBGState.sgState)
     const { cbState, setCBState } = useCubeGameState(initialBGState.cbState)
 
     // マッチにユニークなKeyを採番する
@@ -276,13 +274,16 @@ function bgMatchRecorderToSG(
 
 export function sgEventHandlersForMatchRecorder(
     matchRecorder: MatchRecorder<SGState>
-): Pick<SingleGameEventHandlers, 'onCommit'> {
+): Pick<SingleGameEventHandlers, 'onCommit' | 'onStartGame'> {
     return {
         onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
             matchRecorder.recordPly(
                 plyRecordForCheckerPlay(sgState.toPly(node)),
                 sgState
             )
+        },
+        onStartGame: () => {
+            matchRecorder.resetCurGame()
         },
     }
 }

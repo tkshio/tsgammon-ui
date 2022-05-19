@@ -1,30 +1,26 @@
 import { BoardStateNode } from 'tsgammon-core'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     SGEoG,
     SGInPlay,
-    SGState
+    SGState,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import {
     RecordedSingleGame,
-    RecordedSingleGameProps
+    RecordedSingleGameProps,
 } from '../recordedGames/RecordedSingleGame'
-import {
-    useMatchRecorder
-} from '../recordedGames/useMatchRecorder'
+import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useSingleGameState } from '../useSingleGameState'
 import { cubelessEventHandlers } from './Cubeless'
 import './main.css'
-import {
-    sgEventHandlersForMatchRecorder
-} from './PointMatch'
+import { sgEventHandlersForMatchRecorder } from './PointMatch'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
@@ -45,7 +41,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
     const initialSGState = toSGState(state)
     const rollListener = rollListeners()
-    const { sgState, setSGState } = useSingleGameState( initialSGState)
+    const { sgState, setSGState } = useSingleGameState(initialSGState)
 
     const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
@@ -64,40 +60,36 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
 function useRecordedCubeless(
     gameConf: GameConf,
-    setSGState:(sgState:SGState)=>void,
+    setSGState: (sgState: SGState) => void,
     rollListener: RollListener = rollListeners()
 ) {
     const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
-    const onEndOfGame = (sgEoG: SGEoG) => {
-        const { stake, result, eogStatus } = sgEoG
-        matchRecorder.recordEoG(plyRecordForEoG(stake, result, eogStatus))
+    const matchRecordAddOn = {
+        listeners: {
+            onEndOfGame: (sgEoG: SGEoG) => {
+                const { stake, result, eogStatus } = sgEoG
+                matchRecorder.recordEoG(
+                    plyRecordForEoG(stake, result, eogStatus)
+                )
+            },
+        },
+        eventHandlers: sgEventHandlersForMatchRecorder(matchRecorder),
     }
 
-    const sgHM = sgEventHandlersForMatchRecorder(matchRecorder)
-
-    const {  handlers: _handlers } = cubelessEventHandlers(
+    const { handlers } = cubelessEventHandlers(
         gameConf,
         setSGState,
         rollListener,
-        { onEndOfGame }
+        matchRecordAddOn
     )
 
     return {
         handlers: {
-            ..._handlers,
-            onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-                _handlers.onCommit(sgState, node)
-                sgHM.onCommit(sgState, node)
-            },
-            onStartNextGame: () => {
-                _handlers.onStartGame()
-                matchRecorder.resetCurGame()
-            },
-            onResumeState:(index:number)=>{
+            ...handlers,
+            onResumeState: (index: number) => {
                 const resumed = matchRecorder.resumeTo(index)
                 setSGState(resumed)
-            }
-    
+            },
         },
         matchRecord,
     }

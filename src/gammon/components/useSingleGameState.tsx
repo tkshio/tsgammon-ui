@@ -25,34 +25,60 @@ export function singleGameListeners(
     return decorate(setSGStateListener(defaultState, setSGState), ...listeners)
 }
 
-export function useSingleGameState(
-    initialSGState: SGState
-): {
+export function useSingleGameState(initialSGState: SGState): {
     sgState: SGState
     setSGState: (sgState: SGState) => void
 } {
     const [sgState, setSGState] = useState(initialSGState)
     return {
         sgState,
-        setSGState
+        setSGState,
     }
 }
 
 export function singleGameEventHandlers(
-    rollListener: RollListener,
-    sgListeners: SingleGameListeners
-): SingleGameEventHandlers {
-    const dispatcher: SingleGameDispatcher = singleGameDispatcher(sgListeners)
-    return {
-        onStartGame: dispatcher.doStartGame,
-        onCommit: dispatcher.doCommitCheckerPlay,
-        onRoll: (sgState: SGToRoll) =>
-            rollListener.onRollRequest((dices: DiceRoll) => {
-                dispatcher.doRoll(sgState, dices)
-            }),
-        onRollOpening: (sgState: SGOpening) =>
-            rollListener.onRollRequest((dices: DiceRoll) =>
-                dispatcher.doOpeningRoll(sgState, dices)
-            ),
+    rollListener: RollListener
+): (addOn: {
+    eventHandlers: Partial<SingleGameEventHandlers>
+    listeners: Partial<SingleGameListeners>
+}) => SingleGameEventHandlers {
+    const dispatcher: SingleGameDispatcher = singleGameDispatcher()
+    return (addOn: {
+        eventHandlers: Partial<SingleGameEventHandlers>
+        listeners: Partial<SingleGameListeners>
+    }) => {
+        const { eventHandlers, listeners } = addOn
+        return {
+            onStartGame: () => {
+                if (eventHandlers.onStartGame) {
+                    eventHandlers.onStartGame()
+                }
+                const result = dispatcher.doStartGame()
+                result(listeners)
+            },
+            onCommit: (state, node) => {
+                if (eventHandlers.onCommit) {
+                    eventHandlers.onCommit(state, node)
+                }
+                const result = dispatcher.doCommitCheckerPlay(state, node)
+                result(listeners)
+            },
+            onRoll: (sgState: SGToRoll) =>
+                rollListener.onRollRequest((dices: DiceRoll) => {
+                    if (eventHandlers.onRoll) {
+                        eventHandlers.onRoll(sgState)
+                    }
+                    const result = dispatcher.doRoll(sgState, dices)
+                    result(listeners)
+                }),
+            onRollOpening: (sgState: SGOpening) =>
+                rollListener.onRollRequest((dices: DiceRoll) => {
+                    if (eventHandlers.onRollOpening) {
+                        eventHandlers.onRollOpening(sgState)
+                    }
+                    const result = dispatcher.doOpeningRoll(sgState, dices)
+                    result(listeners)
+                }),
+        }
     }
 }
