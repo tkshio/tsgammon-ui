@@ -22,14 +22,14 @@ export type MatchStateEOG = _MatchState & {
     isEoM: boolean
     isCrawfordNext: boolean
 }
-export function unlimitedMatchState(
+export function matchStateForUnlimitedMatch(
     scoreBefore: Score = score(),
     jacobyRule = true
 ) {
     return matchStateInPlay(0, scoreBefore, { jacobyRule })
 }
 
-export function pointMatchState(
+export function matchStateForPointMatch(
     matchLength: number,
     scoreBefore: Score = score()
 ): MatchStateInPlay {
@@ -88,5 +88,5 @@ function isCrawfordNext(
 }
 
 function isEndOfMatch(matchLength: number, score: Score) {
-    return score.redScore >= matchLength || score.whiteScore >= matchLength
+    return matchLength !== 0 && (score.redScore >= matchLength || score.whiteScore >= matchLength)
 }

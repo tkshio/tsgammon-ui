@@ -1,4 +1,4 @@
-import { BoardStateNode, EOGStatus, Score } from 'tsgammon-core'
+import { BoardStateNode, EOGStatus } from 'tsgammon-core'
 import {
     CBAction,
     CBInPlay,
@@ -14,10 +14,9 @@ import {
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 
-export type StartNextGameHandler = {
-    onStartNextGame: () => void
-}
 export type CubeGameEventHandlers = {
+    onStartCubeGame: () => void
+
     onTake: (cbState: CBResponse) => void
     onPass: (cbState: CBResponse) => void
     onDouble: (cbState: CBAction) => void
@@ -34,6 +33,8 @@ export type CubeGameEventHandlers = {
 }
 
 export type SingleGameEventHandlers = {
+    onStartGame: () => void
+
     onCommit: (sgState: SGInPlay, node: BoardStateNode) => void
     onRoll: (sgState: SGToRoll) => void
     onRollOpening: (sgState: SGOpening) => void

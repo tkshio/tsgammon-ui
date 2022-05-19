@@ -1,15 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
+import { score } from 'tsgammon-core'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
-import { unlimitedMatchState } from '../../components/MatchState'
+import {
+    MatchState,
+    matchStateForPointMatch,
+    matchStateForUnlimitedMatch
+} from '../../components/MatchState'
 import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
+
 
 let container: HTMLElement | null = null
 
@@ -31,13 +37,13 @@ const gameState: GameSetup = {
     dice2: 6,
 }
 const state = {
+    matchState: matchStateForPointMatch(3, score({redScore:0, whiteScore:2})) as MatchState,
     cpState: undefined,
     sgState: toSGState(gameState),
     cbState: toCBState(gameState),
 }
-const matchState = unlimitedMatchState()
-const props = { matchState, ...setupEventHandlers(state, presetDiceSource()) }
 
+const props = { ...setupEventHandlers(state, presetDiceSource()) }
 describe('CubeGame(eog)', () => {
     test('plays last move', async () => {
         render(<CubefulGame {...{ ...props, ...state }} />)
@@ -68,7 +74,7 @@ describe('CubeGame(eog)', () => {
         render(<CubefulGame {...next} />)
 
         expect(state.sgState.tag).toEqual('SGEoG')
-        expect(screen.getByText('White wins 1 pt.')).toBeTruthy()
+        expect(screen.getByText('White wins 1 pt. and won the match')).toBeTruthy()
     })
 })
 

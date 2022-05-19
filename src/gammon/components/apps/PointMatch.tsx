@@ -48,7 +48,7 @@ import {
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-import { useCBState, cubefulGameEventHandlers } from './MoneyGame'
+import { useCubeGameState, cubefulGameEventHandlers } from './MoneyGame'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -93,10 +93,9 @@ export function PointMatch(props: PointMatchProps) {
     const initialBGState = toState(props.board)
     // 状態管理
     const { sgState, setSGState } = useSingleGameState(
-        gameConf,
         initialBGState.sgState
     )
-    const { cbState, setCBState } = useCBState(initialBGState.cbState)
+    const { cbState, setCBState } = useCubeGameState(initialBGState.cbState)
 
     // マッチにユニークなKeyを採番する
     const { matchKey, listeners: matchKeyListener } = useMatchKey()
@@ -122,6 +121,7 @@ export function PointMatch(props: PointMatchProps) {
         )
 
     const { handlers } = cubefulGameEventHandlers(
+        gameConf,
         matchState.isCrawford,
         cbState,
         setSGState,
@@ -159,10 +159,10 @@ export function PointMatch(props: PointMatchProps) {
             handlers.onCommit(sgState, node)
             sbH.onCommit(sgState, node)
         },
-        onStartNextGame: () => {
-            handlers.onStartNextGame()
+        onStartCubeGame: () => {
+            handlers.onStartCubeGame()
             matchRecorder.resetCurGame()
-            matchStateEventHandler.onStartNextGame()
+            matchStateEventHandler.onStartCubeGame()
         },
         onResumeState: (index: number) => {
             const resumed = matchRecorder.resumeTo(index)

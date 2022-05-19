@@ -9,12 +9,8 @@ import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import {
-    CubeGameEventHandlers,
-    SingleGameEventHandlers,
-    StartNextGameHandler,
-} from './EventHandlers'
-import { MatchState, MatchStateEOG } from './MatchState'
+import { CubeGameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
+import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
@@ -34,33 +30,34 @@ export type CubefulGameProps = {
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
-    StartNextGameHandler &
-        CubeGameEventHandlers &
+    CubeGameEventHandlers &
         SingleGameEventHandlers &
         RollListener &
         CheckerPlayListeners &
         BoardEventHandlers
 >
 export function CubefulGame(props: CubefulGameProps) {
+    const defaultMatchState: MatchState = {
+        isEoG: false,
+        stakeConf: standardConf,
+        scoreBefore: score(),
+        matchLength: 0,
+        isCrawford: false,
+    }
     const {
         cbState,
         sgState,
         cpState,
-        matchState = {
-            isEoG: false,
-            stakeConf: standardConf,
-            scoreBefore: score(),
-            matchLength: 0,
-            isCrawford:false
-        },
+        matchState = props.cbState.tag === 'CBEoG'
+            ? matchStateEOG(defaultMatchState, props.cbState)
+            : defaultMatchState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onStartNextGame = () => {
+        onStartCubeGame = () => {
             //
         },
         ...eventHandlers
     } = props
-
     //    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
     //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
 
@@ -79,7 +76,7 @@ export function CubefulGame(props: CubefulGameProps) {
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, matchState, {
-            eogDialog: eogDialog(onStartNextGame),
+            eogDialog: eogDialog(onStartCubeGame),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 
@@ -95,7 +92,7 @@ export function CubefulGame(props: CubefulGameProps) {
 }
 
 function eogDialog(
-    onStartNextGame: () => void
+    onStartCubeGame: () => void
 ): (matchState: MatchStateEOG) => JSX.Element {
     return (matchState: MatchStateEOG) => {
         return (
@@ -104,7 +101,7 @@ function eogDialog(
                     ...matchState,
                     score: matchState.scoreAfter,
                     onClick: () => {
-                        onStartNextGame()
+                        onStartCubeGame()
                     },
                 }}
             />

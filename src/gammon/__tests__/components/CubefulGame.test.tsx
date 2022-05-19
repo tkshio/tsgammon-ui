@@ -9,7 +9,7 @@ import {
     setupEventHandlers,
 } from './CubefulGame.common'
 import { CubefulGame } from '../../components/CubefulGame'
-import { unlimitedMatchState } from '../../components/MatchState'
+import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 
 let container: HTMLElement | null = null
 
@@ -24,7 +24,7 @@ const state = {
     cbState: toCBState(),
 }
 const diceSource = presetDiceSource(1, 3)
-const matchState = unlimitedMatchState()
+const matchState = matchStateForUnlimitedMatch()
 describe('CubeGame', () => {
     test('does opening roll when dice gets clicked', async () => {
         render(

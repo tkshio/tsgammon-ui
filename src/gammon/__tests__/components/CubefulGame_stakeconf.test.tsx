@@ -9,7 +9,7 @@ import {
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardOp, setupEventHandlers } from './CubefulGame.common'
 import { CubefulGame } from '../../components/CubefulGame'
-import { unlimitedMatchState } from '../../components/MatchState'
+import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 
 let container: HTMLElement | null = null
 
@@ -30,20 +30,21 @@ const gameState: GameSetup = {
     dice2: 2,
 }
 
+
 describe('stakeConf configures jacoby rule(on):', () => {
     const state = {
+        matchState:matchStateForUnlimitedMatch(undefined, true),
+
         cpState: undefined,
         sgState: toSGState(gameState),
         cbState: toCBState(gameState),
     }
-    const matchState = unlimitedMatchState(undefined, true)
     const props = {
         ...setupEventHandlers(state, randomDiceSource),
         cbConfs: {
             sgConfs: {},
             stakeConf: { jacobyRule: true },
         },
-        matchState,
         ...state,
     }
 
@@ -66,11 +67,11 @@ describe('stakeConf configures jacoby rule(on):', () => {
 })
 describe('stakeConf configures jacoby rule off', () => {
     const state = {
+        matchState:matchStateForUnlimitedMatch(undefined, false),
         cpState: undefined,
         sgState: toSGState(gameState),
         cbState: toCBState(gameState),
     }
-    const matchState = unlimitedMatchState(undefined, false)
 
     const props = {
         ...setupEventHandlers(state, randomDiceSource),
@@ -78,7 +79,6 @@ describe('stakeConf configures jacoby rule off', () => {
             sgConfs: {},
             stakeConf: { jacobyRule: false },
         },
-        matchState,
         ...state,
     }
 

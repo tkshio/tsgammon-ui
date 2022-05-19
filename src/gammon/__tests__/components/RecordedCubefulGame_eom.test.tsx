@@ -10,7 +10,7 @@ import {
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { matchRecord } from 'tsgammon-core/records/MatchRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { matchStateEOG, pointMatchState } from '../../components/MatchState'
+import { matchStateEOG, matchStateForPointMatch } from '../../components/MatchState'
 import { BGState } from '../../components/recordedGames/BGState'
 import {
     RecordedCubefulGame,
@@ -48,7 +48,7 @@ const props: RecordedCubefulGameProps = {
     gameConf: standardConf,
     bgState: state,
     matchState: matchStateEOG(
-        pointMatchState(3, score({ redScore: 0, whiteScore: 2 })),
+        matchStateForPointMatch(3, score({ redScore: 0, whiteScore: 2 })),
         state.cbState as CBEoG
     ),
     matchRecord: initialMatchRecord,

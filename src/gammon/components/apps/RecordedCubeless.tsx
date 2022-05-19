@@ -45,7 +45,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
     const initialSGState = toSGState(state)
     const rollListener = rollListeners()
-    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
+    const { sgState, setSGState } = useSingleGameState( initialSGState)
 
     const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
@@ -64,7 +64,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
 function useRecordedCubeless(
     gameConf: GameConf,
-    setSGState:(sgState?:SGState)=>void,
+    setSGState:(sgState:SGState)=>void,
     rollListener: RollListener = rollListeners()
 ) {
     const [matchRecord, matchRecorder] = useMatchRecorder<SGState>(gameConf)
@@ -76,6 +76,7 @@ function useRecordedCubeless(
     const sgHM = sgEventHandlersForMatchRecorder(matchRecorder)
 
     const {  handlers: _handlers } = cubelessEventHandlers(
+        gameConf,
         setSGState,
         rollListener,
         { onEndOfGame }
@@ -89,7 +90,7 @@ function useRecordedCubeless(
                 sgHM.onCommit(sgState, node)
             },
             onStartNextGame: () => {
-                _handlers.onStartNextGame()
+                _handlers.onStartGame()
                 matchRecorder.resetCurGame()
             },
             onResumeState:(index:number)=>{

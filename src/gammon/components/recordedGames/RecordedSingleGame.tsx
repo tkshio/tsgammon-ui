@@ -26,7 +26,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         onResumeState = () => {
             //
         },
-        onStartNextGame = () => {
+        onStartGame: onStartNextGame = () => {
             //
         },
         ...listeners

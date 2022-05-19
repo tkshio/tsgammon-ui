@@ -3,7 +3,7 @@ import { score } from 'tsgammon-core'
 import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
-import { StartNextGameHandler } from './EventHandlers'
+import { CubeGameEventHandlers } from './EventHandlers'
 import { MatchState, matchStateEOG, MatchStateInPlay } from './MatchState'
 
 export function useMatchStateForCubeGame(
@@ -12,7 +12,7 @@ export function useMatchStateForCubeGame(
 ): {
     matchState: MatchState
     matchStateListener: Pick<CubeGameListeners, 'onEndOfCubeGame'>
-    matchStateEventHandler: StartNextGameHandler
+    matchStateEventHandler: Pick<CubeGameEventHandlers, 'onStartCubeGame'>
 } {
     const [matchState, setMatchState] = useState<MatchState>({
         isEoG: false,
@@ -21,16 +21,24 @@ export function useMatchStateForCubeGame(
         stakeConf,
         isCrawford: matchLength === 1,
     })
-    const onEndOfCubeGame = (cbEoG: CBEoG) => {
-        setMatchState((prev: MatchState) => matchStateEOG(prev, cbEoG))
-    }
-    const onStartNextGame = () => {
-        setMatchState((prev: MatchState) => matchStateNext(prev))
-    }
     return {
         matchState,
+        ...matchStateEventHandler(matchState, setMatchState),
+    }
+}
+export function matchStateEventHandler(
+    matchState: MatchState,
+    setMatchState: (matchState: MatchState) => void
+) {
+    const onEndOfCubeGame = (cbEoG: CBEoG) => {
+        setMatchState(matchStateEOG(matchState, cbEoG))
+    }
+    const onStartCubeGame = () => {
+        setMatchState(matchStateNext(matchState))
+    }
+    return {
         matchStateListener: { onEndOfCubeGame },
-        matchStateEventHandler: { onStartNextGame },
+        matchStateEventHandler: { onStartCubeGame },
     }
 }
 

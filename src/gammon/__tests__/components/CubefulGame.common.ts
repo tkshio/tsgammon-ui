@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { GameConf, standardConf } from 'tsgammon-core'
 import {
     CheckerPlayListeners,
     setCPStateListener,
@@ -14,6 +15,8 @@ import {
     CubeGameEventHandlers,
     SingleGameEventHandlers,
 } from '../../components/EventHandlers'
+import { MatchState } from '../../components/MatchState'
+import { matchStateEventHandler } from '../../components/useMatchStateForCubeGame'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -47,23 +50,31 @@ export function isWhite(sgState: SGState): boolean {
 // TODO: replace with cubefulGameEventHandlers, useCheckerPlayListeners
 export function setupEventHandlers(
     state: {
+        matchState: MatchState
         cpState?: CheckerPlayState
         sgState: SGState
         cbState: CBState
     },
     diceSource: DiceSource,
-    isCrawford = false
+    isCrawford = false,
+    gameConf: GameConf = standardConf
 ): CheckerPlayListeners &
     SingleGameEventHandlers &
     CubeGameEventHandlers & {
         diceSource: DiceSource
     } {
+    const { matchStateListener, matchStateEventHandler: msEventHandler } =
+        matchStateEventHandler(state.matchState, (matchState: MatchState) => {
+            state.matchState = matchState
+        })
+
     const cpListeners: CheckerPlayListeners = setCPStateListener(
         (next: CheckerPlayState | undefined) => {
             state.cpState = next
         }
     )
-    const handlers = cubefulGameEventHandlers(
+    const { handlers } = cubefulGameEventHandlers(
+        gameConf,
         isCrawford,
         state.cbState,
         (next: SGState = state.sgState) => {
@@ -72,12 +83,17 @@ export function setupEventHandlers(
         (next: CBState = state.cbState) => {
             state.cbState = next
         },
-        rollListeners({ isRollHandlerEnabled: false, diceSource })
-    ).handlers
+        rollListeners({ isRollHandlerEnabled: false, diceSource }),
+        matchStateListener
+    )
 
     return {
         ...cpListeners,
         ...handlers,
+        onStartCubeGame: () => {
+            handlers.onStartCubeGame()
+            msEventHandler.onStartCubeGame()
+        },
         diceSource,
     }
 }

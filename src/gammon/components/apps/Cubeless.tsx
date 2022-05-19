@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -10,14 +10,14 @@ import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { Score, score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from '../boards/Board'
-import { SingleGameEventHandlers, StartNextGameHandler } from '../EventHandlers'
+import { SingleGameEventHandlers } from '../EventHandlers'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import {
     singleGameEventHandlers,
     singleGameListeners,
-    useSingleGameState
+    useSingleGameState,
 } from '../useSingleGameState'
 
 export type CubelessProps = {
@@ -35,9 +35,10 @@ export function Cubeless(props: CubelessProps) {
     const { gameConf = standardConf, sgConfs, ...listeners } = props
     const initialSGState = toSGState(props)
     const { matchScore, matchScoreListener } = useMatchScore()
-    const { sgState, setSGState } = useSingleGameState(gameConf, initialSGState)
+    const { sgState, setSGState } = useSingleGameState(initialSGState)
 
     const { handlers } = cubelessEventHandlers(
+        gameConf,
         setSGState,
         rollListeners(),
         listeners,
@@ -58,23 +59,18 @@ export function Cubeless(props: CubelessProps) {
 }
 
 export function cubelessEventHandlers(
-    setSGState: (sgState?: SGState) => void,
+    gameConf: GameConf,
+    setSGState: (sgState: SGState) => void,
     rollListener: RollListener = rollListeners(),
     ...listeners: Partial<SingleGameListeners>[]
 ): {
-    handlers: SingleGameEventHandlers & StartNextGameHandler
+    handlers: SingleGameEventHandlers
 } {
     const sgEventHandlers = singleGameEventHandlers(
         rollListener,
-        singleGameListeners(setSGState, ...listeners)
+        singleGameListeners(gameConf, setSGState, ...listeners)
     )
-
-    const gameEventHandlers: StartNextGameHandler = {
-        onStartNextGame: () => {
-            setSGState()
-        },
-    }
-    const handlers = { ...sgEventHandlers, ...gameEventHandlers }
+    const handlers = { ...sgEventHandlers }
     return { handlers }
 }
 

@@ -45,6 +45,7 @@ const matchState: MatchStateInPlay = {
 describe('CubefulGame', () => {
     test('skips cube action when the game is crawford', async () => {
         const state = {
+            matchState,
             cpState: undefined,
             sgState: toSGState(gameState),
             cbState: toCBState(gameState),
@@ -71,6 +72,7 @@ describe('CubefulGame', () => {
     })
     test("doesn't skip cube action when the game is not crawford", async () => {
         const state = {
+            matchState,
             cpState: undefined,
             sgState: toSGState(gameState),
             cbState: toCBState(gameState),

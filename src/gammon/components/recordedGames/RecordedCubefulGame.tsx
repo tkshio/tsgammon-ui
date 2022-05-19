@@ -4,9 +4,12 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { CubeGameEventHandlers, SingleGameEventHandlers, StartNextGameHandler } from '../EventHandlers'
+import {
+    CubeGameEventHandlers,
+    SingleGameEventHandlers,
+} from '../EventHandlers'
 import { MatchState } from '../MatchState'
-import { } from '../SingleGameBoard'
+import {} from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { BGState } from './BGState'
@@ -16,17 +19,16 @@ import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
-    matchState:MatchState,
+    matchState: MatchState
     matchRecord: MatchRecord<BGState>
     bgState: BGState
-    onResumeState?:(index:number)=>void
-} & StartNextGameHandler &
-    Partial<
-        CubeGameEventHandlers &
-            SingleGameEventHandlers &
-            CheckerPlayListeners &
-            RollListener
-    >
+    onResumeState?: (index: number) => void
+} & Partial<
+    CubeGameEventHandlers &
+        SingleGameEventHandlers &
+        CheckerPlayListeners &
+        RollListener
+>
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
