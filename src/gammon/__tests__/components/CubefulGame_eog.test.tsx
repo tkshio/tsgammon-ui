@@ -12,7 +12,6 @@ import { CubefulGame } from '../../components/CubefulGame'
 import {
     MatchState,
     matchStateForPointMatch,
-    matchStateForUnlimitedMatch
 } from '../../components/MatchState'
 import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
 
