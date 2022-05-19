@@ -67,11 +67,13 @@ export function Cubeless(props: CubelessProps) {
 
     return <SingleGame {...sgProps} />
 }
+
 type EventHandlerAddOn = {
     eventHandlers: Partial<SingleGameEventHandlers>
     listeners: Partial<SingleGameListeners>
 }
-type X = (
+
+type EventHandlerBuilder = (
     addOn: EventHandlerAddOn
 ) => SingleGameEventHandlers
 
@@ -83,48 +85,48 @@ export function cubelessEventHandlers(
 ): {
     handlers: SingleGameEventHandlers
 } {
-    const f = singleGameEventHandlers(rollListener)
+    const builder:EventHandlerBuilder = singleGameEventHandlers(rollListener)
 
-    const last = addOns.reduce(
+    const finalBuilder = addOns.reduce(
         (prev, cur) => prev.addOn(cur),
-        addHandlerToBase(f)
+        wrap(builder)
     )
 
-    const handlers = last.toHandler(singleGameListeners(gameConf, setSGState))
+    const handlers = finalBuilder.build(singleGameListeners(gameConf, setSGState))
     return { handlers }
 }
 
-type N = {
-    f: X
-    addOn: (n: EventHandlerAddOn) => N
-    toHandler: (
+type WrappedBuilder = {
+    builder: EventHandlerBuilder
+    addOn: (n: EventHandlerAddOn) => WrappedBuilder
+    build: (
         setStateListener: SingleGameListeners
     ) => SingleGameEventHandlers
 }
 
-function addHandlerToBase(
-    base: X,
-    n?: {
+function wrap(
+    base: EventHandlerBuilder,
+    addOn?: {
         eventHandlers: Partial<SingleGameEventHandlers>
         listeners: Partial<SingleGameListeners>
     }
-): N {
-    const ff = n ? addHandlers(base, n) : base
+): WrappedBuilder {
+    const builder = addOn ? concatAddOns(base, addOn) : base
     return {
-        f: ff,
-        addOn: (nn: EventHandlerAddOn) => addHandlerToBase(ff, nn),
-        toHandler: (setStateListener: SingleGameListeners) =>
-            ff({ eventHandlers: {}, listeners: setStateListener }),
+        builder,
+        addOn: (newAddOn: EventHandlerAddOn) => wrap(builder, newAddOn),
+        build: (setStateListener: SingleGameListeners) =>
+            builder({ eventHandlers: {}, listeners: setStateListener }),
     }
 }
 
-function addHandlers(
-    f: X,
+function concatAddOns(
+    builder: EventHandlerBuilder,
     h: EventHandlerAddOn
-): X {
+): EventHandlerBuilder {
     return (addOn: EventHandlerAddOn) => {
         const { eventHandlers, listeners } = addOn
-        return f({
+        return builder({
             eventHandlers: {
                 ...eventHandlers,
                 onStartGame: () => {
