@@ -117,6 +117,11 @@ export function PointMatch(props: PointMatchProps) {
                 )
             )
         )
+    // マッチの記録は、Handlerでも行われる
+    const cbH = cbEventHandlersForMatchRecorder(sgState, matchRecorder)
+    const sbH = sgEventHandlersForMatchRecorder(
+        bgMatchRecorderToSG(cbState, matchRecorder)
+    )
 
     const { handlers } = cubefulGameEventHandlers(
         gameConf,
@@ -125,14 +130,9 @@ export function PointMatch(props: PointMatchProps) {
         setSGState,
         setCBState,
         rollListener,
-        matchKeyListener,
-        matchStateListener,
-        matchRecorderListener
-    )
-    // マッチの記録は、Handlerでも行われる
-    const cbH = cbEventHandlersForMatchRecorder(sgState, matchRecorder)
-    const sbH = sgEventHandlersForMatchRecorder(
-        bgMatchRecorderToSG(cbState, matchRecorder)
+        {eventHandlers:{}, listeners:matchKeyListener},
+        {eventHandlers:matchStateEventHandler, listeners:matchStateListener},
+        {eventHandlers:{...cbH, ...sbH}, listeners:matchRecorderListener}
     )
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
@@ -141,32 +141,11 @@ export function PointMatch(props: PointMatchProps) {
         bgState: { sgState, cbState },
         cbConfs,
         ...handlers,
-        onDouble: (cbState: CBAction) => {
-            handlers.onDouble(cbState)
-            cbH.onDouble(cbState)
-        },
-        onTake: (cbState: CBResponse) => {
-            handlers.onTake(cbState)
-            cbH.onTake(cbState)
-        },
-        onPass: (cbState: CBResponse) => {
-            handlers.onPass(cbState)
-            cbH.onPass(cbState)
-        },
-        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-            handlers.onCommit(sgState, node)
-            sbH.onCommit(sgState, node)
-        },
-        onStartCubeGame: () => {
-            handlers.onStartCubeGame()
-            matchRecorder.resetCurGame()
-            matchStateEventHandler.onStartCubeGame()
-        },
-        onResumeState: (index: number) => {
+        onResumeState:(index:number)=>{
             const resumed = matchRecorder.resumeTo(index)
-            setSGState(resumed.sgState)
             setCBState(resumed.cbState)
-        },
+            setSGState(resumed.sgState)
+        }
     }
 
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />

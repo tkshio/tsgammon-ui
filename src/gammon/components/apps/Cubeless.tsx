@@ -68,7 +68,7 @@ export function Cubeless(props: CubelessProps) {
     return <SingleGame {...sgProps} />
 }
 
-type EventHandlerAddOn = {
+export type EventHandlerAddOn = {
     eventHandlers: Partial<SingleGameEventHandlers>
     listeners: Partial<SingleGameListeners>
 }

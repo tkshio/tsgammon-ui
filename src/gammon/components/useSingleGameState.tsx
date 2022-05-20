@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { boardState, DiceRoll, GameConf } from 'tsgammon-core'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
-    decorate,
     setSGStateListener,
     singleGameDispatcher,
     SingleGameDispatcher,
@@ -19,10 +18,9 @@ import { SingleGameEventHandlers } from './EventHandlers'
 export function singleGameListeners(
     gameConf: GameConf,
     setSGState: (sgState: SGState) => void,
-    ...listeners: Partial<SingleGameListeners>[]
 ): SingleGameListeners {
     const defaultState = openingState(boardState(gameConf.initialPos))
-    return decorate(setSGStateListener(defaultState, setSGState), ...listeners)
+    return setSGStateListener(defaultState, setSGState)
 }
 
 export function useSingleGameState(initialSGState: SGState): {

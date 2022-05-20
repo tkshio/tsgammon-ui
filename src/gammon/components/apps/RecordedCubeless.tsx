@@ -1,11 +1,9 @@
-import { BoardStateNode } from 'tsgammon-core'
 import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     SGEoG,
-    SGInPlay,
     SGState,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
