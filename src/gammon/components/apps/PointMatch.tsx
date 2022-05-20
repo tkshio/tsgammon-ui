@@ -99,7 +99,7 @@ export function PointMatch(props: PointMatchProps) {
     const { matchKey, listeners: matchKeyListener } = useMatchKey()
 
     // スコアの管理に必要なListener
-    const { matchState, matchStateListener, matchStateEventHandler } =
+    const { matchState, matchStateListener, matchStateEventHandler, resetMatchState } =
         useMatchStateForCubeGame(matchLength, gameConf)
 
     // マッチの記録に必要なListener
@@ -143,7 +143,7 @@ export function PointMatch(props: PointMatchProps) {
         ...handlers,
         onResumeState:(index:number)=>{
             const resumed = matchRecorder.resumeTo(index)
-            // TODO: MatchScoreも戻さないといけない
+            resetMatchState()
             setCBState(resumed.cbState)
             setSGState(resumed.sgState)
         }

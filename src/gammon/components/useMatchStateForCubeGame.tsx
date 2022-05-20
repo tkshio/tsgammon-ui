@@ -13,6 +13,7 @@ export function useMatchStateForCubeGame(
     matchState: MatchState
     matchStateListener: Pick<CubeGameListeners, 'onEndOfCubeGame'>
     matchStateEventHandler: Pick<CubeGameEventHandlers, 'onStartCubeGame'>
+    resetMatchState: () => void
 } {
     const [matchState, setMatchState] = useState<MatchState>({
         isEoG: false,
@@ -36,20 +37,38 @@ export function matchStateEventHandler(
     const onStartCubeGame = () => {
         setMatchState(matchStateNext(matchState))
     }
+    const resetMatchState = () => {
+        if (matchState.isEoG) {
+            const resetState: MatchStateInPlay = {
+                ...matchState,
+                isEoG: false,
+            }
+            setMatchState(resetState)
+        }
+    }
     return {
         matchStateListener: { onEndOfCubeGame },
         matchStateEventHandler: { onStartCubeGame },
+        resetMatchState,
     }
 }
 
 export function matchStateNext(prev: MatchState): MatchStateInPlay {
     return prev.isEoG
-        ? {
-              isEoG: false,
-              matchLength: prev.matchLength,
-              scoreBefore: prev.scoreAfter,
-              stakeConf: prev.stakeConf,
-              isCrawford: prev.isCrawfordNext,
-          }
+        ? prev.isEoM
+            ? {
+                  isEoG: false,
+                  matchLength: prev.matchLength,
+                  scoreBefore: score(),
+                  stakeConf: prev.stakeConf,
+                  isCrawford: prev.matchLength === 1,
+              }
+            : {
+                  isEoG: false,
+                  matchLength: prev.matchLength,
+                  scoreBefore: prev.scoreAfter,
+                  stakeConf: prev.stakeConf,
+                  isCrawford: prev.isCrawfordNext,
+              }
         : prev
 }
