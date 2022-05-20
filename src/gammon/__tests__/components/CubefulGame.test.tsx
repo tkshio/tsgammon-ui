@@ -19,19 +19,18 @@ beforeEach(() => {
 })
 
 const state = {
+    matchState: matchStateForUnlimitedMatch(),
     cpState: undefined,
     sgState: toSGState(),
     cbState: toCBState(),
 }
 const diceSource = presetDiceSource(1, 3)
-const matchState = matchStateForUnlimitedMatch()
 describe('CubeGame', () => {
     test('does opening roll when dice gets clicked', async () => {
         render(
             <CubefulGame
                 {...{
                     ...state,
-                    matchState,
                     ...setupEventHandlers(state, diceSource),
                 }}
             />
@@ -49,7 +48,7 @@ describe('CubeGame', () => {
     test('moves a piece when point 19 gets clicked', async () => {
         const handlers = setupEventHandlers(state, diceSource)
         const onCheckerPlay = jest.fn(handlers.onCheckerPlay)
-        const next = { ...state, matchState, ...handlers, onCheckerPlay }
+        const next = { ...state, ...handlers, onCheckerPlay }
         render(<CubefulGame {...next} />)
         BoardOp.clickPoint(19)
         expect(onCheckerPlay).toBeCalled()
@@ -58,7 +57,7 @@ describe('CubeGame', () => {
     test('moves a piece when point 17 gets clicked', async () => {
         const handlers = setupEventHandlers(state, diceSource)
         const onCheckerPlay = jest.fn(handlers.onCheckerPlay)
-        const next = { ...state, matchState, ...handlers, onCheckerPlay }
+        const next = { ...state, ...handlers, onCheckerPlay }
         render(<CubefulGame {...next} />)
 
         BoardOp.clickPoint(17)
@@ -68,7 +67,6 @@ describe('CubeGame', () => {
     test("commits one's ply when dice gets clicked", async () => {
         const next = {
             ...state,
-            matchState,
             ...setupEventHandlers(state, diceSource),
         }
         render(<CubefulGame {...next} />)

@@ -84,7 +84,7 @@ export function setupEventHandlers(
             state.cbState = next
         },
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
-        matchStateListener
+        { eventHandlers: {}, listeners: matchStateListener }
     )
 
     return {
