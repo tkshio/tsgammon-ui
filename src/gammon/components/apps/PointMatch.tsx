@@ -143,6 +143,7 @@ export function PointMatch(props: PointMatchProps) {
         ...handlers,
         onResumeState:(index:number)=>{
             const resumed = matchRecorder.resumeTo(index)
+            // TODO: MatchScoreも戻さないといけない
             setCBState(resumed.cbState)
             setSGState(resumed.sgState)
         }

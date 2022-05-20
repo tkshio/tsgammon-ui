@@ -69,8 +69,11 @@ export function MoneyGame(props: MoneyGameProps) {
         setSGState,
         setCBState,
         rollListeners(),
-        {eventHandlers:matchStateEventHandler, listeners:matchStateListener},
-        {eventHandlers:{},listeners:props}
+        {
+            eventHandlers: matchStateEventHandler,
+            listeners: matchStateListener,
+        },
+        { eventHandlers: {}, listeners: props }
     )
     const cbProps: CubefulGameProps = {
         sgState,
@@ -103,7 +106,6 @@ export function cubefulGameEventHandlers(
 ): {
     handlers: CubeGameEventHandlers & SingleGameEventHandlers
 } {
-
     const { handlers: cbEventHandlers } = cubefulEventHandlers(
         isCrawford,
         setCBState,
@@ -128,6 +130,10 @@ export function cubefulGameEventHandlers(
         handlers: {
             ...sgHandlers,
             ...cbEventHandlers,
+            onStartCubeGame:()=>{
+                cbEventHandlers.onStartCubeGame()
+                sgHandlers.onStartGame()
+            }
         },
     }
 }
@@ -142,10 +148,7 @@ function cubefulEventHandlers(
     // キューブの状態管理の準備
     const cbListeners: CubeGameListeners = cubeGameListeners(setCBState)
 
-    const builder: EventHandlerBuilder<
-        CubeGameEventHandlers,
-        CubeGameListeners
-    > = cubeGameEventHandlers(isCrawford)
+    const builder = cubeGameEventHandlers(isCrawford)
 
     const finalBuilder = addOns.reduce(
         (prev, cur) => prev.addOn(cur),
@@ -311,10 +314,24 @@ function decorateCubeGameEventHandlers(
     base: Partial<CubeGameEventHandlers>,
     ...handlers: Partial<CubeGameEventHandlers>[]
 ): Partial<CubeGameEventHandlers> {
-    const filled: CubeGameEventHandlers = {} as CubeGameEventHandlers
+    const doNothing = () => {
+        //
+    }
+    const filled: CubeGameEventHandlers = {
+        onStartCubeGame: doNothing,
+        onDouble: doNothing,
+        onTake: doNothing,
+        onPass: doNothing,
+        onStartCubeAction: doNothing,
+        onSkipCubeAction: doNothing,
+        onStartCheckerPlay: doNothing,
+        onStartOpeningCheckerPlay: doNothing,
+        onEndOfCubeGame: doNothing,
+        ...base,
+    }
 
     return handlers.reduce(
-        (prev: CubeGameEventHandlers, cur: Partial<CubeGameEventHandlers>) => {
+        (prev: CubeGameEventHandlers, cur: Partial<CubeGameEventHandlers>): CubeGameEventHandlers  => {
             const {
                 onStartCubeGame,
                 onDouble,
@@ -327,7 +344,7 @@ function decorateCubeGameEventHandlers(
                 onEndOfCubeGame,
             } = cur
 
-            const foo: CubeGameEventHandlers = {
+            return {
                 onStartCubeGame: onStartCubeGame
                     ? () => {
                           prev.onStartCubeGame()
@@ -388,7 +405,6 @@ function decorateCubeGameEventHandlers(
                       }
                     : prev.onEndOfCubeGame,
             }
-            return foo
         },
         filled
     )
