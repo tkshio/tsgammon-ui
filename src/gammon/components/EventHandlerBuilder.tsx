@@ -1,10 +1,10 @@
-
-export type EventHandlerBuilder<H, L> = (addOn: EventHandlerAddOn<H, L>) => H;
+export type EventHandlerBuilder<H, L> = (addOn: EventHandlerAddOn<H, L>) => {
+    handlers: H
+}
 export type EventHandlerAddOn<H, L> = {
     eventHandlers: Partial<H>
     listeners: Partial<L>
 }
-
 
 export function wrap<H, L>(
     base: EventHandlerBuilder<H, L>,
@@ -27,7 +27,7 @@ export function wrap<H, L>(
 type WrappedBuilder<H, L> = {
     builder: EventHandlerBuilder<H, L>
     addOn: (n: EventHandlerAddOn<H, L>) => WrappedBuilder<H, L>
-    build: (setStateListener: L) => H
+    build: (setStateListener: L) => { handlers: H; }
 }
 
 function concatAddOns<H, L>(

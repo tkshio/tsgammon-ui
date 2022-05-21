@@ -1,10 +1,13 @@
 import { BoardStateNode, DiceRoll } from 'tsgammon-core'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners, SingleGameDispatcher, singleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import {
+    SingleGameListeners,
+    SingleGameDispatcher,
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGInPlay,
     SGOpening,
-    SGToRoll
+    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { EventHandlerBuilder } from './EventHandlerBuilder'
 
@@ -16,51 +19,53 @@ export type SingleGameEventHandlers = {
     onRollOpening: (sgState: SGOpening) => void
 }
 
-
 export type SGEventHandlerBuilder = EventHandlerBuilder<
     SingleGameEventHandlers,
     SingleGameListeners
 >
 export function sgEventHandlersBuilder(
+    dispatcher: SingleGameDispatcher,
     rollListener: RollListener
 ): SGEventHandlerBuilder {
-    const dispatcher: SingleGameDispatcher = singleGameDispatcher()
     return (addOn: {
         eventHandlers: Partial<SingleGameEventHandlers>
         listeners: Partial<SingleGameListeners>
     }) => {
         const { eventHandlers, listeners } = addOn
         return {
-            onStartGame: () => {
-                if (eventHandlers.onStartGame) {
-                    eventHandlers.onStartGame()
-                }
-                const result = dispatcher.doStartGame()
-                result(listeners)
-            },
-            onCommit: (state, node) => {
-                if (eventHandlers.onCommit) {
-                    eventHandlers.onCommit(state, node)
-                }
-                const result = dispatcher.doCommitCheckerPlay(state, node)
-                result(listeners)
-            },
-            onRoll: (sgState: SGToRoll) =>
-                rollListener.onRollRequest((dices: DiceRoll) => {
-                    if (eventHandlers.onRoll) {
-                        eventHandlers.onRoll(sgState)
+            handlers: {
+                onStartGame: () => {
+                    if (eventHandlers.onStartGame) {
+                        eventHandlers.onStartGame()
                     }
-                    const result = dispatcher.doRoll(sgState, dices)
+                    const result = dispatcher.doStartGame()
                     result(listeners)
-                }),
-            onRollOpening: (sgState: SGOpening) =>
-                rollListener.onRollRequest((dices: DiceRoll) => {
-                    if (eventHandlers.onRollOpening) {
-                        eventHandlers.onRollOpening(sgState)
+                },
+                onCommit: (state, node) => {
+                    if (eventHandlers.onCommit) {
+                        eventHandlers.onCommit(state, node)
                     }
-                    const result = dispatcher.doOpeningRoll(sgState, dices)
+                    const result = dispatcher.doCommitCheckerPlay(state, node)
                     result(listeners)
-                }),
+                },
+                onRoll: (sgState: SGToRoll) =>
+                    rollListener.onRollRequest((dices: DiceRoll) => {
+                        if (eventHandlers.onRoll) {
+                            eventHandlers.onRoll(sgState)
+                        }
+                        const result = dispatcher.doRoll(sgState, dices)
+                        result(listeners)
+                    }),
+                onRollOpening: (sgState: SGOpening) =>
+                    rollListener.onRollRequest((dices: DiceRoll) => {
+                        if (eventHandlers.onRollOpening) {
+                            eventHandlers.onRollOpening(sgState)
+                        }
+                        const result = dispatcher.doOpeningRoll(sgState, dices)
+                        result(listeners)
+                    }),
+            },
+            dispatcher,
         }
     }
 }

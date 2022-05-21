@@ -2,30 +2,29 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     concatSGListeners,
-    SingleGameListeners
+    singleGameDispatcher,
+    SingleGameDispatcher,
+    SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {
-    SGEoG, SGState
-} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { Score, score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from '../boards/Board'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { SingleGameConfs } from '../SingleGameBoard'
-import { concatSGHandlers as concatSGEventHandlers, sgEventHandlersBuilder, SingleGameEventHandlers } from '../SingleGameEventHandlers'
+import {
+    concatSGHandlers as concatSGEventHandlers,
+    sgEventHandlersBuilder,
+    SingleGameEventHandlers,
+} from '../SingleGameEventHandlers'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import {
-    singleGameListeners,
-    useSingleGameState
-} from '../useSingleGameState'
-import {
-    EventHandlerAddOn, wrap
-} from '../EventHandlerBuilder'
+import { singleGameListeners, useSingleGameState } from '../useSingleGameState'
+import { EventHandlerAddOn, wrap } from '../EventHandlerBuilder'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -43,10 +42,12 @@ export function Cubeless(props: CubelessProps) {
     const initialSGState = toSGState(props)
     const { matchScore, matchScoreListener } = useMatchScore()
     const { sgState, setSGState } = useSingleGameState(initialSGState)
+    const dispatcher: SingleGameDispatcher = singleGameDispatcher()
 
     const { handlers } = cubelessEventHandlers(
         gameConf,
         setSGState,
+        dispatcher,
         rollListeners(),
         { eventHandlers: {}, listeners },
         { eventHandlers: {}, listeners: matchScoreListener }
@@ -73,24 +74,21 @@ export type SGEventHandlerAddOn = EventHandlerAddOn<
 export function cubelessEventHandlers(
     gameConf: GameConf,
     setSGState: (sgState: SGState) => void,
+    sgDispatcher: SingleGameDispatcher,
     rollListener: RollListener = rollListeners(),
     ...addOns: SGEventHandlerAddOn[]
 ): {
     handlers: SingleGameEventHandlers
 } {
-    const builder = sgEventHandlersBuilder(rollListener)
+    const builder = sgEventHandlersBuilder(sgDispatcher, rollListener)
 
     const finalBuilder = addOns.reduce(
         (prev, cur) => prev.addOn(cur),
         wrap(builder, concatSGEventHandlers, concatSGListeners)
     )
 
-    const handlers = finalBuilder.build(
-        singleGameListeners(gameConf, setSGState)
-    )
-    return { handlers }
+    return finalBuilder.build(singleGameListeners(gameConf, setSGState))
 }
-
 
 export function useMatchScore(): {
     matchScore: Score

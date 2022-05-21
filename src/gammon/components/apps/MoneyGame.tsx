@@ -2,35 +2,40 @@ import { useState } from 'react'
 import { cube, GameConf, standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
-    concatCBListeners, CubeGameListeners,
-    setCBStateListener
+    concatCBListeners,
+    CubeGameDispatcher,
+    cubeGameDispatcher,
+    CubeGameListeners,
+    setCBStateListener,
 } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import {
-    cbOpening, CBState
-} from 'tsgammon-core/dispatchers/CubeGameState'
+import { cbOpening, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import {
+    singleGameDispatcher,
+    SingleGameListeners,
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { cbEventHandlersBuilder, concatCBEventHandlers, CubeGameEventHandlerAddOn, CubeGameEventHandlers } from "../CubeGameEventHandlers"
-import { toState } from '../recordedGames/BGState'
 import {
-    SingleGameEventHandlers
-} from '../SingleGameEventHandlers'
+    cbEventHandlersBuilder,
+    concatCBEventHandlers,
+    CubeGameEventHandlerAddOn,
+    CubeGameEventHandlers,
+} from '../CubeGameEventHandlers'
+import { wrap } from '../EventHandlerBuilder'
+import { toState } from '../recordedGames/BGState'
+import { SingleGameEventHandlers } from '../SingleGameEventHandlers'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { cubefulSGListener } from '../useCubeGameState'
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import { cubelessEventHandlers } from './Cubeless'
-import {
-    wrap
-} from '../EventHandlerBuilder'
 
 export type MoneyGameProps = {
     gameConf: GameConf
@@ -100,60 +105,63 @@ export function cubefulGameEventHandlers(
 ): {
     handlers: CubeGameEventHandlers & SingleGameEventHandlers
 } {
-    const { handlers: cbEventHandlers } = cubefulEventHandlers(
-        isCrawford,
+    const cbDispatcher = cubeGameDispatcher(isCrawford)
+    const sgDispatcher = singleGameDispatcher()
+
+    const { handlers: cbEventHandlers } = buildCBEventHandlers(
+        cbDispatcher,
         setCBState,
+        {
+            eventHandlers: {
+                onStartCubeGame: () => {
+                    sgDispatcher.doStartGame()
+                },
+            },
+            listeners: {},
+        },
         ...addOns
     )
 
-    // SGStateの管理に追加する
-    const cubeGameAddOn = {
-        eventHandlers: {},
-        listeners: cubefulSGListener(cbState, cbEventHandlers),
-    }
-
-    const { handlers: sgHandlers } = cubelessEventHandlers(
+    const { handlers: sgEventHandlers } = cubelessEventHandlers(
         gameConf,
         setSGState,
+        sgDispatcher,
         rollListener,
-        cubeGameAddOn,
+        {
+            eventHandlers: {},
+            listeners: cubefulSGListener(cbState, cbDispatcher),
+        },
         ...addOns
     )
 
     return {
         handlers: {
-            ...sgHandlers,
+            ...sgEventHandlers,
             ...cbEventHandlers,
-            onStartCubeGame: () => {
-                cbEventHandlers.onStartCubeGame()
-                sgHandlers.onStartGame()
-            },
         },
     }
 }
-function cubefulEventHandlers(
-    isCrawford: boolean,
+function buildCBEventHandlers(
+    cbDispatcher: CubeGameDispatcher,
     setCBState: (cbState: CBState) => void,
     ...addOns: {
-        eventHandlers: Partial<SingleGameEventHandlers & CubeGameEventHandlers>
-        listeners: Partial<SingleGameListeners & CubeGameListeners>
+        eventHandlers: Partial<CubeGameEventHandlers>
+        listeners: Partial<CubeGameListeners>
     }[]
 ) {
     // キューブの状態管理の準備
     const cbListeners: CubeGameListeners = cubeGameListeners(setCBState)
 
-    const builder = cbEventHandlersBuilder(isCrawford)
+    const builder = cbEventHandlersBuilder(cbDispatcher)
 
     const finalBuilder = addOns.reduce(
         (prev, cur) => prev.addOn(cur),
         wrap(builder, concatCBEventHandlers, concatCBListeners)
     )
 
-    return { handlers: finalBuilder.build(cbListeners) }
+    return finalBuilder.build(cbListeners)
 }
-
 
 function cubeGameListeners(setCBState: (cbState: CBState) => void) {
     return setCBStateListener(cbOpening(cube(1)), setCBState)
 }
-
