@@ -43,7 +43,6 @@ endGame3pt.args = {
     cbConfs: {
         sgConfs: {},
     },
-    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const goIntoCrawford = Template.bind({})
