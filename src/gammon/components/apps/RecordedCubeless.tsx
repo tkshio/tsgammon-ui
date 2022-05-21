@@ -2,6 +2,7 @@ import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { singleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
     SGState,
@@ -9,6 +10,8 @@ import {
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { defaultSGState } from '../defaultStates'
+import { buildSGEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
 import {
     RecordedSingleGame,
     RecordedSingleGameProps,
@@ -16,7 +19,6 @@ import {
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useSingleGameState } from '../useSingleGameState'
-import { cubelessEventHandlers } from './Cubeless'
 import './main.css'
 import { sgEventHandlersForMatchRecorder } from './PointMatch'
 
@@ -74,9 +76,10 @@ function useRecordedCubeless(
         eventHandlers: sgEventHandlersForMatchRecorder(matchRecorder),
     }
 
-    const { handlers } = cubelessEventHandlers(
-        gameConf,
+    const { handlers } = buildSGEventHandlers(
+        defaultSGState(gameConf),
         setSGState,
+        singleGameDispatcher(),
         rollListener,
         matchRecordAddOn
     )

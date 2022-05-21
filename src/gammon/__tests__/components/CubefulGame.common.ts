@@ -10,13 +10,14 @@ import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { cubefulGameEventHandlers } from '../../components/apps/MoneyGame'
+import { cubefulGameEventHandlers } from "../../components/eventHandlers/cubefulGameEventHandlers"
 import {
     SingleGameEventHandlers,
-} from '../../components/SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "../../components/CubeGameEventHandlers"
+} from '../../components/eventHandlers/SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "../../components/eventHandlers/CubeGameEventHandlers"
 import { MatchState } from '../../components/MatchState'
 import { matchStateEventHandler } from '../../components/useMatchStateForCubeGame'
+import { defaultBGState } from '../../components/defaultStates'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -47,7 +48,6 @@ export function isWhite(sgState: SGState): boolean {
     return !sgState.isRed
 }
 
-// TODO: replace with cubefulGameEventHandlers, useCheckerPlayListeners
 export function setupEventHandlers(
     state: {
         matchState: MatchState
@@ -74,8 +74,8 @@ export function setupEventHandlers(
         }
     )
     const { handlers } = cubefulGameEventHandlers(
-        gameConf,
         isCrawford,
+        defaultBGState(gameConf),
         state.cbState,
         (next: SGState = state.sgState) => {
             state.sgState = next
@@ -84,16 +84,12 @@ export function setupEventHandlers(
             state.cbState = next
         },
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
-        { eventHandlers: {}, listeners: matchStateListener }
+        { eventHandlers: msEventHandler, listeners: matchStateListener }
     )
 
     return {
         ...cpListeners,
         ...handlers,
-        onStartCubeGame: () => {
-            handlers.onStartCubeGame()
-            msEventHandler.onStartCubeGame()
-        },
         diceSource,
     }
 }

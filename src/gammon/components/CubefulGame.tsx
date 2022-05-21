@@ -9,8 +9,8 @@ import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import { SingleGameEventHandlers } from './SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
+import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "./eventHandlers/CubeGameEventHandlers"
 import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
 import { SingleGameConfs } from './SingleGameBoard'
@@ -31,7 +31,7 @@ export type CubefulGameProps = {
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
-    CubeGameEventHandlers &
+    Pick<CubeGameEventHandlers, 'onDouble'|'onPass'|'onTake'|'onStartCubeGame'> &
         SingleGameEventHandlers &
         RollListener &
         CheckerPlayListeners &
@@ -59,7 +59,6 @@ export function CubefulGame(props: CubefulGameProps) {
         },
         ...eventHandlers
     } = props
-    //    const dispatcher = cubeGameDispatcher(isCrawford, listeners)
     //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
 
     /*    // チェッカープレイに関係ない時はSingleGame上で自律操作させない

@@ -11,7 +11,7 @@ import {
 import { matchRecord } from 'tsgammon-core/records/MatchRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { matchStateEOG, matchStateForPointMatch } from '../../components/MatchState'
-import { BGState } from '../../components/recordedGames/BGState'
+import { BGState } from '../../components/BGState'
 import {
     RecordedCubefulGame,
     RecordedCubefulGameProps

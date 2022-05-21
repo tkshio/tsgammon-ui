@@ -1,17 +1,15 @@
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import {
-    CBState} from 'tsgammon-core/dispatchers/CubeGameState'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
-import { SingleGameEventHandlers } from './SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
+import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
     SingleGameConfs,
 } from './SingleGameBoard'
-
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
@@ -25,7 +23,7 @@ export type CubefulGameBoardProps = {
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
-    CubeGameEventHandlers &
+    Pick<CubeGameEventHandlers, 'onDouble'> &
         SingleGameEventHandlers &
         CheckerPlayListeners &
         BoardEventHandlers

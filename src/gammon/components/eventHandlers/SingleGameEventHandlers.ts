@@ -1,15 +1,18 @@
 import { BoardStateNode, DiceRoll } from 'tsgammon-core'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { RollListener, rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     SingleGameListeners,
     SingleGameDispatcher,
+    concatSGListeners,
+    setSGStateListener,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGInPlay,
     SGOpening,
+    SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { EventHandlerBuilder } from './EventHandlerBuilder'
+import { EventHandlerAddOn, EventHandlerBuilder, wrap } from './EventHandlerBuilder'
 
 export type SingleGameEventHandlers = {
     onStartGame: () => void
@@ -19,10 +22,35 @@ export type SingleGameEventHandlers = {
     onRollOpening: (sgState: SGOpening) => void
 }
 
+export type SGEventHandlerAddOn = EventHandlerAddOn<
+    SingleGameEventHandlers,
+    SingleGameListeners
+>
+
 export type SGEventHandlerBuilder = EventHandlerBuilder<
     SingleGameEventHandlers,
     SingleGameListeners
 >
+
+
+export function buildSGEventHandlers(
+    defaultSGState: SGState,
+    setSGState: (sgState: SGState) => void,
+    sgDispatcher: SingleGameDispatcher,
+    rollListener: RollListener = rollListeners(),
+    ...addOns: SGEventHandlerAddOn[]
+): {
+    handlers: SingleGameEventHandlers
+} {
+    const builder = sgEventHandlersBuilder(sgDispatcher, rollListener)
+
+    const finalBuilder = addOns.reduce(
+        (prev, cur) => prev.addOn(cur),
+        wrap(builder, concatSGHandlers, concatSGListeners)
+    )
+
+    return finalBuilder.build(setSGStateListener(defaultSGState, setSGState))
+}
 export function sgEventHandlersBuilder(
     dispatcher: SingleGameDispatcher,
     rollListener: RollListener
@@ -70,8 +98,8 @@ export function sgEventHandlersBuilder(
     }
 }
 
-export function concatSGHandlers(
-    h: Partial<SingleGameEventHandlers>,
+function concatSGHandlers(
+    base: Partial<SingleGameEventHandlers>,
     eventHandlers: Partial<SingleGameEventHandlers>
 ): SingleGameEventHandlers {
     return {
@@ -79,32 +107,32 @@ export function concatSGHandlers(
             if (eventHandlers.onStartGame) {
                 eventHandlers.onStartGame()
             }
-            if (h.onStartGame) {
-                h.onStartGame()
+            if (base.onStartGame) {
+                base.onStartGame()
             }
         },
         onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
             if (eventHandlers.onCommit) {
                 eventHandlers.onCommit(sgState, node)
             }
-            if (h.onCommit) {
-                h.onCommit(sgState, node)
+            if (base.onCommit) {
+                base.onCommit(sgState, node)
             }
         },
         onRoll: (sgState: SGToRoll) => {
             if (eventHandlers.onRoll) {
                 eventHandlers.onRoll(sgState)
             }
-            if (h.onRoll) {
-                h.onRoll(sgState)
+            if (base.onRoll) {
+                base.onRoll(sgState)
             }
         },
         onRollOpening: (sgState: SGOpening) => {
             if (eventHandlers.onRollOpening) {
                 eventHandlers.onRollOpening(sgState)
             }
-            if (h.onRollOpening) {
-                h.onRollOpening(sgState)
+            if (base.onRollOpening) {
+                base.onRollOpening(sgState)
             }
         },
     }

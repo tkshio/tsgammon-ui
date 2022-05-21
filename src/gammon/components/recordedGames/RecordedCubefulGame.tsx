@@ -6,13 +6,13 @@ import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
 import {
     SingleGameEventHandlers,
-} from '../SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "../CubeGameEventHandlers"
+} from '../eventHandlers/SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "../eventHandlers/CubeGameEventHandlers"
 import { MatchState } from '../MatchState'
 import {} from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import { BGState } from './BGState'
+import { BGState } from '../BGState'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
