@@ -36,11 +36,11 @@ export function useMatchRecorder<T>(
     )
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
-        setMatchRecord(addPlyRecord(matchRecord, plyRecord, state))
+        setMatchRecord(prev=>addPlyRecord(prev, plyRecord, state))
     }
 
     function recordEoG(eogRecord: PlyRecordEoG) {
-        setMatchRecord(setEoGRecord(matchRecord, eogRecord))
+        setMatchRecord(prev=>setEoGRecord(prev, eogRecord))
     }
 
     function resetCurGame() {
@@ -48,7 +48,7 @@ export function useMatchRecorder<T>(
     }
 
     function resumeTo(index: number): T {
-        setMatchRecord(trimPlyRecords(matchRecord, index))
+        setMatchRecord(prev=>trimPlyRecords(prev, index))
         return matchRecord.curGameRecord.plyRecords[index].state
     }
 
