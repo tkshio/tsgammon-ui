@@ -1,28 +1,39 @@
 import { GameConf, Score, score, standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
+import {
+    RollListener,
+    rollListeners,
+} from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { toState } from '../BGState'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { toState } from '../BGState'
+import { defaultBGState } from '../defaultStates'
+import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
+import { CBOperator } from '../operators/CBOperator'
+import { SGOperator } from '../operators/SGOperator'
+import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
-import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
-import { defaultBGState } from '../defaultStates'
 
 export type MoneyGameProps = {
     gameConf: GameConf
     matchScore?: Score
     setup?: GameSetup
+    autoOperator?: { cb?: CBOperator; sg?: SGOperator }
     cbConfs?: CubefulGameConfs
+    isRollHandlerEnabled?: boolean
+    diceSource?: DiceSource
 } & Partial<
     CubeGameListeners &
         SingleGameListeners &
+        RollListener &
         CheckerPlayListeners &
         BoardEventHandlers
 >
@@ -32,6 +43,12 @@ export function MoneyGame(props: MoneyGameProps) {
         gameConf = { ...standardConf, jacobyRule: true },
         matchScore = score(),
         setup,
+        autoOperator = { cb: undefined, sg: undefined },
+        isRollHandlerEnabled = false,
+        diceSource = randomDiceSource,
+        onRollRequest = () => {
+            //
+        },
         ...listeners
     } = props
     const matchLength = 0
@@ -45,16 +62,24 @@ export function MoneyGame(props: MoneyGameProps) {
     )
     const defaultState = defaultBGState(gameConf)
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
+    const rollListener = rollListeners({
+        isRollHandlerEnabled,
+        diceSource,
+        rollListener: { onRollRequest },
+    })
+
     const { handlers } = cubefulGameEventHandlers(
         false,
         defaultState,
         cbState,
         setSGState,
         setCBState,
-        rollListeners(),
+        rollListener,
         matchStateAddOn,
         { eventHandlers: {}, listeners: props }
     )
+    useCBAutoOperator(cbState, sgState, autoOperator, handlers)
+
     const cbProps: CubefulGameProps = {
         sgState,
         cbState,

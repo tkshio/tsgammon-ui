@@ -4,17 +4,14 @@ import { DicePip, DiceRoll } from 'tsgammon-core/Dices'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import {
     GammonEngine,
-    simpleEvalEngine
+    simpleEvalEngine,
 } from 'tsgammon-core/engines/GammonEngine'
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import {
-    Cubeless,
-    CubelessProps
-} from '../../gammon/components/apps/Cubeless'
+import { Cubeless, CubelessProps } from '../../gammon/components/apps/Cubeless'
 import {
     bothSGAutoOperator,
-    redSGAutoOperator
+    redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 
 // this export is required.
@@ -39,27 +36,24 @@ const engine: GammonEngine = simpleEvalEngine(
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    sgConfs: {
-        autoOperator: redSGAutoOperator(engine),
-    },
+    autoOperator: redSGAutoOperator(engine),
+    sgConfs: {},
 }
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    sgConfs: {
-        autoOperator: bothSGAutoOperator(engine),
-    },
+    autoOperator: bothSGAutoOperator(engine),
+    sgConfs: {},
 }
 
 export const doubletInOpening = Template.bind({})
 doubletInOpening.args = {
-    sgConfs: {
-        diceSource: {
-            roll: doublet,
-            openingRoll: () => {
-                throw Error()
-            },
+    diceSource: {
+        roll: doublet,
+        openingRoll: () => {
+            throw Error()
         },
     },
+    sgConfs: {},
 }
 
 function doublet(): DiceRoll {
@@ -85,9 +79,8 @@ asymmetryc.args = {
         0, 0, 0,
     ],
     gameStatus: GameStatus.OPENING,
-    sgConfs: {
-        diceSource: presetDiceSource(6, 2),
-    },
+    diceSource: presetDiceSource(6, 2),
+    sgConfs: {},
 }
 
 export const blocked = Template.bind({})
@@ -99,7 +92,6 @@ blocked.args = {
     dice1: 1,
     dice2: 2,
     gameStatus: GameStatus.INPLAY_WHITE,
-    sgConfs: {
-        diceSource: presetDiceSource(6, 2),
-    },
+    diceSource: presetDiceSource(6, 2),
+    sgConfs: {},
 }

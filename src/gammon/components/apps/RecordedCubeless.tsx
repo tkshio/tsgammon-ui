@@ -3,21 +3,21 @@ import {
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { singleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {
-    SGEoG,
-    SGState,
-} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { defaultSGState } from '../defaultStates'
 import { buildSGEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
+import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedSingleGame,
     RecordedSingleGameProps,
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'
+import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 import { sgEventHandlersForMatchRecorder } from './PointMatch'
@@ -26,7 +26,10 @@ export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
     state?: GameSetup
     sgConfs?: SingleGameConfs
-}
+    autoOperator?: SGOperator
+    isRollHandlerEnabled?: boolean
+    diceSource?: DiceSource
+} & Partial<RollListener>
 
 /**
  * 回数無制限の対戦を行うコンポーネント
@@ -37,10 +40,24 @@ export type UnlimitedSingleGameProps = {
  * @constructor
  */
 export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
-    const { gameConf = standardConf, state, sgConfs = {} } = props
+    const {
+        gameConf = standardConf,
+        state,
+        sgConfs = {},
+        autoOperator,
+        isRollHandlerEnabled = false,
+        diceSource = randomDiceSource,
+        onRollRequest = () => {
+            //
+        },
+    } = props
 
     const initialSGState = toSGState(state)
-    const rollListener = rollListeners()
+    const rollListener = rollListeners({
+        isRollHandlerEnabled,
+        diceSource,
+        rollListener: { onRollRequest },
+    })
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
     const { handlers, matchRecord } = useRecordedCubeless(
@@ -48,6 +65,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         setSGState,
         rollListener
     )
+    useSGAutoOperator(sgState, autoOperator, handlers)
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
         sgConfs,

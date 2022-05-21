@@ -9,7 +9,7 @@ import {
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator
+    whiteSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 
 export default {
@@ -24,26 +24,17 @@ const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    cbConfs: {
-        autoOperator: redCBAutoOperator(),
-        sgConfs: { autoOperator: redSGAutoOperator() },
-    },
+    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const cpuPlaysWhite = Template.bind({})
 cpuPlaysWhite.args = {
-    cbConfs: {
-        autoOperator: whiteCBAutoOperator(),
-        sgConfs: { autoOperator: whiteSGAutoOperator() },
-    },
+    autoOperator: { cb: whiteCBAutoOperator(), sg: whiteSGAutoOperator() },
 }
 
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    cbConfs: {
-        autoOperator: bothCBAutoOperator(),
-        sgConfs: { autoOperator: bothSGAutoOperator() },
-    },
+    autoOperator: { cb: bothCBAutoOperator(), sg: bothSGAutoOperator() },
 }
 
 export const gameFromMidst = Template.bind({})
@@ -58,9 +49,9 @@ gameFromMidst.args = {
             0, /* bar*/ 5, 0, 0, 0, 0, -1, -1,
         ],
     },
+    diceSource,
     cbConfs: {
         sgConfs: {
-            diceSource,
         },
     },
 }

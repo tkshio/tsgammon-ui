@@ -59,20 +59,8 @@ export function CubefulGame(props: CubefulGameProps) {
         },
         ...eventHandlers
     } = props
-    //  useAutoOperator(cbState, sgState, autoOperator, dispatcher)
 
-    /*    // チェッカープレイに関係ない時はSingleGame上で自律操作させない
-    const sgAutoOperator: SGOperator | undefined =
-        cbState.tag === 'CBAction' ||
-        cbState.tag === 'CBResponse' ||
-        cbState.tag === 'CBEoG'
-            ? undefined
-            : _cbConfs.sgConfs.autoOperator
-    const cbConfs: CubefulGameConfs = {
-        ..._cbConfs,
-        sgConfs: { ..._cbConfs.sgConfs, autoOperator: sgAutoOperator },
-    }
-*/
+
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, matchState, {

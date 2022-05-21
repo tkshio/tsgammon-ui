@@ -23,15 +23,15 @@ initialBoard.args = {}
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
     sgConfs: {
-        autoOperator: redSGAutoOperator(),
     },
+    autoOperator: redSGAutoOperator(),
 }
 
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
     sgConfs: {
-        autoOperator: bothSGAutoOperator(),
     },
+    autoOperator: bothSGAutoOperator(),
 }
 
 export const playDoublet = Template.bind({})

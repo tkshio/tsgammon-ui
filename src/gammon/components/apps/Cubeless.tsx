@@ -2,15 +2,13 @@ import { useState } from 'react'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     singleGameDispatcher,
-    SingleGameListeners
+    SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {
-    SGEoG
-} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { Score, score } from 'tsgammon-core/Score'
@@ -18,37 +16,58 @@ import { BoardEventHandlers } from '../boards/Board'
 import { defaultSGState } from '../defaultStates'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { SingleGameConfs } from '../SingleGameBoard'
-import {
-    buildSGEventHandlers
-} from '../eventHandlers/SingleGameEventHandlers'
+import { buildSGEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useSingleGameState } from '../useSingleGameState'
+import { SGOperator } from '../operators/SGOperator'
+import { useSGAutoOperator } from '../useSGAutoOperator'
+import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 
 export type CubelessProps = {
     gameConf?: GameConf
+    autoOperator?: SGOperator
     sgConfs?: SingleGameConfs
+    isRollHandlerEnabled?: boolean
+    diceSource: DiceSource
 } & GameSetup &
     Partial<
         SingleGameListeners &
-            RollListener & // TODO: 使われていない(isRollHandlerEnabledが必要)
+            RollListener &
             CheckerPlayListeners &
             BoardEventHandlers
     >
 
 export function Cubeless(props: CubelessProps) {
-    const { gameConf = standardConf, sgConfs, ...listeners } = props
+    const {
+        gameConf = standardConf,
+        sgConfs,
+        autoOperator,
+        isRollHandlerEnabled = false,
+        diceSource = randomDiceSource,
+        onRollRequest = ()=>{
+            //
+        },
+        ...listeners
+    } = props
     const initialSGState = toSGState(props)
     const { matchScore, matchScoreListener } = useMatchScore()
     const { sgState, setSGState } = useSingleGameState(initialSGState)
+    const rollListener = rollListeners({
+        isRollHandlerEnabled,
+        diceSource,
+        rollListener: { onRollRequest },
+    })
 
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),
         setSGState,
         singleGameDispatcher(),
-        rollListeners(),
+        rollListener,
         { eventHandlers: {}, listeners },
         { eventHandlers: {}, listeners: matchScoreListener }
     )
+    useSGAutoOperator(sgState, autoOperator, handlers)
+
     const [cpState, cpListeners] = useCheckerPlayListeners()
 
     const sgProps: SingleGameProps = {

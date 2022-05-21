@@ -33,6 +33,9 @@ import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 import { useMatchKey } from '../useMatchKey'
+import { useCBAutoOperator } from '../useCBAutoOperator'
+import { CBOperator } from '../operators/CBOperator'
+import { SGOperator } from '../operators/SGOperator'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -41,6 +44,7 @@ export type PointMatchProps = {
     isCrawford?: boolean
     board?: GameSetup
     cbConfs?: CubefulGameConfs
+    autoOperator: { cb: CBOperator; sg: SGOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
 } & Partial<RollListener>
@@ -57,6 +61,7 @@ export function PointMatch(props: PointMatchProps) {
     const {
         gameConf = standardConf,
         cbConfs = { sgConfs: {} },
+        autoOperator = { cb: undefined, sg: undefined },
         matchLength = 0,
         matchScore: curScore = score(),
         isCrawford = false,
@@ -78,7 +83,6 @@ export function PointMatch(props: PointMatchProps) {
     // 状態管理
     const { sgState, setSGState } = useSingleGameState(initialBGState.sgState)
     const { cbState, setCBState } = useCubeGameState(initialBGState.cbState)
-
     // マッチにユニークなKeyを採番する
     const { matchKey, matchKeyAddOn } = useMatchKey()
 
@@ -122,6 +126,9 @@ export function PointMatch(props: PointMatchProps) {
         matchStateAddOn,
         matchRecorderAddOn
     )
+
+    useCBAutoOperator(cbState, sgState, autoOperator, handlers)
+
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
         matchState,

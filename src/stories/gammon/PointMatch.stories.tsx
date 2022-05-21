@@ -5,7 +5,7 @@ import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
     redCBAutoOperator,
-    redSGAutoOperator
+    redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 
 export default {
@@ -22,9 +22,9 @@ export const cpuPlaysRed3pt = Template.bind({})
 cpuPlaysRed3pt.args = {
     matchLength: 3,
     cbConfs: {
-        autoOperator: redCBAutoOperator(),
-        sgConfs: { autoOperator: redSGAutoOperator() },
+        sgConfs: {},
     },
+    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 const minimalPieces = [
@@ -41,9 +41,9 @@ endGame3pt.args = {
         absPos: minimalPieces,
     },
     cbConfs: {
-        autoOperator: redCBAutoOperator(),
-        sgConfs: { autoOperator: redSGAutoOperator() },
+        sgConfs: {},
     },
+    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const goIntoCrawford = Template.bind({})
@@ -57,9 +57,9 @@ goIntoCrawford.args = {
         absPos: minimalPieces,
     },
     cbConfs: {
-        autoOperator: redCBAutoOperator(),
-        sgConfs: { autoOperator: redSGAutoOperator() },
+        sgConfs: {},
     },
+    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const endOfMatch = Template.bind({})
@@ -73,8 +73,5 @@ endOfMatch.args = {
         dice2: 2,
         absPos: minimalPieces,
     },
-    cbConfs: {
-        autoOperator: redCBAutoOperator(),
-        sgConfs: { autoOperator: redSGAutoOperator() },
-    },
+    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
