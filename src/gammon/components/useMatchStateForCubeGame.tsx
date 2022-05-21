@@ -3,7 +3,7 @@ import { score } from 'tsgammon-core'
 import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
-import { CubeGameEventHandlers } from './EventHandlers'
+import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
 import { MatchState, matchStateEOG, MatchStateInPlay } from './MatchState'
 
 export function useMatchStateForCubeGame(

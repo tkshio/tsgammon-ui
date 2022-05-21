@@ -33,9 +33,9 @@ import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameConfs } from '../CubefulGameBoard'
 import {
-    CubeGameEventHandlers,
     SingleGameEventHandlers,
-} from '../EventHandlers'
+} from '../SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "../CubeGameEventHandlers"
 import { BGState, toState } from '../recordedGames/BGState'
 import {
     RecordedCubefulGame,

@@ -4,9 +4,7 @@ import {
     SGEoG,
     SGInPlay, SGToRoll
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import {
-    CubeGameEventHandlers
-} from './EventHandlers'
+import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
 
 export function cubefulSGListener(
     state: CBState,

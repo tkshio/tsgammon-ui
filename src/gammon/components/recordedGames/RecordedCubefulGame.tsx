@@ -5,9 +5,9 @@ import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
 import {
-    CubeGameEventHandlers,
     SingleGameEventHandlers,
-} from '../EventHandlers'
+} from '../SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "../CubeGameEventHandlers"
 import { MatchState } from '../MatchState'
 import {} from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'

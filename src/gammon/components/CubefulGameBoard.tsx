@@ -4,7 +4,8 @@ import {
     CBState} from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
-import { CubeGameEventHandlers, SingleGameEventHandlers } from './EventHandlers'
+import { SingleGameEventHandlers } from './SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "./CubeGameEventHandlers"
 import {
     SingleGameBoard,
     SingleGameBoardProps,

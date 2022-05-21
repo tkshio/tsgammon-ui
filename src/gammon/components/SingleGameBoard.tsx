@@ -23,7 +23,7 @@ import {
 } from './boards/Board'
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
-import { SingleGameEventHandlers } from './EventHandlers'
+import { SingleGameEventHandlers } from './SingleGameEventHandlers'
 import { PositionID } from './uiparts/PositionID'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 

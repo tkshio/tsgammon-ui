@@ -4,7 +4,7 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SingleGameEventHandlers } from './EventHandlers'
+import { SingleGameEventHandlers } from './SingleGameEventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,

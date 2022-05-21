@@ -12,9 +12,9 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { cubefulGameEventHandlers } from '../../components/apps/MoneyGame'
 import {
-    CubeGameEventHandlers,
     SingleGameEventHandlers,
-} from '../../components/EventHandlers'
+} from '../../components/SingleGameEventHandlers'
+import { CubeGameEventHandlers } from "../../components/CubeGameEventHandlers"
 import { MatchState } from '../../components/MatchState'
 import { matchStateEventHandler } from '../../components/useMatchStateForCubeGame'
 
