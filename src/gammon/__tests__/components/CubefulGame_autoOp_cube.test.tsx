@@ -1,18 +1,19 @@
 import { act, render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import {
-    GammonEngine,
-    simpleEvalEngine,
-} from 'tsgammon-core/engines/GammonEngine'
-import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
-import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGameBoard } from '../../components/CubefulGameBoard'
-import {
     GameSetup,
     GameStatus,
     toCBState,
     toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import {
+    GammonEngine,
+    simpleEvalEngine,
+} from 'tsgammon-core/engines/GammonEngine'
+import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
+import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { CubefulGame } from '../../components/CubefulGame'
+import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 import { setupEventHandlers } from './CubefulGame.common'
 import { setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
 
@@ -34,6 +35,7 @@ const gameState: GameSetup = {
     ],
 }
 const state = {
+    matchState: matchStateForUnlimitedMatch(),
     cpState: undefined,
     sgState: toSGState(gameState),
     cbState: toCBState(gameState),
@@ -47,13 +49,12 @@ const props = { ...setupEventHandlers(state, presetDiceSource(1, 3)), ...state }
 
 describe('CubeGameBoard', () => {
     test('lets redAutoPlayer do cubeAction', async () => {
-        const cbConfs = setRedAutoOp(props, engine)
         const next = {
             ...props,
             ...state,
-            cbConfs,
+            autoOperators: setRedAutoOp(engine),
         }
-        render(<CubefulGameBoard {...next} />)
+        render(<CubefulGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -61,13 +62,12 @@ describe('CubeGameBoard', () => {
         expect(state.sgState.tag).toEqual('SGToRoll')
     })
     test('lets whiteAutoPlayer do pass', async () => {
-        const cbConfs = setWhiteAutoOp(props, engine)
         const next = {
             ...props,
             ...state,
-            cbConfs,
+            autoOperators:setWhiteAutoOp(engine),
         }
-        render(<CubefulGameBoard {...next} />)
+        render(<CubefulGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })

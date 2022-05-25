@@ -16,7 +16,7 @@ import {
 } from '../../components/eventHandlers/SingleGameEventHandlers'
 import { CubeGameEventHandlers } from "../../components/eventHandlers/CubeGameEventHandlers"
 import { MatchState } from '../../components/MatchState'
-import { matchStateEventHandler } from '../../components/useMatchStateForCubeGame'
+import { matchStateAddOn } from '../../components/useMatchStateForCubeGame'
 import { defaultBGState } from '../../components/defaultStates'
 
 export const BoardOp = {
@@ -63,8 +63,8 @@ export function setupEventHandlers(
     CubeGameEventHandlers & {
         diceSource: DiceSource
     } {
-    const { matchStateListener, matchStateEventHandler: msEventHandler } =
-        matchStateEventHandler(state.matchState, (matchState: MatchState) => {
+    const addOn =
+        matchStateAddOn(state.matchState, (matchState: MatchState) => {
             state.matchState = matchState
         })
 
@@ -84,7 +84,7 @@ export function setupEventHandlers(
             state.cbState = next
         },
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
-        { eventHandlers: msEventHandler, listeners: matchStateListener }
+        addOn
     )
 
     return {

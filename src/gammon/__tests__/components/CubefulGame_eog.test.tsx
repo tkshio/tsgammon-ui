@@ -75,7 +75,6 @@ describe('CubeGame(eog)', () => {
         expect(state.sgState.tag).toEqual('SGEoG')
 
         expect(state.cbState.tag).toEqual('CBEoG')
-        //console.log(state)
         expect(screen.getByText('White wins 1 pt. and won the match')).toBeTruthy()
     })
 })
