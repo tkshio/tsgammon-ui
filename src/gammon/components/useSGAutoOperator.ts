@@ -9,7 +9,7 @@ import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers
 export function useSGAutoOperator(
     sgState: SGState,
     autoOperator: SGOperator | undefined,
-    handlers: SingleGameEventHandlers,
+    handlers: Partial<SingleGameEventHandlers>,
     cube?: CubeState
 ) {
     const doRoll = useCallback(() => {
@@ -19,7 +19,11 @@ export function useSGAutoOperator(
                     autoOperator[
                         sgState.isRed ? 'operateRollRed' : 'operateRollWhite'
                     ]
-                const doRoll = () => handlers.onRoll(sgState)
+                const doRoll = () => {
+                    if (handlers.onRoll) {
+                        handlers.onRoll(sgState)
+                    }
+                }
                 return operation(doRoll)
             }
         } else if (sgState.tag === 'SGInPlay') {
@@ -30,9 +34,11 @@ export function useSGAutoOperator(
                             ? 'operateCheckerPlayRed'
                             : 'operateCheckerPlayWhite'
                     ]
-                const doCheckerPlay = (node: BoardStateNode) =>
-                    handlers.onCommit(sgState, node)
-
+                const doCheckerPlay = (node: BoardStateNode) => {
+                    if (handlers.onCommit) {
+                        handlers.onCommit(sgState, node)
+                    }
+                }
                 return operation(doCheckerPlay, sgState.boardStateNode, cube)
             }
         }

@@ -16,7 +16,6 @@ import { defaultBGState } from '../defaultStates'
 import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
-import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
@@ -43,7 +42,6 @@ export function MoneyGame(props: MoneyGameProps) {
         gameConf = { ...standardConf, jacobyRule: true },
         matchScore = score(),
         setup,
-        autoOperator = { cb: undefined, sg: undefined },
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
         onRollRequest = () => {
@@ -78,7 +76,6 @@ export function MoneyGame(props: MoneyGameProps) {
         matchStateAddOn,
         { eventHandlers: {}, listeners: props }
     )
-    useCBAutoOperator(cbState, sgState, autoOperator, handlers)
 
     const cbProps: CubefulGameProps = {
         sgState,

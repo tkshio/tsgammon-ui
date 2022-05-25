@@ -12,7 +12,7 @@ export function useCBAutoOperator(
     cbState: CBState,
     sgState: SGState,
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
-    handlers: CubeGameEventHandlers & SingleGameEventHandlers
+    handlers: Partial<CubeGameEventHandlers & SingleGameEventHandlers>
 ) {
     const { cb, sg } = autoOperators
     useSGAutoOperator(
@@ -39,10 +39,14 @@ export function useCBAutoOperator(
                     cbState.cubeState,
                     sgState.boardState,
                     () => {
-                        handlers.onDouble(cbState)
+                        if (handlers.onDouble) {
+                            handlers.onDouble(cbState)
+                        }
                     },
                     () => {
-                        handlers.onSkipCubeAction(cbState)
+                        if (handlers.onSkipCubeAction) {
+                            handlers.onSkipCubeAction(cbState)
+                        }
                     }
                 )
             } else if (
@@ -59,10 +63,14 @@ export function useCBAutoOperator(
                     cbState.cubeState,
                     sgState.boardState.revert(),
                     () => {
-                        handlers.onTake(cbState)
+                        if (handlers.onTake) {
+                            handlers.onTake(cbState)
+                        }
                     },
                     () => {
-                        handlers.onPass(cbState)
+                        if (handlers.onPass) {
+                            handlers.onPass(cbState)
+                        }
                     }
                 )
             }

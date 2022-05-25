@@ -1,5 +1,8 @@
 import { BoardStateNode, DiceRoll } from 'tsgammon-core'
-import { RollListener, rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
+import {
+    RollListener,
+    rollListeners,
+} from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     SingleGameListeners,
     SingleGameDispatcher,
@@ -12,7 +15,12 @@ import {
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { EventHandlerAddOn, EventHandlerBuilder, wrap } from './EventHandlerBuilder'
+import {
+    EventHandlerAddOn,
+    EventHandlerBuilder,
+    wrap,
+} from './EventHandlerBuilder'
+import { concat0, concat1, concat2 } from './utils/concat'
 
 export type SingleGameEventHandlers = {
     onStartGame: () => void
@@ -31,7 +39,6 @@ export type SGEventHandlerBuilder = EventHandlerBuilder<
     SingleGameEventHandlers,
     SingleGameListeners
 >
-
 
 export function buildSGEventHandlers(
     defaultSGState: SGState,
@@ -55,85 +62,55 @@ export function sgEventHandlersBuilder(
     dispatcher: SingleGameDispatcher,
     rollListener: RollListener
 ): SGEventHandlerBuilder {
-    return (addOn: {
+    return builder
+
+    function builder(addOn: {
         eventHandlers: Partial<SingleGameEventHandlers>
         listeners: Partial<SingleGameListeners>
-    }) => {
+    }) {
         const { eventHandlers, listeners } = addOn
         return {
-            handlers: {
+            handlers: concatSGHandlers(eventHandlers, {
                 onStartGame: () => {
-                    if (eventHandlers.onStartGame) {
-                        eventHandlers.onStartGame()
-                    }
                     const result = dispatcher.doStartGame()
                     result(listeners)
                 },
                 onCommit: (state, node) => {
-                    if (eventHandlers.onCommit) {
-                        eventHandlers.onCommit(state, node)
-                    }
                     const result = dispatcher.doCommitCheckerPlay(state, node)
                     result(listeners)
                 },
                 onRoll: (sgState: SGToRoll) =>
                     rollListener.onRollRequest((dices: DiceRoll) => {
-                        if (eventHandlers.onRoll) {
-                            eventHandlers.onRoll(sgState)
-                        }
                         const result = dispatcher.doRoll(sgState, dices)
                         result(listeners)
                     }),
                 onRollOpening: (sgState: SGOpening) =>
                     rollListener.onRollRequest((dices: DiceRoll) => {
-                        if (eventHandlers.onRollOpening) {
-                            eventHandlers.onRollOpening(sgState)
-                        }
                         const result = dispatcher.doOpeningRoll(sgState, dices)
                         result(listeners)
                     }),
-            },
-            dispatcher,
+            }) as SingleGameEventHandlers,
+            listeners,
         }
     }
 }
 
 function concatSGHandlers(
     base: Partial<SingleGameEventHandlers>,
-    eventHandlers: Partial<SingleGameEventHandlers>
-): SingleGameEventHandlers {
-    return {
-        onStartGame: () => {
-            if (eventHandlers.onStartGame) {
-                eventHandlers.onStartGame()
-            }
-            if (base.onStartGame) {
-                base.onStartGame()
-            }
-        },
-        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-            if (eventHandlers.onCommit) {
-                eventHandlers.onCommit(sgState, node)
-            }
-            if (base.onCommit) {
-                base.onCommit(sgState, node)
+    ...handlers: Partial<SingleGameEventHandlers>[]
+): Partial<SingleGameEventHandlers> {
+    return handlers.reduce(
+        (
+            prev: Partial<SingleGameEventHandlers>,
+            cur: Partial<SingleGameEventHandlers>
+        ): Partial<SingleGameEventHandlers> => {
+            return {
+                onStartGame: concat0(prev?.onStartGame, cur?.onStartGame),
+                onCommit: concat2(prev?.onCommit, cur?.onCommit),
+                onRoll: concat1(prev?.onRoll, cur?.onRoll),
+                onRollOpening: concat1(prev?.onRollOpening, cur?.onRollOpening),
             }
         },
-        onRoll: (sgState: SGToRoll) => {
-            if (eventHandlers.onRoll) {
-                eventHandlers.onRoll(sgState)
-            }
-            if (base.onRoll) {
-                base.onRoll(sgState)
-            }
-        },
-        onRollOpening: (sgState: SGOpening) => {
-            if (eventHandlers.onRollOpening) {
-                eventHandlers.onRollOpening(sgState)
-            }
-            if (base.onRollOpening) {
-                base.onRollOpening(sgState)
-            }
-        },
-    }
+        base
+    )
 }

@@ -15,10 +15,13 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { BGState } from '../BGState'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
+import { CBOperator } from '../operators/CBOperator'
+import { SGOperator } from '../operators/SGOperator'
 
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
+    autoOperators?:{sg?:SGOperator, cb?:CBOperator}
     matchState: MatchState
     matchRecord: MatchRecord<BGState>
     bgState: BGState
@@ -38,6 +41,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         cbConfs = {
             sgConfs: {},
         },
+        autoOperators,
         onResumeState = () => {
             //
         },
@@ -66,6 +70,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
               ...minimalProps,
               ...eventHandlers,
               cbConfs,
+              autoOperators,
           }
         : minimalProps
 

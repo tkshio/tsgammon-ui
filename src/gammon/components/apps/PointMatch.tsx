@@ -33,7 +33,6 @@ import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 import { useMatchKey } from '../useMatchKey'
-import { useCBAutoOperator } from '../useCBAutoOperator'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 
@@ -44,7 +43,7 @@ export type PointMatchProps = {
     isCrawford?: boolean
     board?: GameSetup
     cbConfs?: CubefulGameConfs
-    autoOperator: { cb: CBOperator; sg: SGOperator }
+    autoOperators: { cb: CBOperator; sg: SGOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
 } & Partial<RollListener>
@@ -61,7 +60,7 @@ export function PointMatch(props: PointMatchProps) {
     const {
         gameConf = standardConf,
         cbConfs = { sgConfs: {} },
-        autoOperator = { cb: undefined, sg: undefined },
+        autoOperators = { cb: undefined, sg: undefined },
         matchLength = 0,
         matchScore: curScore = score(),
         isCrawford = false,
@@ -127,7 +126,6 @@ export function PointMatch(props: PointMatchProps) {
         matchRecorderAddOn
     )
 
-    useCBAutoOperator(cbState, sgState, autoOperator, handlers)
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
@@ -135,6 +133,7 @@ export function PointMatch(props: PointMatchProps) {
         matchRecord,
         bgState: { sgState, cbState },
         cbConfs,
+        autoOperators,
         ...{ ...handlers, onResumeState },
     }
 

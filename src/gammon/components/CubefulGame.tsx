@@ -10,12 +10,14 @@ import { score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
 import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "./eventHandlers/CubeGameEventHandlers"
+import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
 import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
+import { useCBAutoOperator } from './useCBAutoOperator'
+import { SGOperator } from './operators/SGOperator'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
@@ -29,9 +31,13 @@ export type CubefulGameProps = {
     cpState?: CheckerPlayState
     matchState: MatchState
     cbConfs?: CubefulGameConfs
+    autoOperators?: { sg?: SGOperator; cb?: CBOperator }
     dialog?: JSX.Element
 } & Partial<
-    Pick<CubeGameEventHandlers, 'onDouble'|'onPass'|'onTake'|'onStartCubeGame'> &
+    Pick<
+        CubeGameEventHandlers,
+        'onDouble' | 'onPass' | 'onTake' | 'onStartCubeGame'
+    > &
         SingleGameEventHandlers &
         RollListener &
         CheckerPlayListeners &
@@ -54,17 +60,20 @@ export function CubefulGame(props: CubefulGameProps) {
             : defaultMatchState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onStartCubeGame = () => {
-            //
-        },
+        autoOperators = { sg: undefined, cb: undefined },
         ...eventHandlers
     } = props
-
+    useCBAutoOperator(cbState, sgState, autoOperators, eventHandlers)
 
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, matchState, {
-            eogDialog: eogDialog(onStartCubeGame),
+            eogDialog: eogDialog(
+                eventHandlers.onStartCubeGame ??
+                    (() => {
+                        //
+                    })
+            ),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 

@@ -24,7 +24,7 @@ export function useMatchStateForCubeGame(
         isCrawford: matchLength === 1,
     })
     const { eventHandlers, listeners, resetMatchState } =
-        matchStateEventHandler(matchState, setMatchState)
+        matchStateAddOn(matchState, setMatchState)
 
     return {
         matchState,
@@ -35,7 +35,7 @@ export function useMatchStateForCubeGame(
         },
     }
 }
-export function matchStateEventHandler(
+export function matchStateAddOn(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
 ) {

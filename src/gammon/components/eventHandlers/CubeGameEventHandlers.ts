@@ -3,7 +3,7 @@ import {
     concatCBListeners,
     CubeGameDispatcher,
     CubeGameListeners,
-    setCBStateListener
+    setCBStateListener,
 } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import {
     CBAction,
@@ -11,10 +11,15 @@ import {
     CBOpening,
     CBResponse,
     CBState,
-    CBToRoll
+    CBToRoll,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { EventHandlerAddOn, EventHandlerBuilder, wrap } from './EventHandlerBuilder'
+import { concat0, concat1, concat2, concat3 } from './utils/concat'
+import {
+    EventHandlerAddOn,
+    EventHandlerBuilder,
+    wrap,
+} from './EventHandlerBuilder'
 
 export type CubeGameEventHandlers = {
     onStartCubeGame: () => void
@@ -72,7 +77,7 @@ export function cbEventHandlersBuilder(
     } {
         const { eventHandlers, listeners } = addOn
         return {
-            handlers: {
+            handlers: concatCBEventHandlers(eventHandlers, {
                 onStartCubeGame,
                 onDouble,
                 onTake,
@@ -82,68 +87,44 @@ export function cbEventHandlersBuilder(
                 onStartOpeningCheckerPlay,
                 onStartCheckerPlay,
                 onEndOfCubeGame,
-            },
+            }) as CubeGameEventHandlers,
         }
 
         function onStartCubeGame() {
-            if (eventHandlers.onStartCubeGame) {
-                eventHandlers.onStartCubeGame()
-            }
             const result = dispatcher.doStartCubeGame()
             result(listeners)
         }
         function onDouble(state: CBAction) {
-            if (eventHandlers.onDouble) {
-                eventHandlers.onDouble(state)
-            }
             const result = dispatcher.doDouble(state)
             result(listeners)
         }
 
         function onTake(state: CBResponse) {
-            if (eventHandlers.onTake) {
-                eventHandlers.onTake(state)
-            }
             const result = dispatcher.doTake(state)
             result(listeners)
         }
 
         function onPass(state: CBResponse) {
-            if (eventHandlers.onPass) {
-                eventHandlers.onPass(state)
-            }
             const result = dispatcher.doPass(state)
             result(listeners)
         }
 
         function onSkipCubeAction(state: CBAction) {
-            if (eventHandlers.onSkipCubeAction) {
-                eventHandlers.onSkipCubeAction(state)
-            }
             const result = dispatcher.doSkipCubeAction(state)
             result(listeners)
         }
 
         function onStartCubeAction(state: CBInPlay): void {
-            if (eventHandlers.onStartCubeAction) {
-                eventHandlers.onStartCubeAction(state)
-            }
             const result = dispatcher.doStartCubeAction(state)
             result(listeners)
         }
 
         function onStartOpeningCheckerPlay(state: CBOpening, isRed: boolean) {
-            if (eventHandlers.onStartOpeningCheckerPlay) {
-                eventHandlers.onStartOpeningCheckerPlay(state, isRed)
-            }
             const result = dispatcher.doStartOpeningCheckerPlay(state, isRed)
             result(listeners)
         }
 
         function onStartCheckerPlay(state: CBAction | CBToRoll) {
-            if (eventHandlers.onStartCheckerPlay) {
-                eventHandlers.onStartCheckerPlay(state)
-            }
             const result = dispatcher.doStartCheckerPlay(state)
             result(listeners)
         }
@@ -153,9 +134,6 @@ export function cbEventHandlersBuilder(
             sgResult: SGResult.REDWON | SGResult.WHITEWON,
             eogStatus: EOGStatus
         ) {
-            if (eventHandlers.onEndOfCubeGame) {
-                eventHandlers.onEndOfCubeGame(state, sgResult, eogStatus)
-            }
             const result = dispatcher.doEndOfCubeGame(
                 state,
                 sgResult,
@@ -166,106 +144,45 @@ export function cbEventHandlersBuilder(
     }
 }
 
-
 export function concatCBEventHandlers(
     base: Partial<CubeGameEventHandlers>,
     ...handlers: Partial<CubeGameEventHandlers>[]
 ): Partial<CubeGameEventHandlers> {
-    const doNothing = () => {
-        //
-    }
-    const filled: CubeGameEventHandlers = {
-        onStartCubeGame: doNothing,
-        onDouble: doNothing,
-        onTake: doNothing,
-        onPass: doNothing,
-        onStartCubeAction: doNothing,
-        onSkipCubeAction: doNothing,
-        onStartCheckerPlay: doNothing,
-        onStartOpeningCheckerPlay: doNothing,
-        onEndOfCubeGame: doNothing,
-        ...base,
-    }
-
     return handlers.reduce(
         (
-            prev: CubeGameEventHandlers,
+            prev: Partial<CubeGameEventHandlers>,
             cur: Partial<CubeGameEventHandlers>
-        ): CubeGameEventHandlers => {
-            const {
-                onStartCubeGame,
-                onDouble,
-                onTake,
-                onPass,
-                onStartCubeAction,
-                onSkipCubeAction,
-                onStartCheckerPlay,
-                onStartOpeningCheckerPlay,
-                onEndOfCubeGame,
-            } = cur
-
+        ): Partial<CubeGameEventHandlers> => {
             return {
-                onStartCubeGame: onStartCubeGame
-                    ? () => {
-                          prev.onStartCubeGame()
-                          onStartCubeGame()
-                      }
-                    : prev.onStartCubeGame,
-                onDouble: onDouble
-                    ? (state: CBAction) => {
-                          prev.onDouble(state)
-                          onDouble(state)
-                      }
-                    : prev.onDouble,
-                onTake: onTake
-                    ? (state: CBResponse) => {
-                          prev.onTake(state)
-                          onTake(state)
-                      }
-                    : prev.onTake,
-                onPass: onPass
-                    ? (state: CBResponse) => {
-                          prev.onPass(state)
-                          onPass(state)
-                      }
-                    : prev.onPass,
-                onStartCubeAction: onStartCubeAction
-                    ? (state: CBInPlay) => {
-                          prev.onStartCubeAction(state)
-                          onStartCubeAction(state)
-                      }
-                    : prev.onStartCubeAction,
-                onSkipCubeAction: onSkipCubeAction
-                    ? (state: CBAction) => {
-                          prev.onSkipCubeAction(state)
-                          onSkipCubeAction(state)
-                      }
-                    : prev.onSkipCubeAction,
-                onStartCheckerPlay: onStartCheckerPlay
-                    ? (state: CBAction | CBToRoll) => {
-                          prev.onStartCheckerPlay(state)
-                          onStartCheckerPlay(state)
-                      }
-                    : prev.onStartCheckerPlay,
-                onStartOpeningCheckerPlay: onStartOpeningCheckerPlay
-                    ? (state: CBOpening, isRed: boolean) => {
-                          prev.onStartOpeningCheckerPlay(state, isRed)
-                          onStartOpeningCheckerPlay(state, isRed)
-                      }
-                    : prev.onStartOpeningCheckerPlay,
-
-                onEndOfCubeGame: onEndOfCubeGame
-                    ? (
-                          state: CBState,
-                          result: SGResult.REDWON | SGResult.WHITEWON,
-                          eogStatus: EOGStatus
-                      ) => {
-                          prev.onEndOfCubeGame(state, result, eogStatus)
-                          onEndOfCubeGame(state, result, eogStatus)
-                      }
-                    : prev.onEndOfCubeGame,
+                onStartCubeGame: concat0(
+                    prev?.onStartCubeGame,
+                    cur?.onStartCubeGame
+                ),
+                onDouble: concat1(prev?.onDouble, cur?.onDouble),
+                onTake: concat1(prev?.onTake, cur?.onTake),
+                onPass: concat1(prev?.onPass, cur?.onPass),
+                onStartCubeAction: concat1(
+                    prev?.onStartCubeAction,
+                    cur?.onStartCubeAction
+                ),
+                onSkipCubeAction: concat1(
+                    prev?.onSkipCubeAction,
+                    cur?.onSkipCubeAction
+                ),
+                onStartCheckerPlay: concat1(
+                    prev?.onStartCheckerPlay,
+                    cur?.onStartCheckerPlay
+                ),
+                onStartOpeningCheckerPlay: concat2(
+                    prev?.onStartOpeningCheckerPlay,
+                    cur?.onStartOpeningCheckerPlay
+                ),
+                onEndOfCubeGame: concat3(
+                    prev?.onEndOfCubeGame,
+                    cur?.onEndOfCubeGame
+                ),
             }
         },
-        filled
+        base
     )
 }
