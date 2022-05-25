@@ -116,7 +116,6 @@ export function PointMatch(props: PointMatchProps) {
     const { handlers } = cubefulGameEventHandlers(
         matchState.isCrawford,
         defaultBGState(gameConf),
-        cbState,
         setSGState,
         setCBState,
         rollListener,

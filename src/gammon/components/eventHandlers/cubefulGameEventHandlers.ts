@@ -1,39 +1,46 @@
 import {
     cubeGameDispatcher,
-    CubeGameListeners
+    CubeGameListeners,
 } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import {
-    CBState
+    CBAction,
+    CBInPlay,
+    CBOpening,
+    CBResponse,
+    CBState,
+    CBToRoll,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     singleGameDispatcher,
-    SingleGameListeners
+    SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGEoG,
     SGInPlay,
+    SGOpening,
     SGState,
-    SGToRoll
+    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     buildCBEventHandlers,
-    CubeGameEventHandlers
+    CubeGameEventHandlers,
 } from './CubeGameEventHandlers'
 import { EventHandlerAddOn } from './EventHandlerBuilder'
 import { BGState } from '../BGState'
 import {
     buildSGEventHandlers,
-    SingleGameEventHandlers
+    SingleGameEventHandlers,
 } from './SingleGameEventHandlers'
+import { BGEventHandlers } from './BGEventHandlers'
+import { BoardStateNode } from 'tsgammon-core'
 
 export function cubefulGameEventHandlers(
     isCrawford: boolean,
     defaultState: BGState,
-    cbState: CBState,
     setSGState: (sgState: SGState) => void,
     setCBState: (cbState: CBState) => void,
     rollListener: RollListener = rollListeners(),
@@ -42,7 +49,7 @@ export function cubefulGameEventHandlers(
         CubeGameListeners & SingleGameEventHandlers
     >[]
 ): {
-    handlers: CubeGameEventHandlers & SingleGameEventHandlers
+    handlers: BGEventHandlers
 } {
     const { cbState: defaultCBState, sgState: defaultSGState } = defaultState
 
@@ -50,37 +57,62 @@ export function cubefulGameEventHandlers(
         cubeGameDispatcher(isCrawford),
         defaultCBState,
         setCBState,
-        {
-            eventHandlers: {
-                onStartCubeGame: () => {
-                    sgEventHandlers.onStartGame()
-                },
-            },
-            listeners: {},
-        },
         ...addOns
     )
 
-    const { handlers: sgEventHandlers } = buildSGEventHandlers(
+    const sgEventHandlers = (cbState?:CBState)=> buildSGEventHandlers(
         defaultSGState,
         setSGState,
         singleGameDispatcher(),
         rollListener,
         {
             eventHandlers: {},
-            listeners: cubefulSGListener(cbState, cbEventHandlers),
+            listeners: cbState?cubefulSGListener(cbState, cbEventHandlers):{},
         },
         ...addOns
-    )
+    ).handlers
+    
+    const handlers = {
+        onRollOpening: (bgState: {
+            cbState: CBOpening
+            sgState: SGOpening
+        }) => {
+            sgEventHandlers(bgState.cbState).onRollOpening(bgState.sgState)
+        },
 
-    return {
-        handlers: {
-            ...sgEventHandlers,
-            ...cbEventHandlers,
+        onCommit: (
+            bgState: { cbState: CBInPlay; sgState: SGInPlay },
+            node: BoardStateNode
+        ) => {
+            sgEventHandlers(bgState.cbState).onCommit(bgState.sgState, node)
+        },
+
+        onRoll: (bgState: {
+            cbState: CBToRoll | CBAction
+            sgState: SGToRoll
+        }) => {
+            sgEventHandlers(bgState.cbState).onRoll(bgState.sgState)
+        },
+
+        onStartGame: () => {
+            sgEventHandlers().onStartGame()
+            cbEventHandlers.onStartCubeGame()
+        },
+
+        onDouble: (bgState: { cbState: CBAction; sgState: SGState }) => {
+            cbEventHandlers.onDouble(bgState.cbState)
+        },
+        onTake: (bgState: { cbState: CBResponse; sgState: SGState }) => {
+            cbEventHandlers.onTake(bgState.cbState)
+        },
+        onPass: (bgState: { cbState: CBResponse; sgState: SGState }) => {
+            cbEventHandlers.onPass(bgState.cbState)
         },
     }
+    return {
+        handlers,
+    }
 }
-
 
 function cubefulSGListener(
     state: CBState,

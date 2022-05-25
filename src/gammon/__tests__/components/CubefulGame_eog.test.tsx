@@ -35,11 +35,14 @@ const gameState: GameSetup = {
     dice1: 6,
     dice2: 6,
 }
+const bgState = {
+    sgState: toSGState(gameState),
+    cbState: toCBState(gameState),
+}
 const state = {
     matchState: matchStateForPointMatch(3, score({redScore:0, whiteScore:2})) as MatchState,
     cpState: undefined,
-    sgState: toSGState(gameState),
-    cbState: toCBState(gameState),
+    bgState
 }
 
 const props = { ...setupEventHandlers(state, presetDiceSource()) }
@@ -48,7 +51,7 @@ describe('CubeGame(eog)', () => {
         render(<CubefulGame {...{ ...props, ...state }} />)
 
         BoardOp.clickPoint(23)
-        expect(state.sgState.tag).toEqual('SGInPlay')
+        expect(bgState.sgState.tag).toEqual('SGInPlay')
     })
 
     test('commits last move', async () => {
@@ -56,15 +59,15 @@ describe('CubeGame(eog)', () => {
         render(<CubefulGame {...next} />)
 
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGEoG')
-        expect(isWhite(state.sgState)).toBeTruthy()
+        expect(bgState.sgState.tag).toEqual('SGEoG')
+        expect(isWhite(bgState.sgState)).toBeTruthy()
         const expectedEoG = {
             isEndOfGame: true,
             isGammon: false,
             isBackgammon: false,
         }
         expect(
-            state.sgState.tag === 'SGEoG' ? state.sgState.eogStatus : undefined
+            bgState.sgState.tag === 'SGEoG' ? bgState.sgState.eogStatus : undefined
         ).toMatchObject(expectedEoG)
     })
 
@@ -72,9 +75,9 @@ describe('CubeGame(eog)', () => {
         const next = { ...props, ...state }
         render(<CubefulGame {...next} />)
 
-        expect(state.sgState.tag).toEqual('SGEoG')
+        expect(bgState.sgState.tag).toEqual('SGEoG')
 
-        expect(state.cbState.tag).toEqual('CBEoG')
+        expect(bgState.cbState.tag).toEqual('CBEoG')
         expect(screen.getByText('White wins 1 pt. and won the match')).toBeTruthy()
     })
 })

@@ -3,21 +3,19 @@ import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
 import {
     CheckerPlayListeners,
-    setCPStateListener,
+    setCPStateListener
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { cubefulGameEventHandlers } from "../../components/eventHandlers/cubefulGameEventHandlers"
-import {
-    SingleGameEventHandlers,
-} from '../../components/eventHandlers/SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "../../components/eventHandlers/CubeGameEventHandlers"
+import { BGState } from '../../components/BGState'
+import { defaultBGState } from '../../components/defaultStates'
+import { BGEventHandlers } from '../../components/eventHandlers/BGEventHandlers'
+import { cubefulGameEventHandlers } from '../../components/eventHandlers/cubefulGameEventHandlers'
 import { MatchState } from '../../components/MatchState'
 import { matchStateAddOn } from '../../components/useMatchStateForCubeGame'
-import { defaultBGState } from '../../components/defaultStates'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -52,21 +50,21 @@ export function setupEventHandlers(
     state: {
         matchState: MatchState
         cpState?: CheckerPlayState
-        sgState: SGState
-        cbState: CBState
+        bgState:BGState,
     },
     diceSource: DiceSource,
     isCrawford = false,
     gameConf: GameConf = standardConf
 ): CheckerPlayListeners &
-    SingleGameEventHandlers &
-    CubeGameEventHandlers & {
+    BGEventHandlers & {
         diceSource: DiceSource
     } {
-    const addOn =
-        matchStateAddOn(state.matchState, (matchState: MatchState) => {
+    const addOn = matchStateAddOn(
+        state.matchState,
+        (matchState: MatchState) => {
             state.matchState = matchState
-        })
+        }
+    )
 
     const cpListeners: CheckerPlayListeners = setCPStateListener(
         (next: CheckerPlayState | undefined) => {
@@ -76,12 +74,11 @@ export function setupEventHandlers(
     const { handlers } = cubefulGameEventHandlers(
         isCrawford,
         defaultBGState(gameConf),
-        state.cbState,
-        (next: SGState = state.sgState) => {
-            state.sgState = next
+        (next: SGState = state.bgState.sgState) => {
+            state.bgState.sgState = next
         },
-        (next: CBState = state.cbState) => {
-            state.cbState = next
+        (next: CBState = state.bgState.cbState) => {
+            state.bgState.cbState = next
         },
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
         addOn

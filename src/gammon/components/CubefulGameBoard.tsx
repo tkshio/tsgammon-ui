@@ -3,8 +3,11 @@ import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
+import {
+    BGEventHandlers,
+    asSGEventHandlers,
+} from './eventHandlers/BGEventHandlers'
 import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
-import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
@@ -23,8 +26,7 @@ export type CubefulGameBoardProps = {
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
 } & Partial<
-    Pick<CubeGameEventHandlers, 'onDouble'> &
-        SingleGameEventHandlers &
+    Omit<BGEventHandlers, 'onTake' | 'onPass'> &
         CheckerPlayListeners &
         BoardEventHandlers
 >
@@ -52,10 +54,13 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     // キューブでのダブル
     const onClickCube = () => {
         if (cbState.tag === 'CBAction') {
-            onDouble(cbState)
+            onDouble({ cbState, sgState })
         }
     }
-
+    const sgHandlers: SingleGameEventHandlers = asSGEventHandlers(
+        cbState,
+        handlers
+    )
     const sgProps: SingleGameBoardProps = {
         sgState,
         cpState,
@@ -63,6 +68,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         sgConfs,
         dialog,
         ...handlers,
+        ...sgHandlers,
         onClickCube,
     }
 

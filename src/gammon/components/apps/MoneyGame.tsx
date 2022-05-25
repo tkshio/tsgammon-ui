@@ -69,7 +69,6 @@ export function MoneyGame(props: MoneyGameProps) {
     const { handlers } = cubefulGameEventHandlers(
         false,
         defaultState,
-        cbState,
         setSGState,
         setCBState,
         rollListener,
@@ -78,8 +77,7 @@ export function MoneyGame(props: MoneyGameProps) {
     )
 
     const cbProps: CubefulGameProps = {
-        sgState,
-        cbState,
+        bgState: { sgState, cbState },
         cpState,
         ...listeners,
         matchState,

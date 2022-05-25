@@ -15,7 +15,7 @@ import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
 import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 import { setupEventHandlers } from './CubefulGame.common'
-import { setRedAutoOp, setWhiteAutoOp } from './CubefulGameBoard_autoOp.common'
+import { setRedAutoOp, setWhiteAutoOp } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null
 
@@ -34,11 +34,14 @@ const gameState: GameSetup = {
         0
     ],
 }
+const bgState = {
+    sgState: toSGState(gameState),
+    cbState: toCBState(gameState),
+}
 const state = {
     matchState: matchStateForUnlimitedMatch(),
     cpState: undefined,
-    sgState: toSGState(gameState),
-    cbState: toCBState(gameState),
+    bgState,
 }
 const engine: GammonEngine = simpleEvalEngine((board) => {
     const ev = evaluate(board)
@@ -58,21 +61,21 @@ describe('CubeGameBoard', () => {
         act(() => {
             jest.advanceTimersByTime(10)
         })
-        expect(state.cbState.tag).toEqual('CBResponse')
-        expect(state.sgState.tag).toEqual('SGToRoll')
+        expect(bgState.cbState.tag).toEqual('CBResponse')
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
     })
     test('lets whiteAutoPlayer do pass', async () => {
         const next = {
             ...props,
             ...state,
-            autoOperators:setWhiteAutoOp(engine),
+            autoOperators: setWhiteAutoOp(engine),
         }
         render(<CubefulGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
-        expect(state.cbState.tag).toEqual('CBEoG')
-        expect(state.sgState.tag).toEqual('SGToRoll')
+        expect(bgState.cbState.tag).toEqual('CBEoG')
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
     })
 })
 

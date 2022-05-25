@@ -4,10 +4,6 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import {
-    SingleGameEventHandlers,
-} from '../eventHandlers/SingleGameEventHandlers'
-import { CubeGameEventHandlers } from "../eventHandlers/CubeGameEventHandlers"
 import { MatchState } from '../MatchState'
 import {} from '../SingleGameBoard'
 import { PlyInfo } from '../uiparts/PlyInfo'
@@ -17,21 +13,17 @@ import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
+import { BGEventHandlers } from '../eventHandlers/BGEventHandlers'
 
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
-    autoOperators?:{sg?:SGOperator, cb?:CBOperator}
+    autoOperators?: { sg?: SGOperator; cb?: CBOperator }
     matchState: MatchState
     matchRecord: MatchRecord<BGState>
     bgState: BGState
     onResumeState?: (index: number) => void
-} & Partial<
-    CubeGameEventHandlers &
-        SingleGameEventHandlers &
-        CheckerPlayListeners &
-        RollListener
->
+} & Partial<BGEventHandlers & CheckerPlayListeners & RollListener>
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
@@ -60,7 +52,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const isLatest = index === undefined
 
     const minimalProps = {
-        ...bgState,
+        bgState,
         cpState,
         matchState,
         ...cpListeners,

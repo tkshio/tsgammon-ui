@@ -3,13 +3,10 @@ import { standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBResponse, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
 import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
 import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
@@ -18,6 +15,11 @@ import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
 import { SGOperator } from './operators/SGOperator'
+import {
+    BGEventHandlers,
+    asCBEventHandlers,
+} from './eventHandlers/BGEventHandlers'
+import { BGState } from './BGState'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
@@ -26,23 +28,13 @@ export type CubefulGameConfs = {
 }
 
 export type CubefulGameProps = {
-    cbState: CBState
-    sgState: SGState
+    bgState:BGState
     cpState?: CheckerPlayState
     matchState: MatchState
     cbConfs?: CubefulGameConfs
     autoOperators?: { sg?: SGOperator; cb?: CBOperator }
     dialog?: JSX.Element
-} & Partial<
-    Pick<
-        CubeGameEventHandlers,
-        'onDouble' | 'onPass' | 'onTake' | 'onStartCubeGame'
-    > &
-        SingleGameEventHandlers &
-        RollListener &
-        CheckerPlayListeners &
-        BoardEventHandlers
->
+} & Partial<BGEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 export function CubefulGame(props: CubefulGameProps) {
     const defaultMatchState: MatchState = {
         isEoG: false,
@@ -52,29 +44,31 @@ export function CubefulGame(props: CubefulGameProps) {
         isCrawford: false,
     }
     const {
-        cbState,
-        sgState,
+        bgState,
         cpState,
-        matchState = props.cbState.tag === 'CBEoG'
-            ? matchStateEOG(defaultMatchState, props.cbState)
+        matchState = props.bgState.cbState.tag === 'CBEoG'
+            ? matchStateEOG(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
         dialog,
         cbConfs = { sgConfs: {} },
         autoOperators = { sg: undefined, cb: undefined },
         ...eventHandlers
     } = props
+    const {cbState, sgState } = bgState
     useCBAutoOperator(cbState, sgState, autoOperators, eventHandlers)
 
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, matchState, {
             eogDialog: eogDialog(
-                eventHandlers.onStartCubeGame ??
+                eventHandlers.onStartGame ??
                     (() => {
                         //
                     })
             ),
-            cubeResponseDialog: cubeResponseDialog(eventHandlers),
+            cubeResponseDialog: cubeResponseDialog(
+                asCBEventHandlers(sgState, eventHandlers)
+            ),
         })
 
     const cbProps = {

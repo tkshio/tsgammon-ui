@@ -1,28 +1,28 @@
 import { useCallback } from 'react'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { useDelayedTrigger } from './utils/useDelayedTrigger'
+import {
+    asSGEventHandlers,
+    BGEventHandlers,
+} from './eventHandlers/BGEventHandlers'
 import { CBOperator } from './operators/CBOperator'
-import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
 import { SGOperator } from './operators/SGOperator'
 import { useSGAutoOperator } from './useSGAutoOperator'
-import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
 export function useCBAutoOperator(
     cbState: CBState,
     sgState: SGState,
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
-    handlers: Partial<CubeGameEventHandlers & SingleGameEventHandlers>
+    handlers: Partial<BGEventHandlers>
 ) {
     const { cb, sg } = autoOperators
     useSGAutoOperator(
         sgState,
-        cbState.tag === 'CBAction' ||
-            cbState.tag === 'CBResponse' ||
-            cbState.tag === 'CBEoG'
+        cbState.tag === 'CBResponse' || cbState.tag === 'CBEoG'
             ? undefined
             : sg,
-        handlers
+        asSGEventHandlers(cbState, handlers)
     )
 
     const doCubeActions = useCallback(() => {
@@ -40,12 +40,12 @@ export function useCBAutoOperator(
                     sgState.boardState,
                     () => {
                         if (handlers.onDouble) {
-                            handlers.onDouble(cbState)
+                            handlers.onDouble({ cbState, sgState })
                         }
                     },
                     () => {
-                        if (handlers.onSkipCubeAction) {
-                            handlers.onSkipCubeAction(cbState)
+                        if (handlers.onRoll) {
+                            handlers.onRoll({ cbState, sgState })
                         }
                     }
                 )
@@ -64,12 +64,12 @@ export function useCBAutoOperator(
                     sgState.boardState.revert(),
                     () => {
                         if (handlers.onTake) {
-                            handlers.onTake(cbState)
+                            handlers.onTake({ cbState, sgState })
                         }
                     },
                     () => {
                         if (handlers.onPass) {
-                            handlers.onPass(cbState)
+                            handlers.onPass({ cbState, sgState })
                         }
                     }
                 )

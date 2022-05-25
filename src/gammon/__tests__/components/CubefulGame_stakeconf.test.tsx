@@ -30,14 +30,16 @@ const gameState: GameSetup = {
     dice2: 2,
 }
 
-
 describe('stakeConf configures jacoby rule(on):', () => {
-    const state = {
-        matchState:matchStateForUnlimitedMatch(undefined, true),
-
-        cpState: undefined,
+    const bgState = {
         sgState: toSGState(gameState),
         cbState: toCBState(gameState),
+    }
+    const state = {
+        matchState: matchStateForUnlimitedMatch(undefined, true),
+
+        cpState: undefined,
+        bgState,
     }
     const props = {
         ...setupEventHandlers(state, randomDiceSource),
@@ -51,7 +53,7 @@ describe('stakeConf configures jacoby rule(on):', () => {
     test('do last move', () => {
         render(<CubefulGame {...props} />)
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGEoG')
+        expect(bgState.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {
         render(
@@ -66,11 +68,14 @@ describe('stakeConf configures jacoby rule(on):', () => {
     })
 })
 describe('stakeConf configures jacoby rule off', () => {
-    const state = {
-        matchState:matchStateForUnlimitedMatch(undefined, false),
-        cpState: undefined,
+    const bgState = {
         sgState: toSGState(gameState),
         cbState: toCBState(gameState),
+    }
+    const state = {
+        matchState: matchStateForUnlimitedMatch(undefined, false),
+        cpState: undefined,
+        bgState,
     }
 
     const props = {
@@ -85,7 +90,7 @@ describe('stakeConf configures jacoby rule off', () => {
     test('do last move', () => {
         render(<CubefulGame {...props} />)
         BoardOp.clickLeftDice()
-        expect(state.sgState.tag).toEqual('SGEoG')
+        expect(bgState.sgState.tag).toEqual('SGEoG')
     })
     test('end of the game', () => {
         render(

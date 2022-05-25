@@ -17,12 +17,15 @@ beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
 })
+const bgState = {
+    sgState: toSGState(),
+    cbState: toCBState(),
+}
 
 const state = {
     matchState: matchStateForUnlimitedMatch(),
     cpState: undefined,
-    sgState: toSGState(),
-    cbState: toCBState(),
+    bgState
 }
 const diceSource = presetDiceSource(1, 3)
 describe('CubeGame', () => {
@@ -40,9 +43,9 @@ describe('CubeGame', () => {
         const dices = screen.getAllByTestId(/^dice/)
         expect(dices.length).toBe(2)
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGInPlay')
-        expect(state.cbState.tag).toEqual('CBInPlay')
-        expect(isWhite(state.sgState)).toBeTruthy()
+        expect(bgState.sgState.tag).toEqual('SGInPlay')
+        expect(bgState.cbState.tag).toEqual('CBInPlay')
+        expect(isWhite(bgState.sgState)).toBeTruthy()
     })
 
     test('moves a piece when point 19 gets clicked', async () => {
@@ -71,9 +74,9 @@ describe('CubeGame', () => {
         }
         render(<CubefulGame {...next} />)
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGToRoll')
-        expect(state.cbState.tag).toEqual('CBAction')
-        expect(isRed(state.sgState)).toBeTruthy()
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
+        expect(bgState.cbState.tag).toEqual('CBAction')
+        expect(isRed(bgState.sgState)).toBeTruthy()
     })
 })
 

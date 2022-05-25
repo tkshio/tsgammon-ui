@@ -44,11 +44,14 @@ const matchState: MatchStateInPlay = {
 
 describe('CubefulGame', () => {
     test('skips cube action when the game is crawford', async () => {
+        const bgState = {
+            sgState: toSGState(gameState),
+            cbState: toCBState(gameState),
+        }
         const state = {
             matchState,
             cpState: undefined,
-            sgState: toSGState(gameState),
-            cbState: toCBState(gameState),
+            bgState,
         }
         const props = {
             matchState,
@@ -62,20 +65,23 @@ describe('CubefulGame', () => {
         render(<CubefulGame {...{ ...props, ...state }} />)
 
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGToRoll')
-        expect(state.cbState.tag).toEqual('CBToRoll')
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
+        expect(bgState.cbState.tag).toEqual('CBToRoll')
         expect(
-            state.cbState.tag === 'CBToRoll'
-                ? state.cbState.lastAction
+            bgState.cbState.tag === 'CBToRoll'
+                ? bgState.cbState.lastAction
                 : undefined
         ).toEqual('Skip')
     })
     test("doesn't skip cube action when the game is not crawford", async () => {
+        const bgState = {
+            sgState: toSGState(gameState),
+            cbState: toCBState(gameState),
+        }
         const state = {
             matchState,
             cpState: undefined,
-            sgState: toSGState(gameState),
-            cbState: toCBState(gameState),
+            bgState,
         }
         const props = {
             matchState,
@@ -96,8 +102,8 @@ describe('CubefulGame', () => {
         )
 
         BoardOp.clickRightDice()
-        expect(state.sgState.tag).toEqual('SGToRoll')
-        expect(state.cbState.tag).toEqual('CBAction')
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
+        expect(bgState.cbState.tag).toEqual('CBAction')
     })
 })
 

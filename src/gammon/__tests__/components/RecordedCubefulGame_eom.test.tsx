@@ -40,21 +40,25 @@ const gameState: GameSetup = {
     stake: scoreAsWhite(1),
 }
 
+const bgState = {
+    sgState: toSGState(gameState),
+    cbState: toCBState(gameState),
+}
+
 const state = {
     matchState: matchStateEOG(
         matchStateForPointMatch(3, score({ redScore: 0, whiteScore: 2 })),
-        toCBState(gameState) as CBEoG
+        bgState.cbState as CBEoG
     ),
     cpState: undefined,
-    sgState: toSGState(gameState),
-    cbState: toCBState(gameState),
+    bgState,
 }
 const initialMatchRecord = matchRecord<BGState>()
 const props: RecordedCubefulGameProps = {
     ...setupEventHandlers(state, presetDiceSource()),
     gameConf: standardConf,
-    bgState: state,
-    matchState:state.matchState,
+    bgState,
+    matchState: state.matchState,
     matchRecord: initialMatchRecord,
     cbConfs: { sgConfs: {} },
     onResumeState: () => {
@@ -63,10 +67,10 @@ const props: RecordedCubefulGameProps = {
 }
 describe('RecordedCubeGame(eom)', () => {
     test('shows dialog for End of Match', async () => {
-        const next = { ...props, ...state }
+        const next = { ...props, ...state}
         render(<RecordedCubefulGame {...next} />)
 
-        expect(state.sgState.tag).toEqual('SGEoG')
+        expect(bgState.sgState.tag).toEqual('SGEoG')
         expect(
             screen.getByText('White wins 1 pt. and won the match')
         ).toBeTruthy()
