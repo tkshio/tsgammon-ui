@@ -55,7 +55,7 @@ export function asSGEventHandlers(
         },
         onRoll: (sgState: SGToRoll) => {
             if (handlers.onRoll) {
-                if (cbState.tag === 'CBToRoll') {
+                if (cbState.tag === 'CBToRoll'|| cbState.tag === 'CBAction') {
                     handlers.onRoll({ cbState, sgState })
                 }
             }
