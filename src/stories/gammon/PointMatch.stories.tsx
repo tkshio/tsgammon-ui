@@ -24,7 +24,7 @@ cpuPlaysRed3pt.args = {
     cbConfs: {
         sgConfs: {},
     },
-    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 const minimalPieces = [
@@ -58,7 +58,7 @@ goIntoCrawford.args = {
     cbConfs: {
         sgConfs: {},
     },
-    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const endOfMatch = Template.bind({})
@@ -72,5 +72,5 @@ endOfMatch.args = {
         dice2: 2,
         absPos: minimalPieces,
     },
-    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }

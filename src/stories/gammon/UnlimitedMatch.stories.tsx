@@ -24,17 +24,17 @@ const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    autoOperator: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
 export const cpuPlaysWhite = Template.bind({})
 cpuPlaysWhite.args = {
-    autoOperator: { cb: whiteCBAutoOperator(), sg: whiteSGAutoOperator() },
+    autoOperators: { cb: whiteCBAutoOperator(), sg: whiteSGAutoOperator() },
 }
 
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    autoOperator: { cb: bothCBAutoOperator(), sg: bothSGAutoOperator() },
+    autoOperators: { cb: bothCBAutoOperator(), sg: bothSGAutoOperator() },
 }
 
 export const gameFromMidst = Template.bind({})
