@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
 import {
     CheckerPlayListeners,
-    setCPStateListener
+    setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
@@ -32,25 +32,33 @@ export const BoardOp = {
     },
 }
 
-export function isRed(sgState: SGState): boolean {
-    if (sgState.tag === 'SGOpening') {
+export function isRed(state: SGState | CBState): boolean {
+    if (
+        state.tag === 'SGOpening' ||
+        state.tag === 'CBOpening' ||
+        state.tag === 'CBEoG'
+    ) {
         return false
     }
-    return sgState.isRed
+    return state.isRed
 }
 
-export function isWhite(sgState: SGState): boolean {
-    if (sgState.tag === 'SGOpening') {
+export function isWhite(state: SGState | CBState): boolean {
+    if (
+        state.tag === 'SGOpening' ||
+        state.tag === 'CBOpening' ||
+        state.tag === 'CBEoG'
+    ) {
         return false
     }
-    return !sgState.isRed
+    return !state.isRed
 }
 
 export function setupEventHandlers(
     state: {
         matchState: MatchState
         cpState?: CheckerPlayState
-        bgState:BGState,
+        bgState: BGState
     },
     diceSource: DiceSource,
     isCrawford = false,

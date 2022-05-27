@@ -1,21 +1,27 @@
 import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
-import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { standardConf } from 'tsgammon-core'
+import {
+    GameSetup,
+    GameStatus,
+    toCBState,
+    toSGState
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGame } from '../../components/CubefulGame'
+import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
 import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 import {
     BoardOp,
     isRed,
     isWhite,
-    setupEventHandlers,
+    setupEventHandlers
 } from './CubefulGame.common'
 import {
     noDoubleEngine,
     setRedAutoOp,
-    setWhiteAutoOp,
+    setWhiteAutoOp
 } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null
@@ -28,20 +34,25 @@ beforeEach(() => {
 })
 
 const engine: GammonEngine = noDoubleEngine()
-const bgState = {
-    sgState: toSGState(),
-    cbState: toCBState(),
+function setup(gameSetup?: GameSetup) {
+    const bgState = {
+        sgState: toSGState(gameSetup),
+        cbState: toCBState(gameSetup),
+    }
+    const matchState = matchStateForUnlimitedMatch()
+    const state = {
+        matchState,
+        cpState: undefined,
+        bgState,
+    }
+    const diceSource = presetDiceSource(3, 1)
+    const props = { ...setupEventHandlers(state, diceSource), ...state }
+    return { props, bgState, matchState }
 }
-const state = {
-    matchState: matchStateForUnlimitedMatch(),
-    cpState: undefined,
-    bgState,
-}
-const diceSource = presetDiceSource(3, 1)
-const props = { ...setupEventHandlers(state, diceSource), ...state }
 
 describe('CubeGameBoard(with autoOp)', () => {
     test('does opening roll when dice gets clicked', async () => {
+        const { props, bgState } = setup()
         render(<CubefulGame {...props} />)
 
         // 初期画面とオープニングロール
@@ -52,12 +63,17 @@ describe('CubeGameBoard(with autoOp)', () => {
     })
 
     test('lets redAutoPlayer do checkerPlay', async () => {
-        const next = {
-            ...props,
-            ...state,
-            autoOperators: setRedAutoOp(engine),
-        }
-        render(<CubefulGame {...next} />)
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.INPLAY_RED,
+            dice1: 1,
+            dice2: 3,
+            absPos: standardConf.initialPos,
+        })
+        render(
+            <CubefulGame
+                {...{ ...props, autoOperators: setRedAutoOp(engine) }}
+            />
+        )
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -68,13 +84,15 @@ describe('CubeGameBoard(with autoOp)', () => {
     })
 
     test('lets whiteAutoPlayer do cubeAction', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.CUBEACTION_WHITE,
+            absPos: standardConf.initialPos,
+        })
         const onRoll = jest.fn(props.onRoll)
         const autoOperators = setWhiteAutoOp(engine)
-        const next = {
+        const next: CubefulGameProps = {
             ...props,
-            ...state,
             onRoll,
-
             autoOperators: {
                 sg: autoOperators.sg,
                 cb: {
@@ -90,17 +108,23 @@ describe('CubeGameBoard(with autoOp)', () => {
             jest.advanceTimersByTime(10)
         })
 
-        // Whiteはロールした
-        expect(next.autoOperators.cb.operateWhiteCubeAction).toBeCalled()
+        // Whiteはロール、チェッカープレイまで済ませた
+        expect(next.autoOperators?.cb?.operateWhiteCubeAction).toBeCalled()
         expect(onRoll).toBeCalled()
-        expect(bgState.cbState.tag).toEqual('CBInPlay')
-        expect(bgState.sgState.tag).toEqual('SGInPlay')
-        expect(isWhite(bgState.sgState)).toBeTruthy()
+        expect(bgState.cbState.tag).toEqual('CBAction')
+        expect(isRed(bgState.cbState)).toBeTruthy()
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
+        expect(isRed(bgState.sgState)).toBeTruthy()
     })
     test('lets whiteAutoPlayer do checkerPlay', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.INPLAY_WHITE,
+            absPos: standardConf.initialPos,
+            dice1:1,
+            dice2:3
+        })
         const next = {
             ...props,
-            ...state,
             autoOperators: setWhiteAutoOp(engine),
         }
         render(<CubefulGame {...next} />)
@@ -109,16 +133,20 @@ describe('CubeGameBoard(with autoOp)', () => {
         })
         // Whiteはチェッカープレイを完了して、Redの手番
         expect(bgState.cbState.tag).toEqual('CBAction')
+        expect(isRed(bgState.cbState)).toBeTruthy()
         expect(bgState.sgState.tag).toEqual('SGToRoll')
         expect(isRed(bgState.sgState)).toBeTruthy()
     })
 
     test('lets redAutoPlayer do cubeAction', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.CUBEACTION_RED,
+            absPos: standardConf.initialPos,
+        })
         const onRoll = jest.fn(props.onRoll)
         const autoOperators = setRedAutoOp(engine)
         const next = {
             ...props,
-            ...state,
             onRoll,
             autoOperators: {
                 ...autoOperators,
@@ -135,18 +163,22 @@ describe('CubeGameBoard(with autoOp)', () => {
         act(() => {
             jest.advanceTimersByTime(10)
         })
-        // Redはロールした
+        // Redはロールして、チェッカープレイも完了した
         expect(next.autoOperators.cb.operateRedCubeAction).toBeCalled()
         expect(onRoll).toBeCalled()
-        expect(bgState.cbState.tag).toEqual('CBInPlay')
-        expect(bgState.sgState.tag).toEqual('SGInPlay')
-        expect(isRed(bgState.sgState)).toBeTruthy()
+        expect(bgState.cbState.tag).toEqual('CBAction')
+        expect(isWhite(bgState.cbState)).toBeTruthy()
+        expect(bgState.sgState.tag).toEqual('SGToRoll')
+        expect(isWhite(bgState.sgState)).toBeTruthy()
     })
 
     test('lets redAutoPlayer do roll', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.CUBEACTION_RED,
+            absPos: standardConf.initialPos,
+        })
         const next = {
             ...props,
-            ...state,
             autoOperators: setRedAutoOp(engine),
         }
         render(<CubefulGame {...next} />)
@@ -155,6 +187,7 @@ describe('CubeGameBoard(with autoOp)', () => {
         })
         // Redのプレイが完了した
         expect(bgState.cbState.tag).toEqual('CBAction')
+        expect(isWhite(bgState.cbState)).toBeTruthy()
         expect(bgState.sgState.tag).toEqual('SGToRoll')
         expect(isWhite(bgState.sgState)).toBeTruthy()
     })

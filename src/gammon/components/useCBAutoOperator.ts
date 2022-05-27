@@ -19,6 +19,7 @@ export function useCBAutoOperator(
     const { cb, sg } = autoOperators
     useSGAutoOperator(
         sgState,
+            cbState.tag === 'CBAction' ||
             cbState.tag === 'CBResponse' ||
             cbState.tag === 'CBEoG'
             ? undefined
