@@ -20,9 +20,7 @@ export function useSGAutoOperator(
                         sgState.isRed ? 'operateRollRed' : 'operateRollWhite'
                     ]
                 const doRoll = () => {
-                    if (handlers.onRoll) {
-                        handlers.onRoll(sgState)
-                    }
+                    handlers.onRoll?.(sgState)
                 }
                 return operation(doRoll)
             }
@@ -35,9 +33,7 @@ export function useSGAutoOperator(
                             : 'operateCheckerPlayWhite'
                     ]
                 const doCheckerPlay = (node: BoardStateNode) => {
-                    if (handlers.onCommit) {
-                        handlers.onCommit(sgState, node)
-                    }
+                        handlers.onCommit?.(sgState, node)
                 }
                 return operation(doCheckerPlay, sgState.boardStateNode, cube)
             }

@@ -19,7 +19,8 @@ export function useCBAutoOperator(
     const { cb, sg } = autoOperators
     useSGAutoOperator(
         sgState,
-        cbState.tag === 'CBResponse' || cbState.tag === 'CBEoG'
+            cbState.tag === 'CBResponse' ||
+            cbState.tag === 'CBEoG'
             ? undefined
             : sg,
         asSGEventHandlers(cbState, handlers)
@@ -39,14 +40,10 @@ export function useCBAutoOperator(
                     cbState.cubeState,
                     sgState.boardState,
                     () => {
-                        if (handlers.onDouble) {
-                            handlers.onDouble({ cbState, sgState })
-                        }
+                        handlers.onDouble?.({ cbState, sgState })
                     },
                     () => {
-                        if (handlers.onRoll) {
-                            handlers.onRoll({ cbState, sgState })
-                        }
+                        handlers.onRoll?.({ cbState, sgState })
                     }
                 )
             } else if (
@@ -63,14 +60,10 @@ export function useCBAutoOperator(
                     cbState.cubeState,
                     sgState.boardState.revert(),
                     () => {
-                        if (handlers.onTake) {
-                            handlers.onTake({ cbState, sgState })
-                        }
+                        handlers.onTake?.({ cbState, sgState })
                     },
                     () => {
-                        if (handlers.onPass) {
-                            handlers.onPass({ cbState, sgState })
-                        }
+                        handlers.onPass?.({ cbState, sgState })
                     }
                 )
             }

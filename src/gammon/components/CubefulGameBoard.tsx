@@ -38,9 +38,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cpState,
         dialog,
         cbConfs = { sgConfs: {} },
-        onDouble = () => {
-            //
-        },
+        onDouble,
         ...handlers
     } = props
 
@@ -54,7 +52,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     // キューブでのダブル
     const onClickCube = () => {
         if (cbState.tag === 'CBAction') {
-            onDouble({ cbState, sgState })
+            onDouble?.({ cbState, sgState })
         }
     }
     const sgHandlers: SingleGameEventHandlers = asSGEventHandlers(

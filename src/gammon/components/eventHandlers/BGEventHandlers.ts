@@ -42,29 +42,21 @@ export function asSGEventHandlers(
 ): SingleGameEventHandlers {
     return {
         onStartGame: () => {
-            if (handlers.onStartGame) {
-                handlers.onStartGame()
-            }
+            handlers.onStartGame?.()
         },
         onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
-            if (handlers.onCommit) {
-                if (cbState.tag === 'CBInPlay') {
-                    handlers.onCommit({ cbState, sgState }, node)
-                }
+            if (cbState.tag === 'CBInPlay') {
+                handlers.onCommit?.({ cbState, sgState }, node)
             }
         },
         onRoll: (sgState: SGToRoll) => {
-            if (handlers.onRoll) {
-                if (cbState.tag === 'CBToRoll'|| cbState.tag === 'CBAction') {
-                    handlers.onRoll({ cbState, sgState })
-                }
+            if (cbState.tag === 'CBToRoll' || cbState.tag === 'CBAction') {
+                handlers.onRoll?.({ cbState, sgState })
             }
         },
         onRollOpening: (sgState: SGOpening) => {
-            if (handlers.onRollOpening) {
-                if (cbState.tag === 'CBOpening') {
-                    handlers.onRollOpening({ cbState, sgState })
-                }
+            if (cbState.tag === 'CBOpening') {
+                handlers.onRollOpening?.({ cbState, sgState })
             }
         },
     }
@@ -75,19 +67,13 @@ export function asCBEventHandlers(
 ): Partial<CubeGameEventHandlers> {
     return {
         onDouble: (cbState: CBAction) => {
-            if (handlers.onDouble) {
-                handlers.onDouble({ cbState, sgState })
-            }
+            handlers.onDouble?.({ cbState, sgState })
         },
         onTake: (cbState: CBResponse) => {
-            if (handlers.onTake) {
-                handlers.onTake({ cbState, sgState })
-            }
+            handlers.onTake?.({ cbState, sgState })
         },
         onPass: (cbState: CBResponse) => {
-            if (handlers.onPass) {
-                handlers.onPass({ cbState, sgState })
-            }
+            handlers.onPass?.({ cbState, sgState })
         },
     }
 }

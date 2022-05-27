@@ -5,21 +5,21 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import {
     asCheckerPlayState,
     CheckerPlayState,
-    CheckerPlayStateCommitted
+    CheckerPlayStateCommitted,
 } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
-    SGToRoll
+    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     Board,
     BoardEventHandlers,
     decorate,
     DiceLayout,
-    layoutCube
+    layoutCube,
 } from './boards/Board'
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
@@ -71,7 +71,6 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
     } = props
     const { showPositionID = true, autoRoll = false } = sgConfs
     useAutoRoll(sgState, autoRoll, onRoll)
-    //    useSGAutoOperator(sgState, autoRoll, autoOperator, dispatcher, cube)
 
     const positionID = showPositionID && (
         <PositionID points={sgState.boardState.points} />
@@ -119,9 +118,7 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
             // チェッカープレイが確定した時に通知を受ける
             onCommitCheckerPlay: (cpState: CheckerPlayStateCommitted) => {
                 onCommit(sgState, cpState.boardStateNode)
-                if (props.onCommitCheckerPlay) {
-                    props.onCommitCheckerPlay(cpState)
-                }
+                props.onCommitCheckerPlay?.(cpState)
             },
         }
         return <CheckerPlayBoard {...cpProps} />

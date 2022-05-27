@@ -1,14 +1,15 @@
 export function concat0(
     a: (() => void) | undefined,
-    b: (() => void) | undefined): (() => void) | undefined {
+    b: (() => void) | undefined
+): (() => void) | undefined {
     return a
         ? b
             ? () => {
-                a();
-                b();
-            }
+                  a()
+                  b()
+              }
             : a
-        : b;
+        : b
 }
 
 export function concat1<T>(

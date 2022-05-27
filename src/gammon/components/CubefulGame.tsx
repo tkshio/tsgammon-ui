@@ -28,7 +28,7 @@ export type CubefulGameConfs = {
 }
 
 export type CubefulGameProps = {
-    bgState:BGState
+    bgState: BGState
     cpState?: CheckerPlayState
     matchState: MatchState
     cbConfs?: CubefulGameConfs
@@ -54,17 +54,14 @@ export function CubefulGame(props: CubefulGameProps) {
         autoOperators = { sg: undefined, cb: undefined },
         ...eventHandlers
     } = props
-    const {cbState, sgState } = bgState
+    const { cbState, sgState } = bgState
     useCBAutoOperator(cbState, sgState, autoOperators, eventHandlers)
 
     const cbDialog =
         dialog ??
         dialogForCubefulGame(cbState, matchState, {
             eogDialog: eogDialog(
-                eventHandlers.onStartGame ??
-                    (() => {
-                        //
-                    })
+                eventHandlers.onStartGame
             ),
             cubeResponseDialog: cubeResponseDialog(
                 asCBEventHandlers(sgState, eventHandlers)
@@ -83,7 +80,7 @@ export function CubefulGame(props: CubefulGameProps) {
 }
 
 function eogDialog(
-    onStartCubeGame: () => void
+    onStartCubeGame?: () => void
 ): (matchState: MatchStateEOG) => JSX.Element {
     return (matchState: MatchStateEOG) => {
         return (
@@ -92,7 +89,7 @@ function eogDialog(
                     ...matchState,
                     score: matchState.scoreAfter,
                     onClick: () => {
-                        onStartCubeGame()
+                        onStartCubeGame?.()
                     },
                 }}
             />
@@ -106,14 +103,10 @@ function cubeResponseDialog(
         <CubeResponseDialog
             {...{
                 onTake: () => {
-                    if (eventHandlers.onTake) {
-                        eventHandlers.onTake(cbState)
-                    }
+                    eventHandlers.onTake?.(cbState)
                 },
                 onPass: () => {
-                    if (eventHandlers.onPass) {
-                        eventHandlers.onPass(cbState)
-                    }
+                    eventHandlers.onPass?.(cbState)
                 },
             }}
         />

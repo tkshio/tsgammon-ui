@@ -19,11 +19,7 @@ export type SingleGameProps = {
     sgConfs?: SingleGameConfs
     matchScore?: Score
     dialog?: JSX.Element
-} & Partial<
-        SingleGameEventHandlers &
-        CheckerPlayListeners &
-        RollListener
->
+} & Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
 
 export function SingleGame(props: SingleGameProps) {
     const {
@@ -32,9 +28,7 @@ export function SingleGame(props: SingleGameProps) {
         sgConfs = {},
         matchScore = score(),
         dialog,
-        onStartGame = () => {
-            //
-        },
+        onStartGame,
         ...listeners
     } = props
 
@@ -46,7 +40,7 @@ export function SingleGame(props: SingleGameProps) {
                 eogStatus={sgState.eogStatus}
                 score={matchScore}
                 onClick={() => {
-                    onStartGame()
+                    onStartGame?.()
                 }}
             />
         ) : undefined)
