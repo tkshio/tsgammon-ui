@@ -116,14 +116,12 @@ function dialogForCubefulGame(
         }) => JSX.Element
     }
 ): JSX.Element {
-    const isResponse = bgState.cbState.tag === 'CBResponse'
+    const { cbState, sgState } = bgState
+    const isResponse = cbState.tag === 'CBResponse'
     const isEoG = matchState && matchState.isEoG
     return (
         <Fragment>
-            {isResponse &&
-                dialogs.cubeResponseDialog(
-                    bgState as { cbState: CBResponse; sgState: SGState }
-                )}
+            {isResponse && dialogs.cubeResponseDialog({ cbState, sgState })}
             {!isResponse && isEoG && dialogs.eogDialog(matchState)}
         </Fragment>
     )
