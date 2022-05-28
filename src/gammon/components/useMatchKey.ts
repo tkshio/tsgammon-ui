@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { CubeGameEventHandlerAddOn } from 'tsgammon-core/dispatchers/CubeGameEventHandlers';
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState';
-import { CubeGameEventHandlerAddOn } from './eventHandlers/CubeGameEventHandlers';
+
 
 export function useMatchKey(): {
     matchKeyAddOn: CubeGameEventHandlerAddOn;

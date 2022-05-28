@@ -3,8 +3,9 @@ import { score, Score } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+
 import {
     SingleGameBoard,
     SingleGameBoardProps,

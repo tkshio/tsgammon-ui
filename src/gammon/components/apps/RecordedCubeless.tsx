@@ -3,12 +3,12 @@ import {
     RollListener,
     rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { buildSGEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { buildSGEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedSingleGame,
@@ -20,6 +20,7 @@ import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 import { sgEventHandlersForMatchRecorder } from './PointMatch'
+
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf

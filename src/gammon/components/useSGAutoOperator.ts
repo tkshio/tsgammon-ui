@@ -4,7 +4,8 @@ import { CubeState } from 'tsgammon-core/CubeState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 import { SGOperator } from './operators/SGOperator'
-import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+
 
 export function useSGAutoOperator(
     sgState: SGState,

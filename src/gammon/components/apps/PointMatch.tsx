@@ -1,10 +1,12 @@
 import { BoardStateNode, score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
+import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
     rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -20,8 +22,6 @@ import {
 } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
-import { SingleGameEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
@@ -35,6 +35,7 @@ import { useMatchKey } from '../useMatchKey'
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
+
 
 export type PointMatchProps = {
     gameConf?: GameConf

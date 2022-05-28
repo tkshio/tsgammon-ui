@@ -1,17 +1,15 @@
+import { score } from 'tsgammon-core'
+import { BGEventHandlers, asSGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import {cubefulGameEventHandlers} from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
-import { score } from 'tsgammon-core/Score'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
-import { BGState } from '../components/BGState'
-import { defaultBGState } from '../components/defaultStates'
-import {
-    asSGEventHandlers,
-    BGEventHandlers
-} from '../components/eventHandlers/BGEventHandlers'
-import { cubefulGameEventHandlers } from '../components/eventHandlers/cubefulGameEventHandlers'
+
 import { doCheckerPlay  } from './doCheckerPlay'
 
 const engine = simpleNNEngine

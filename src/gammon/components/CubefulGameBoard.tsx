@@ -1,13 +1,11 @@
+import { BGEventHandlers, asSGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
-import {
-    BGEventHandlers,
-    asSGEventHandlers,
-} from './eventHandlers/BGEventHandlers'
-import { SingleGameEventHandlers } from './eventHandlers/SingleGameEventHandlers'
+
 import {
     SingleGameBoard,
     SingleGameBoardProps,

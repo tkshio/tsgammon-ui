@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
+import { CubeGameEventHandlerAddOn } from 'tsgammon-core/dispatchers/CubeGameEventHandlers'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, matchStateEOG, MatchStateInPlay } from 'tsgammon-core/dispatchers/MatchState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
-import {
-    CubeGameEventHandlerAddOn
-} from './eventHandlers/CubeGameEventHandlers'
 
 export function useMatchStateForCubeGame(
     matchScore:Score = score(),

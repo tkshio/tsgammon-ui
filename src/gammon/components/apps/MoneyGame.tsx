@@ -1,19 +1,19 @@
 import { GameConf, Score, score, standardConf } from 'tsgammon-core'
+import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { toState } from '../BGState'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { defaultBGState } from '../defaultStates'
-import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'

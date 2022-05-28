@@ -1,20 +1,21 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
+import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import {
     CheckerPlayListeners,
     setCPStateListener
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { BGEventHandlers } from '../../components/eventHandlers/BGEventHandlers'
-import { cubefulGameEventHandlers } from '../../components/eventHandlers/cubefulGameEventHandlers'
+
 import { matchStateAddOn } from '../../components/useMatchStateForCubeGame'
 
 

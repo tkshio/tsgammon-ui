@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { standardConf } from 'tsgammon-core'
+import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
@@ -10,13 +11,13 @@ import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import { BGEventHandlers } from './eventHandlers/BGEventHandlers'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
+
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
     autoOperator?: CBOperator
