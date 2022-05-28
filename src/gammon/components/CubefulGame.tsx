@@ -2,24 +2,21 @@ import { Fragment } from 'react'
 import { standardConf } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CBResponse, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
+import { BGState } from './BGState'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
-import { CubeGameEventHandlers } from './eventHandlers/CubeGameEventHandlers'
+import { BGEventHandlers } from './eventHandlers/BGEventHandlers'
 import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
+import { SGOperator } from './operators/SGOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
-import { SGOperator } from './operators/SGOperator'
-import {
-    BGEventHandlers,
-    asCBEventHandlers,
-} from './eventHandlers/BGEventHandlers'
-import { BGState } from './BGState'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
@@ -59,13 +56,9 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        dialogForCubefulGame(cbState, matchState, {
-            eogDialog: eogDialog(
-                eventHandlers.onStartGame
-            ),
-            cubeResponseDialog: cubeResponseDialog(
-                asCBEventHandlers(sgState, eventHandlers)
-            ),
+        dialogForCubefulGame(bgState, matchState, {
+            eogDialog: eogDialog(eventHandlers.onStartGame),
+            cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 
     const cbProps = {
@@ -97,34 +90,40 @@ function eogDialog(
     }
 }
 function cubeResponseDialog(
-    eventHandlers: Partial<CubeGameEventHandlers>
-): (cbState: CBResponse) => JSX.Element {
-    return (cbState: CBResponse) => (
+    eventHandlers: Partial<BGEventHandlers>
+): (bgState: { cbState: CBResponse; sgState: SGState }) => JSX.Element {
+    return (bgState: { cbState: CBResponse; sgState: SGState }) => (
         <CubeResponseDialog
             {...{
                 onTake: () => {
-                    eventHandlers.onTake?.(cbState)
+                    eventHandlers.onTake?.(bgState)
                 },
                 onPass: () => {
-                    eventHandlers.onPass?.(cbState)
+                    eventHandlers.onPass?.(bgState)
                 },
             }}
         />
     )
 }
 function dialogForCubefulGame(
-    cbState: CBState,
+    bgState: BGState,
     matchState: MatchState,
     dialogs: {
         eogDialog: (matchState: MatchStateEOG) => JSX.Element
-        cubeResponseDialog: (cbState: CBResponse) => JSX.Element
+        cubeResponseDialog: (bgState: {
+            cbState: CBResponse
+            sgState: SGState
+        }) => JSX.Element
     }
 ): JSX.Element {
-    const isResponse = cbState.tag === 'CBResponse'
+    const isResponse = bgState.cbState.tag === 'CBResponse'
     const isEoG = matchState && matchState.isEoG
     return (
         <Fragment>
-            {isResponse && dialogs.cubeResponseDialog(cbState)}
+            {isResponse &&
+                dialogs.cubeResponseDialog(
+                    bgState as { cbState: CBResponse; sgState: SGState }
+                )}
             {!isResponse && isEoG && dialogs.eogDialog(matchState)}
         </Fragment>
     )

@@ -5,15 +5,14 @@ import {
     CBOpening,
     CBResponse,
     CBState,
-    CBToRoll,
+    CBToRoll
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     SGInPlay,
     SGOpening,
     SGState,
-    SGToRoll,
+    SGToRoll
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { CubeGameEventHandlers } from './CubeGameEventHandlers'
 import { SingleGameEventHandlers } from './SingleGameEventHandlers'
 
 export type BGEventHandlers = {
@@ -58,22 +57,6 @@ export function asSGEventHandlers(
             if (cbState.tag === 'CBOpening') {
                 handlers.onRollOpening?.({ cbState, sgState })
             }
-        },
-    }
-}
-export function asCBEventHandlers(
-    sgState: SGState,
-    handlers: Partial<BGEventHandlers>
-): Partial<CubeGameEventHandlers> {
-    return {
-        onDouble: (cbState: CBAction) => {
-            handlers.onDouble?.({ cbState, sgState })
-        },
-        onTake: (cbState: CBResponse) => {
-            handlers.onTake?.({ cbState, sgState })
-        },
-        onPass: (cbState: CBResponse) => {
-            handlers.onPass?.({ cbState, sgState })
         },
     }
 }
