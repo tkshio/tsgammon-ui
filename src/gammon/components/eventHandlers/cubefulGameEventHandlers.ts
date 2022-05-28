@@ -15,10 +15,6 @@ import {
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
-    singleGameDispatcher,
-    SingleGameListeners,
-} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {
     SGEoG,
     SGInPlay,
     SGOpening,
@@ -33,6 +29,7 @@ import { EventHandlerAddOn } from './EventHandlerBuilder'
 import { BGState } from '../BGState'
 import {
     buildSGEventHandlers,
+    SGEventHandlerAddOn,
     SingleGameEventHandlers,
 } from './SingleGameEventHandlers'
 import { BGEventHandlers } from './BGEventHandlers'
@@ -60,18 +57,17 @@ export function cubefulGameEventHandlers(
         ...addOns
     )
 
-    const sgEventHandlers = (cbState?:CBState)=> buildSGEventHandlers(
-        defaultSGState,
-        setSGState,
-        singleGameDispatcher(),
-        rollListener,
-        {
-            eventHandlers: {},
-            listeners: cbState?cubefulSGListener(cbState, cbEventHandlers):{},
-        },
-        ...addOns
-    ).handlers
-    
+    const sgEventHandlers = (cbState?: CBState) =>
+        buildSGEventHandlers(
+            defaultSGState,
+            setSGState,
+            rollListener,
+            cbState
+                ? cubefulSGListener(cbState, cbEventHandlers)
+                : { eventHandlers: {}, listeners: {} },
+            ...addOns
+        ).handlers
+
     const handlers = {
         onRollOpening: (bgState: {
             cbState: CBOpening
@@ -117,38 +113,48 @@ export function cubefulGameEventHandlers(
 function cubefulSGListener(
     state: CBState,
     eventHandlers: CubeGameEventHandlers
-): Partial<SingleGameListeners> {
+): SGEventHandlerAddOn {
     return {
-        // オープニングロールがあった：手番を設定してInPlay状態に遷移
-        onStartOpeningCheckerPlay: (sgInPlay: SGInPlay) => {
-            if (state.tag === 'CBOpening') {
-                eventHandlers.onStartOpeningCheckerPlay(state, sgInPlay.isRed)
-            } else {
-                console.warn('Unexpected state', state, sgInPlay)
-            }
-        },
+        eventHandlers: {},
+        listeners: {
+            // オープニングロールがあった：手番を設定してInPlay状態に遷移
+            onStartOpeningCheckerPlay: (sgInPlay: SGInPlay) => {
+                if (state.tag === 'CBOpening') {
+                    eventHandlers.onStartOpeningCheckerPlay(
+                        state,
+                        sgInPlay.isRed
+                    )
+                } else {
+                    console.warn('Unexpected state', state, sgInPlay)
+                }
+            },
 
-        // チェッカープレイが終了した：キューブアクション状態またはロール待ち状態に遷移
-        onAwaitRoll: (sgToRoll: SGToRoll) => {
-            if (state.tag === 'CBInPlay') {
-                eventHandlers.onStartCubeAction(state)
-            } else {
-                console.warn('Unexpected state', state, sgToRoll)
-            }
-        },
+            // チェッカープレイが終了した：キューブアクション状態またはロール待ち状態に遷移
+            onAwaitRoll: (sgToRoll: SGToRoll) => {
+                if (state.tag === 'CBInPlay') {
+                    eventHandlers.onStartCubeAction(state)
+                } else {
+                    console.warn('Unexpected state', state, sgToRoll)
+                }
+            },
 
-        // ロールがあった：InPlay状態に遷移
-        onStartCheckerPlay: (sgInPlay: SGInPlay) => {
-            if (state.tag === 'CBToRoll' || state.tag === 'CBAction') {
-                eventHandlers.onStartCheckerPlay(state)
-            } else {
-                console.warn('Unexpected state', state, sgInPlay)
-            }
-        },
+            // ロールがあった：InPlay状態に遷移
+            onStartCheckerPlay: (sgInPlay: SGInPlay) => {
+                if (state.tag === 'CBToRoll' || state.tag === 'CBAction') {
+                    eventHandlers.onStartCheckerPlay(state)
+                } else {
+                    console.warn('Unexpected state', state, sgInPlay)
+                }
+            },
 
-        // ゲームが終了した：キューブを加味したスコアを算出
-        onEndOfGame: (sgEoG: SGEoG) => {
-            eventHandlers.onEndOfCubeGame(state, sgEoG.result, sgEoG.eogStatus)
+            // ゲームが終了した：キューブを加味したスコアを算出
+            onEndOfGame: (sgEoG: SGEoG) => {
+                eventHandlers.onEndOfCubeGame(
+                    state,
+                    sgEoG.result,
+                    sgEoG.eogStatus
+                )
+            },
         },
     }
 }

@@ -2,7 +2,6 @@ import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { singleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -97,7 +96,6 @@ function useRecordedCubeless(
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),
         setSGState,
-        singleGameDispatcher(),
         rollListener,
         matchRecordAddOn
     )

@@ -5,7 +5,6 @@ import {
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
-    singleGameDispatcher,
     SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -61,7 +60,6 @@ export function Cubeless(props: CubelessProps) {
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),
         setSGState,
-        singleGameDispatcher(),
         rollListener,
         { eventHandlers: {}, listeners },
         { eventHandlers: {}, listeners: matchScoreListener }
