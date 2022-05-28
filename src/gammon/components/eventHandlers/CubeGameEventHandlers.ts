@@ -3,7 +3,7 @@ import {
     concatCBListeners,
     CubeGameDispatcher,
     CubeGameListeners,
-    setCBStateListener,
+    setCBStateListener
 } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import {
     CBAction,
@@ -11,14 +11,14 @@ import {
     CBOpening,
     CBResponse,
     CBState,
-    CBToRoll,
+    CBToRoll
 } from 'tsgammon-core/dispatchers/CubeGameState'
+import { concat0, concat1, concat2, concat3 } from 'tsgammon-core/dispatchers/utils/concat'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { concat0, concat1, concat2, concat3 } from './utils/concat'
 import {
     EventHandlerAddOn,
     EventHandlerBuilder,
-    wrap,
+    wrap
 } from './EventHandlerBuilder'
 
 export type CubeGameEventHandlers = {

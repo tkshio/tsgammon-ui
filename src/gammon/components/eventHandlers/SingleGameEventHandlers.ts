@@ -8,6 +8,7 @@ import {
     SingleGameDispatcher,
     concatSGListeners,
     setSGStateListener,
+    singleGameDispatcher,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGInPlay,
@@ -20,7 +21,11 @@ import {
     EventHandlerBuilder,
     wrap,
 } from './EventHandlerBuilder'
-import { concat0, concat1, concat2 } from './utils/concat'
+import {
+    concat0,
+    concat1,
+    concat2,
+} from 'tsgammon-core/dispatchers/utils/concat'
 
 export type SingleGameEventHandlers = {
     onStartGame: () => void
@@ -43,12 +48,12 @@ export type SGEventHandlerBuilder = EventHandlerBuilder<
 export function buildSGEventHandlers(
     defaultSGState: SGState,
     setSGState: (sgState: SGState) => void,
-    sgDispatcher: SingleGameDispatcher,
     rollListener: RollListener = rollListeners(),
     ...addOns: SGEventHandlerAddOn[]
 ): {
     handlers: SingleGameEventHandlers
 } {
+    const sgDispatcher = singleGameDispatcher()
     const builder = sgEventHandlersBuilder(sgDispatcher, rollListener)
 
     const finalBuilder = addOns.reduce(
