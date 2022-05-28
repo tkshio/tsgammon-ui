@@ -1,7 +1,9 @@
 import { BoardStateNode, score, Score } from 'tsgammon-core'
+import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
+import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
@@ -10,31 +12,29 @@ import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import {
     matchRecord as initMatchRecord,
     MatchRecord,
-    setEoGRecord,
+    setEoGRecord
 } from 'tsgammon-core/records/MatchRecord'
 import {
     plyRecordForCheckerPlay,
-    plyRecordForEoG,
+    plyRecordForEoG
 } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { BGState, toState } from '../BGState'
 import { CubefulGameConfs } from '../CubefulGameBoard'
-import { defaultBGState } from '../defaultStates'
 import { cubefulGameEventHandlers } from '../eventHandlers/cubefulGameEventHandlers'
 import { SingleGameEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
+import { CBOperator } from '../operators/CBOperator'
+import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../recordedGames/RecordedCubefulGame'
 import { MatchRecorder } from '../recordedGames/useMatchRecorder'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useCubeGameState } from '../useCubeGameState'
+import { useMatchKey } from '../useMatchKey'
 import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-import { useMatchKey } from '../useMatchKey'
-import { CBOperator } from '../operators/CBOperator'
-import { SGOperator } from '../operators/SGOperator'
 
 export type PointMatchProps = {
     gameConf?: GameConf

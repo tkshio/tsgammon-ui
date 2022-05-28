@@ -1,23 +1,22 @@
 import { Fragment } from 'react'
 import { standardConf } from 'tsgammon-core'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
+import { MatchState, MatchStateEOG, matchStateEOG } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
-import { BGState } from './BGState'
 import { BoardEventHandlers } from './boards/Board'
 import { CubefulGameBoard } from './CubefulGameBoard'
 import { BGEventHandlers } from './eventHandlers/BGEventHandlers'
-import { MatchState, matchStateEOG, MatchStateEOG } from './MatchState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
-
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
     autoOperator?: CBOperator

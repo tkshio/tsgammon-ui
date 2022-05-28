@@ -26,7 +26,6 @@ import {
     CubeGameEventHandlers,
 } from './CubeGameEventHandlers'
 import { EventHandlerAddOn } from './EventHandlerBuilder'
-import { BGState } from '../BGState'
 import {
     buildSGEventHandlers,
     SGEventHandlerAddOn,
@@ -34,6 +33,7 @@ import {
 } from './SingleGameEventHandlers'
 import { BGEventHandlers } from './BGEventHandlers'
 import { BoardStateNode } from 'tsgammon-core'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
 
 export function cubefulGameEventHandlers(
     isCrawford: boolean,

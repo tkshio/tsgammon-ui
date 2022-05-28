@@ -1,18 +1,18 @@
+import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { defaultSGState } from '../defaultStates'
 import { buildSGEventHandlers } from '../eventHandlers/SingleGameEventHandlers'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedSingleGame,
-    RecordedSingleGameProps,
+    RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { SingleGameConfs } from '../SingleGameBoard'

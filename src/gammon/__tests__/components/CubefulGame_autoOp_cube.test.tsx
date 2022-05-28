@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
 import {
     GameSetup,
     GameStatus,
@@ -13,7 +14,6 @@ import {
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
-import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 import { setupEventHandlers } from './CubefulGame.common'
 import { setRedAutoOp, setWhiteAutoOp } from './CubefulGame_autoOp.common'
 

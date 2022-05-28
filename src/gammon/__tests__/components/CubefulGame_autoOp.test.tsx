@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { standardConf } from 'tsgammon-core'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
 import {
     GameSetup,
     GameStatus,
@@ -11,7 +12,6 @@ import {
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
-import { matchStateForUnlimitedMatch } from '../../components/MatchState'
 import {
     BoardOp,
     isRed,
