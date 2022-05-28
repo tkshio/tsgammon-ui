@@ -1,31 +1,26 @@
-import { SingleGameDispatcher } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
-import { randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { SingleGameEventHandlers } from '../components/eventHandlers/SingleGameEventHandlers'
 
 
-const diceSource = randomDiceSource
-
-export function doPlay(
+export function doCheckerPlay(
     engine: GammonEngine,
     sgState: SGState,
-    sgDispatcher: SingleGameDispatcher
+    sgEventHandlers: SingleGameEventHandlers
 ) {
     switch (sgState.tag) {
         case 'SGOpening': {
-            const openingRoll = diceSource.roll()
-            sgDispatcher.doOpeningRoll(sgState, openingRoll)
+            sgEventHandlers.onRollOpening(sgState)
             break
         }
         case 'SGInPlay': {
             const curNode = sgState.boardStateNode
             const nextNode = engine.checkerPlay(curNode)
-            sgDispatcher.doCommitCheckerPlay(sgState, nextNode)
+            sgEventHandlers.onCommit(sgState, nextNode)
             break
         }
         case 'SGToRoll': {
-            const roll = diceSource.roll()
-            sgDispatcher.doRoll(sgState, roll)
+            sgEventHandlers.onRoll(sgState)
             break
         }
         case 'SGEoG':

@@ -1,33 +1,32 @@
-import { cubefulSGListener } from 'tsgammon-core/dispatchers/cubefulSGListener'
-import { CubeGameDispatcher, cubeGameDispatcher, setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { setSGStateListener, singleGameDispatcher, SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
 import { score } from 'tsgammon-core/Score'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
-import { doPlay as doCheckerPlay } from './doPlay'
-
+import { BGState } from '../components/BGState'
+import { defaultBGState } from '../components/defaultStates'
+import {
+    asSGEventHandlers,
+    BGEventHandlers
+} from '../components/eventHandlers/BGEventHandlers'
+import { cubefulGameEventHandlers } from '../components/eventHandlers/cubefulGameEventHandlers'
+import { doCheckerPlay  } from './doCheckerPlay'
 
 const engine = simpleNNEngine
 
-function doPlay(
-    cbState: CBState,
-    skipCubeAction:boolean,
-    cbDispatcher: CubeGameDispatcher,
-    sgState: SGState,
-    sgListeners: SingleGameListeners
-) {
-    const sgDispatcher = singleGameDispatcher(
-        cubefulSGListener(sgListeners, cbState,skipCubeAction,  cbDispatcher)
-    )
-
+function doPlay(bgState: BGState, eventHandlers: BGEventHandlers) {
+    const { cbState, sgState } = bgState
     switch (cbState.tag) {
         case 'CBOpening':
         case 'CBInPlay':
         case 'CBToRoll':
-            doCheckerPlay(simpleNNEngine, sgState, sgDispatcher)
+            doCheckerPlay(
+                simpleNNEngine,
+                sgState,
+                asSGEventHandlers(cbState, eventHandlers)
+            )
             break
 
         case 'CBAction':
@@ -36,9 +35,9 @@ function doPlay(
                     engine.cubeAction(sgState.boardState, cbState.cubeState)
                         .isDouble
                 ) {
-                    cbDispatcher.doDouble(cbState)
+                    eventHandlers.onDouble({ cbState, sgState })
                 } else {
-                    cbDispatcher.doSkipCubeAction(cbState)
+                    eventHandlers.onRoll({ cbState, sgState })
                 }
             } else {
                 throw new Error(
@@ -53,9 +52,9 @@ function doPlay(
                     engine.cubeResponse(sgState.boardState, cbState.cubeState)
                         .isTake
                 ) {
-                    cbDispatcher.doTake(cbState)
+                    eventHandlers.onTake({cbState, sgState})
                 } else {
-                    cbDispatcher.doPass(cbState)
+                    eventHandlers.onPass({cbState, sgState})
                 }
             } else {
                 throw new Error(
@@ -80,15 +79,20 @@ function run() {
     const setCBState = (state: CBState) => {
         gState.cb = state
     }
-
-    const cbDispatcher = cubeGameDispatcher(setCBStateListener(setCBState))
-    const sgListener = setSGStateListener(setSGState)
+    const isCrawford = false
+    const {handlers} = cubefulGameEventHandlers(
+        isCrawford,
+        defaultBGState(),
+        setSGState,
+        setCBState,
+        rollListeners()
+    )
 
     let cbState = gState.cb
     let sgState = gState.sg
 
     while (cbState.tag !== 'CBEoG') {
-        doPlay(cbState, false, cbDispatcher,  sgState, sgListener)
+        doPlay({cbState, sgState}, handlers)
 
         cbState = gState.cb
         sgState = gState.sg
