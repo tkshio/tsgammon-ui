@@ -8,17 +8,17 @@ export type EventHandlerAddOn<H, L> = {
 
 export function wrap<H, L>(
     base: EventHandlerBuilder<H, L>,
-    decorateH: (h1: Partial<H>, h2: Partial<H>) => Partial<H>,
-    decorateL: (h1: Partial<L>, h2: Partial<L>) => Partial<L>,
+    concatH: (h1: Partial<H>, h2: Partial<H>) => Partial<H>,
+    concatL: (h1: Partial<L>, h2: Partial<L>) => Partial<L>,
     addOn?: EventHandlerAddOn<H, L>
 ): WrappedBuilder<H, L> {
     const builder = addOn
-        ? concatAddOns(base, addOn, decorateH, decorateL)
+        ? concatAddOns(base, addOn, concatH, concatL)
         : base
     return {
         builder,
         addOn: (newAddOn: EventHandlerAddOn<H, L>) =>
-            wrap(builder, decorateH, decorateL, newAddOn),
+            wrap(builder, concatH, concatL, newAddOn),
         build: (setStateListener: L) =>
             builder({ eventHandlers: {}, listeners: setStateListener }),
     }
@@ -33,14 +33,14 @@ type WrappedBuilder<H, L> = {
 function concatAddOns<H, L>(
     builder: EventHandlerBuilder<H, L>,
     h: EventHandlerAddOn<H, L>,
-    decorateH: (h1: Partial<H>, h2: Partial<H>) => Partial<H>,
-    decorateL: (h1: Partial<L>, h2: Partial<L>) => Partial<L>
+    concatH: (h1: Partial<H>, h2: Partial<H>) => Partial<H>,
+    concatL: (h1: Partial<L>, h2: Partial<L>) => Partial<L>
 ): EventHandlerBuilder<H, L> {
     return (addOn: EventHandlerAddOn<H, L>) => {
         const { eventHandlers, listeners } = addOn
         return builder({
-            eventHandlers: decorateH(h.eventHandlers, eventHandlers),
-            listeners: decorateL(h.listeners, listeners),
+            eventHandlers: concatH(h.eventHandlers, eventHandlers),
+            listeners: concatL(h.listeners, listeners),
         })
     }
 }
