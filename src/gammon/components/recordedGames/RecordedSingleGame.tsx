@@ -44,6 +44,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         sgState,
         cpState,
         sgConfs,
+        matchScore:matchRecord.matchState.scoreBefore,
         ...cpListeners,
     }
 
