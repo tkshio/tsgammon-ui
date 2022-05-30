@@ -1,25 +1,22 @@
 import { Fragment } from 'react'
 import { GameConf } from 'tsgammon-core'
+import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { MatchState } from '../MatchState'
-import {} from '../SingleGameBoard'
-import { PlyInfo } from '../uiparts/PlyInfo'
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import { BGState } from '../BGState'
-import { RecordedGame } from './RecordedGame'
-import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
-import { BGEventHandlers } from '../eventHandlers/BGEventHandlers'
+import { PlyInfo } from '../uiparts/PlyInfo'
+import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
+import { RecordedGame } from './RecordedGame'
+import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
 export type RecordedCubefulGameProps = {
     gameConf: GameConf
     cbConfs: CubefulGameConfs
     autoOperators?: { sg?: SGOperator; cb?: CBOperator }
-    matchState: MatchState
     matchRecord: MatchRecord<BGState>
     bgState: BGState
     onResumeState?: (index: number) => void
@@ -29,7 +26,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
         bgState: curBGState,
         matchRecord,
-        matchState,
         cbConfs = {
             sgConfs: {},
         },
@@ -39,7 +35,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         },
         ...eventHandlers
     } = props
-
+    const { matchState } = matchRecord
     const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(
         undefined,
         eventHandlers

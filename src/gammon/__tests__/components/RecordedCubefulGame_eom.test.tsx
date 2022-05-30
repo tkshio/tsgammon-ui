@@ -1,23 +1,26 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
-import { score, scoreAsWhite, standardConf } from 'tsgammon-core'
+import { scoreAsWhite, standardConf } from 'tsgammon-core'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
-import { matchStateEOG, matchStateForPointMatch } from 'tsgammon-core/dispatchers/MatchState'
+import {
+    matchStateEoG,
+    matchStateForPointMatch,
+} from 'tsgammon-core/dispatchers/MatchState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState
+    toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { matchRecord } from 'tsgammon-core/records/MatchRecord'
+import { matchRecord, eogRecord } from 'tsgammon-core/records/MatchRecord'
+import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../../components/recordedGames/RecordedCubefulGame'
 import { setupEventHandlers } from './CubefulGame.common'
-
 
 let container: HTMLElement | null = null
 
@@ -37,26 +40,34 @@ const gameState: GameSetup = {
     ],
     stake: scoreAsWhite(1),
 }
-
+const conf = standardConf
 const bgState = {
     sgState: toSGState(gameState),
     cbState: toCBState(gameState),
 }
+const matchState = matchStateForPointMatch(3, scoreAsWhite(2))
+const { stake, eogStatus } = (bgState.cbState as CBEoG).calcStake(conf)
+const eogMatchState = matchStateEoG(matchState, stake, eogStatus)
+const eogPlyRecord = plyRecordForEoG(
+    stake,
+    (bgState.cbState as CBEoG).result,
+    eogStatus
+)
+const initialMatchRecord = eogRecord(
+    matchRecord<BGState>(conf, matchState),
+    eogMatchState,
+    eogPlyRecord
+)
 
 const state = {
-    matchState: matchStateEOG(
-        matchStateForPointMatch(3, score({ redScore: 0, whiteScore: 2 })),
-        bgState.cbState as CBEoG
-    ),
+    matchState: eogMatchState,
     cpState: undefined,
     bgState,
 }
-const initialMatchRecord = matchRecord<BGState>()
 const props: RecordedCubefulGameProps = {
     ...setupEventHandlers(state, presetDiceSource()),
-    gameConf: standardConf,
+    gameConf: conf,
     bgState,
-    matchState: state.matchState,
     matchRecord: initialMatchRecord,
     cbConfs: { sgConfs: {} },
     onResumeState: () => {
@@ -65,7 +76,7 @@ const props: RecordedCubefulGameProps = {
 }
 describe('RecordedCubeGame(eom)', () => {
     test('shows dialog for End of Match', async () => {
-        const next = { ...props, ...state}
+        const next = { ...props, ...state }
         render(<RecordedCubefulGame {...next} />)
 
         expect(bgState.sgState.tag).toEqual('SGEoG')

@@ -1,9 +1,18 @@
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import {
+    CubeGameEventHandlerAddOn,
+    CubeGameEventHandlers
+} from 'tsgammon-core/dispatchers/CubeGameEventHandlers'
 import {
     CBAction,
     CBEoG,
     CBResponse,
-    CBState,
+    CBState
 } from 'tsgammon-core/dispatchers/CubeGameState'
+import {
+    matchStateForPointMatch,
+    matchStateForUnlimitedMatch
+} from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
@@ -13,29 +22,31 @@ import {
     plyRecordForEoG,
     plyRecordForPass,
     plyRecordForTake,
-    PlyRecordInPlay,
+    PlyRecordInPlay
 } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { sgEventHandlersForMatchRecorder } from '../apps/PointMatch'
-import { BGState } from '../BGState'
-import {
-    CubeGameEventHandlerAddOn,
-    CubeGameEventHandlers,
-} from '../eventHandlers/CubeGameEventHandlers'
 import { MatchRecorder, useMatchRecorder } from './useMatchRecorder'
 
 export function useMatchRecorderForCubeGame(
     gameConf: GameConf,
+    matchLength: number,
     cbState: CBState,
     sgState: SGState,
     initialMatchRecord: MatchRecord<BGState>
 ): {
     matchRecord: MatchRecord<BGState>
     matchRecorder: MatchRecorder<BGState>
+    resetMatchRecord: (index: number) => void
     matchRecorderAddOn: CubeGameEventHandlerAddOn
 } {
+    const initialMatchState =
+        matchLength === 0
+            ? matchStateForUnlimitedMatch(undefined, gameConf.jacobyRule)
+            : matchStateForPointMatch(matchLength)
     const [matchRecord, matchRecorder] = useMatchRecorder<BGState>(
         gameConf,
+        initialMatchState,
         initialMatchRecord
     )
 
@@ -43,12 +54,21 @@ export function useMatchRecorderForCubeGame(
     const sbH = sgEventHandlersForMatchRecorder(
         bgMatchRecorderToSG(cbState, matchRecorder)
     )
-
+    const resetMatchRecord = (index: number) => {
+        matchRecorder.resumeTo(index)
+    }
     return {
         matchRecord,
         matchRecorder,
+        resetMatchRecord,
         matchRecorderAddOn: {
-            eventHandlers: { ...cbH, ...sbH },
+            eventHandlers: {
+                ...cbH,
+                ...sbH,
+                onStartCubeGame: () => {
+                    matchRecorder.resetCurGame()
+                },
+            },
             listeners: {
                 onEndOfCubeGame: (cbState: CBEoG) => {
                     const { stake, eogStatus } = cbState.calcStake(gameConf)

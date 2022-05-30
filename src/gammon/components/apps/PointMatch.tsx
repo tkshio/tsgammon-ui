@@ -2,9 +2,10 @@ import { BoardStateNode, score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
+import { matchStateInPlay } from 'tsgammon-core/dispatchers/MatchState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -14,11 +15,12 @@ import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import {
     matchRecord as initMatchRecord,
     MatchRecord,
-    setEoGRecord
+    MatchRecordInPlay,
+    eogRecord,
 } from 'tsgammon-core/records/MatchRecord'
 import {
     plyRecordForCheckerPlay,
-    plyRecordForEoG
+    plyRecordForEoG,
 } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGameConfs } from '../CubefulGameBoard'
@@ -26,16 +28,15 @@ import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { MatchRecorder } from '../recordedGames/useMatchRecorder'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
-import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
+import { eogMatchState } from '../useMatchState'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -86,14 +87,15 @@ export function PointMatch(props: PointMatchProps) {
     // マッチにユニークなKeyを採番する
     const { matchKey, matchKeyAddOn } = useMatchKey()
 
-    // スコアの管理に必要なListener
+    /*    // スコアの管理に必要なListener
     const { matchState, matchStateAddOn, resetMatchState } =
         useMatchStateForCubeGame(curScore, matchLength, gameConf)
-
+*/
     // マッチの記録に必要なListener
     const { matchRecord, matchRecorder, matchRecorderAddOn } =
         useMatchRecorderForCubeGame(
             gameConf,
+            matchLength,
             cbState,
             sgState,
             setEoG(
@@ -101,35 +103,35 @@ export function PointMatch(props: PointMatchProps) {
                 gameConf,
                 initMatchRecord<BGState>(
                     gameConf,
-                    matchLength,
-                    curScore,
-                    isCrawford
+                    matchStateInPlay(
+                        matchLength,
+                        curScore,
+                        gameConf,
+                        isCrawford
+                    )
                 )
             )
         )
     const onResumeState = (index: number) => {
         const resumed = matchRecorder.resumeTo(index)
-        resetMatchState()
+        //        resetMatchState()
         setCBState(resumed.cbState)
         setSGState(resumed.sgState)
     }
 
     const { handlers } = cubefulGameEventHandlers(
-        matchState.isCrawford,
+        matchRecord.matchState.isCrawford,
         defaultBGState(gameConf),
         setSGState,
         setCBState,
         rollListener,
 
         matchKeyAddOn,
-        matchStateAddOn,
         matchRecorderAddOn
     )
 
-
     const recordedMatchProps: RecordedCubefulGameProps = {
         gameConf,
-        matchState,
         matchRecord,
         bgState: { sgState, cbState },
         cbConfs,
@@ -144,15 +146,16 @@ export function PointMatch(props: PointMatchProps) {
 function setEoG(
     curBGState: BGState,
     stakeConf: StakeConf,
-    mRecord: MatchRecord<BGState>
-) {
+    mRecord: MatchRecordInPlay<BGState>
+): MatchRecord<BGState> {
     if (curBGState.cbState.tag === 'CBEoG') {
-        const eogRecord = plyRecordForEoG(
+        const eogPlyRecord = plyRecordForEoG(
             curBGState.cbState.calcStake(stakeConf).stake,
             curBGState.cbState.result,
             curBGState.cbState.eogStatus
         )
-        return setEoGRecord(mRecord, eogRecord)
+        const matchState = eogMatchState(mRecord.matchState, curBGState.cbState)
+        return eogRecord(mRecord, matchState, eogPlyRecord)
     }
     return mRecord
 }

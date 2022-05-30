@@ -1,14 +1,12 @@
 import { useCallback } from 'react'
+import { asSGEventHandlers, BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import {
-    asSGEventHandlers,
-    BGEventHandlers,
-} from './eventHandlers/BGEventHandlers'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
 import { useSGAutoOperator } from './useSGAutoOperator'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
+
 
 export function useCBAutoOperator(
     cbState: CBState,

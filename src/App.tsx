@@ -10,8 +10,11 @@ import './App.css'
 function App() {
     const args = {
         cbConfs: {
-            autoOperator: redCBAutoOperator(),
-            sgConfs: { autoOperator: redSGAutoOperator() },
+            sgConfs: {},
+        },
+        autoOperators: {
+            sg: redSGAutoOperator(),
+            cb: redCBAutoOperator(),
         },
     }
     return (

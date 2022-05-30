@@ -5,7 +5,7 @@ import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
-import { MatchState, MatchStateEOG, matchStateEOG } from 'tsgammon-core/dispatchers/MatchState'
+import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
@@ -17,6 +17,7 @@ import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
+import { eogMatchState } from './useMatchState'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
@@ -44,7 +45,7 @@ export function CubefulGame(props: CubefulGameProps) {
         bgState,
         cpState,
         matchState = props.bgState.cbState.tag === 'CBEoG'
-            ? matchStateEOG(defaultMatchState, props.bgState.cbState)
+            ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
         dialog,
         cbConfs = { sgConfs: {} },
@@ -74,8 +75,8 @@ export function CubefulGame(props: CubefulGameProps) {
 
 function eogDialog(
     onStartCubeGame?: () => void
-): (matchState: MatchStateEOG) => JSX.Element {
-    return (matchState: MatchStateEOG) => {
+): (matchState: MatchStateEoG) => JSX.Element {
+    return (matchState: MatchStateEoG) => {
         return (
             <EOGDialog
                 {...{
@@ -109,7 +110,7 @@ function dialogForCubefulGame(
     bgState: BGState,
     matchState: MatchState,
     dialogs: {
-        eogDialog: (matchState: MatchStateEOG) => JSX.Element
+        eogDialog: (matchState: MatchStateEoG) => JSX.Element
         cubeResponseDialog: (bgState: {
             cbState: CBResponse
             sgState: SGState

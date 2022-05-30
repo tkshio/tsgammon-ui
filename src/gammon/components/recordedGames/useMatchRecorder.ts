@@ -1,12 +1,17 @@
 import { Dispatch, SetStateAction, useState } from 'react'
+import {
+    matchStateEoG,
+    matchStateForUnlimitedMatch,
+    MatchStateInPlay,
+} from 'tsgammon-core/dispatchers/MatchState'
 import { GameConf } from 'tsgammon-core/GameConf'
-
 import {
     addPlyRecord,
-    MatchRecord,
+    discardCurrentGame,
     matchRecord as initMatchRecord,
+    MatchRecord,
     recordFinishedGame,
-    setEoGRecord,
+    eogRecord,
     trimPlyRecords,
 } from 'tsgammon-core/records/MatchRecord'
 import { PlyRecordEoG, PlyRecordInPlay } from 'tsgammon-core/records/PlyRecord'
@@ -25,6 +30,7 @@ export type MatchRecorder<T> = {
  */
 export function useMatchRecorder<T>(
     conf: GameConf,
+    initialMatchState?: MatchStateInPlay,
     initialMatchRecord?: MatchRecord<T>
 ): [
     MatchRecord<T>,
@@ -32,23 +38,38 @@ export function useMatchRecorder<T>(
     Dispatch<SetStateAction<MatchRecord<T>>>
 ] {
     const [matchRecord, setMatchRecord] = useState<MatchRecord<T>>(
-        initialMatchRecord ?? initMatchRecord(conf, 0)
+        initialMatchRecord ??
+            initMatchRecord(
+                conf,
+                initialMatchState ?? matchStateForUnlimitedMatch()
+            )
     )
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
-        setMatchRecord(prev=>addPlyRecord(prev, plyRecord, state))
+        setMatchRecord((prev) =>
+            prev.isEoG ? prev : addPlyRecord(prev, plyRecord, state)
+        )
     }
 
-    function recordEoG(eogRecord: PlyRecordEoG) {
-        setMatchRecord(prev=>setEoGRecord(prev, eogRecord))
+    function recordEoG(eogPlyRecord: PlyRecordEoG) {
+        setMatchRecord((prev) => {
+            if (prev.isEoG) {
+                return prev
+            }
+            const { stake, eogStatus } = eogPlyRecord
+            const matchState = matchStateEoG(prev.matchState, stake, eogStatus)
+            return eogRecord(prev, matchState, eogPlyRecord)
+        })
     }
 
     function resetCurGame() {
-        setMatchRecord(recordFinishedGame(matchRecord))
+        setMatchRecord((prev) =>
+            prev.isEoG ? recordFinishedGame(prev) : discardCurrentGame(prev)
+        )
     }
 
     function resumeTo(index: number): T {
-        setMatchRecord(prev=>trimPlyRecords(prev, index))
+        setMatchRecord((prev) => trimPlyRecords(prev, index))
         return matchRecord.curGameRecord.plyRecords[index].state
     }
 

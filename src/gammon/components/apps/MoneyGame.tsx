@@ -18,7 +18,7 @@ import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
-import { useMatchStateForCubeGame } from '../useMatchStateForCubeGame'
+import { useMatchState } from '../useMatchState'
 import { useSingleGameState } from '../useSingleGameState'
 
 export type MoneyGameProps = {
@@ -53,7 +53,7 @@ export function MoneyGame(props: MoneyGameProps) {
     const { sgState: initialSGState, cbState: initialCBState } = toState(setup)
     const { sgState, setSGState } = useSingleGameState(initialSGState)
     const { cbState, setCBState } = useCubeGameState(initialCBState)
-    const { matchState, matchStateAddOn } = useMatchStateForCubeGame(
+    const { matchState, matchStateAddOn } = useMatchState(
         matchScore,
         matchLength,
         gameConf

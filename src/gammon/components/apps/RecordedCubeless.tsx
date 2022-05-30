@@ -87,7 +87,7 @@ function useRecordedCubeless(
             onEndOfGame: (sgEoG: SGEoG) => {
                 const { stake, result, eogStatus } = sgEoG
                 matchRecorder.recordEoG(
-                    plyRecordForEoG(stake, result, eogStatus)
+                    plyRecordForEoG(stake, result, eogStatus),
                 )
             },
         },

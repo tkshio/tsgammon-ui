@@ -15,8 +15,8 @@ import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+import { matchStateAddOn } from '../../components/useMatchState'
 
-import { matchStateAddOn } from '../../components/useMatchStateForCubeGame'
 
 
 export const BoardOp = {
