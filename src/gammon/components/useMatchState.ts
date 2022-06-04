@@ -24,6 +24,7 @@ export function useMatchState(
         isEoG: false,
         matchLength,
         scoreBefore: matchScore,
+        score:matchScore,
         stakeConf,
         isCrawford: matchLength === 1,
     }
@@ -67,6 +68,7 @@ export function nextMatchState(matchState: MatchState): MatchStateInPlay {
                   isEoG: false,
                   matchLength: matchState.matchLength,
                   scoreBefore: score(),
+                  score:score(),
                   stakeConf: matchState.stakeConf,
                   isCrawford: matchState.matchLength === 1,
               }
@@ -74,6 +76,7 @@ export function nextMatchState(matchState: MatchState): MatchStateInPlay {
                   isEoG: false,
                   matchLength: matchState.matchLength,
                   scoreBefore: matchState.scoreAfter,
+                  score:matchState.scoreAfter,
                   stakeConf: matchState.stakeConf,
                   isCrawford: matchState.isCrawfordNext,
               }

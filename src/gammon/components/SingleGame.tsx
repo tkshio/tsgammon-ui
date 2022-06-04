@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { score, Score } from 'tsgammon-core'
+import { Score, score } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
@@ -23,7 +23,7 @@ export type SingleGameProps = {
 } & Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
 
 export function SingleGame(props: SingleGameProps) {
-    const {
+        const {
         cpState,
         sgState,
         sgConfs = {},

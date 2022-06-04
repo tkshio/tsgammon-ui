@@ -38,6 +38,7 @@ export function CubefulGame(props: CubefulGameProps) {
         isEoG: false,
         stakeConf: standardConf,
         scoreBefore: score(),
+        score:score(),
         matchLength: 0,
         isCrawford: false,
     }

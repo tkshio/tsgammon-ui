@@ -3,11 +3,9 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import {
-    SingleGameListeners
-} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { buildSGEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -21,7 +19,6 @@ import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
-
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -44,7 +41,7 @@ export function Cubeless(props: CubelessProps) {
         autoOperator,
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
-        onRollRequest = ()=>{
+        onRollRequest = () => {
             //
         },
         ...listeners
@@ -73,7 +70,10 @@ export function Cubeless(props: CubelessProps) {
         sgState,
         cpState,
         sgConfs,
-        matchScore,
+        matchScore:
+            sgState.tag === 'SGEoG'
+                ? matchScore.add(sgState.stake)
+                : matchScore,
         ...handlers,
         ...cpListeners,
     }
