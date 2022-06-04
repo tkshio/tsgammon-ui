@@ -13,7 +13,7 @@ import {
     toCBState,
     toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { matchRecord, eogRecord } from 'tsgammon-core/records/MatchRecord'
+import { matchRecordInPlay, eogRecord } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
@@ -54,8 +54,7 @@ const eogPlyRecord = plyRecordForEoG(
     eogStatus
 )
 const initialMatchRecord = eogRecord(
-    matchRecord<BGState>(conf, matchState),
-    eogMatchState,
+    matchRecordInPlay<BGState>(conf, matchState),
     eogPlyRecord
 )
 

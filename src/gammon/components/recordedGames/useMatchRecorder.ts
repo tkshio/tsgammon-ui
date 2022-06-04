@@ -1,27 +1,11 @@
 import { Dispatch, SetStateAction, useState } from 'react'
 import {
-    matchStateEoG,
-    matchStateForUnlimitedMatch,
-    MatchStateInPlay,
-} from 'tsgammon-core/dispatchers/MatchState'
-import { GameConf } from 'tsgammon-core/GameConf'
-import {
     addPlyRecord,
-    discardCurrentGame,
-    matchRecord as initMatchRecord,
-    MatchRecord,
-    recordFinishedGame,
-    eogRecord,
-    trimPlyRecords,
+    discardCurrentGame, eogRecord, MatchRecord,
+    recordFinishedGame, trimPlyRecords
 } from 'tsgammon-core/records/MatchRecord'
+import { MatchRecorder } from 'tsgammon-core/records/MatchRecorder'
 import { PlyRecordEoG, PlyRecordInPlay } from 'tsgammon-core/records/PlyRecord'
-
-export type MatchRecorder<T> = {
-    recordPly: (plyRecord: PlyRecordInPlay, lastState: T) => void
-    recordEoG: (plyRecord: PlyRecordEoG) => void
-    resetCurGame: () => void
-    resumeTo: (index: number) => T
-}
 
 /**
  * MatchRecordを管理するHook
@@ -29,21 +13,14 @@ export type MatchRecorder<T> = {
  * 対局状態の変化、指し手の追加によってゲームの進行と同時に記録も更新される。
  */
 export function useMatchRecorder<T>(
-    conf: GameConf,
-    initialMatchState?: MatchStateInPlay,
-    initialMatchRecord?: MatchRecord<T>
+    initialMatchRecord: MatchRecord<T>
 ): [
     MatchRecord<T>,
     MatchRecorder<T>,
     Dispatch<SetStateAction<MatchRecord<T>>>
 ] {
-    const [matchRecord, setMatchRecord] = useState<MatchRecord<T>>(
-        initialMatchRecord ??
-            initMatchRecord(
-                conf,
-                initialMatchState ?? matchStateForUnlimitedMatch()
-            )
-    )
+    const [matchRecord, setMatchRecord] =
+        useState<MatchRecord<T>>(initialMatchRecord)
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
         setMatchRecord((prev) =>
@@ -56,9 +33,7 @@ export function useMatchRecorder<T>(
             if (prev.isEoG) {
                 return prev
             }
-            const { stake, eogStatus } = eogPlyRecord
-            const matchState = matchStateEoG(prev.matchState, stake, eogStatus)
-            return eogRecord(prev, matchState, eogPlyRecord)
+            return eogRecord(prev, eogPlyRecord)
         })
     }
 
