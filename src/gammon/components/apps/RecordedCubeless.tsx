@@ -15,11 +15,11 @@ import {
     RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
+import { sgEventHandlersForMatchRecorder } from '../recordedGames/useMatchRecorderForCubeGame'
 import { SingleGameConfs } from '../SingleGameBoard'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-import { sgEventHandlersForMatchRecorder } from './PointMatch'
 
 
 export type UnlimitedSingleGameProps = {

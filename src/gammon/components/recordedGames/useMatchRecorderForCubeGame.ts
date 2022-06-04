@@ -1,6 +1,7 @@
+import { BoardStateNode } from 'tsgammon-core'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import {
-    CubeGameEventHandlerAddOn,
     CubeGameEventHandlers
 } from 'tsgammon-core/dispatchers/CubeGameEventHandlers'
 import {
@@ -9,15 +10,18 @@ import {
     CBResponse,
     CBState
 } from 'tsgammon-core/dispatchers/CubeGameState'
+import { EventHandlerAddOn } from 'tsgammon-core/dispatchers/EventHandlerBuilder'
 import {
     matchStateForPointMatch,
     matchStateForUnlimitedMatch
 } from 'tsgammon-core/dispatchers/MatchState'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import {
     PlyRecordEoG,
+    plyRecordForCheckerPlay,
     plyRecordForDouble,
     plyRecordForEoG,
     plyRecordForPass,
@@ -25,7 +29,6 @@ import {
     PlyRecordInPlay
 } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { sgEventHandlersForMatchRecorder } from '../apps/PointMatch'
 import { MatchRecorder, useMatchRecorder } from './useMatchRecorder'
 
 export function useMatchRecorderForCubeGame(
@@ -38,7 +41,7 @@ export function useMatchRecorderForCubeGame(
     matchRecord: MatchRecord<BGState>
     matchRecorder: MatchRecorder<BGState>
     resetMatchRecord: (index: number) => void
-    matchRecorderAddOn: CubeGameEventHandlerAddOn
+    matchRecorderAddOn: EventHandlerAddOn<CubeGameEventHandlers & SingleGameEventHandlers, CubeGameListeners & SingleGameEventHandlers>
 } {
     const initialMatchState =
         matchLength === 0
@@ -57,6 +60,7 @@ export function useMatchRecorderForCubeGame(
     const resetMatchRecord = (index: number) => {
         matchRecorder.resumeTo(index)
     }
+
     return {
         matchRecord,
         matchRecorder,
@@ -123,6 +127,23 @@ function bgMatchRecorderToSG(
         },
         resumeTo: (index: number) => {
             return matchRecorder.resumeTo(index).sgState
+        },
+    }
+}
+
+
+export function sgEventHandlersForMatchRecorder(
+    matchRecorder: MatchRecorder<SGState>
+): Pick<SingleGameEventHandlers, 'onCommit' | 'onStartGame'> {
+    return {
+        onCommit: (sgState: SGInPlay, node: BoardStateNode) => {
+            matchRecorder.recordPly(
+                plyRecordForCheckerPlay(sgState.toPly(node)),
+                sgState
+            )
+        },
+        onStartGame: () => {
+            matchRecorder.resetCurGame()
         },
     }
 }
