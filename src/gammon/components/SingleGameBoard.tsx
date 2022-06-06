@@ -118,7 +118,7 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
 
             // チェッカープレイが確定した時に通知を受ける
             onCommitCheckerPlay: (cpState: CheckerPlayStateCommitted) => {
-                onCommit(sgState.withNode(cpState.boardStateNode),cpState.boardStateNode)
+                onCommit(sgState.withNode(cpState.boardStateNode))
                 props.onCommitCheckerPlay?.(cpState)
             },
         }

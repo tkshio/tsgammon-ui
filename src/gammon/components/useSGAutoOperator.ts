@@ -6,7 +6,6 @@ import { useDelayedTrigger } from './utils/useDelayedTrigger'
 import { SGOperator } from './operators/SGOperator'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 
-
 export function useSGAutoOperator(
     sgState: SGState,
     autoOperator: SGOperator | undefined,
@@ -34,7 +33,7 @@ export function useSGAutoOperator(
                             : 'operateCheckerPlayWhite'
                     ]
                 const doCheckerPlay = (node: BoardStateNode) => {
-                        handlers.onCommit?.(sgState, node)
+                    handlers.onCommit?.(sgState.withNode(node))
                 }
                 return operation(doCheckerPlay, sgState.boardStateNode, cube)
             }
