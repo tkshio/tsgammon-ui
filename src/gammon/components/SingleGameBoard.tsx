@@ -118,7 +118,7 @@ export function SingleGameBoard(props: SingleGameBoardProps) {
 
             // チェッカープレイが確定した時に通知を受ける
             onCommitCheckerPlay: (cpState: CheckerPlayStateCommitted) => {
-                onCommit(sgState, cpState.boardStateNode)
+                onCommit(sgState.withNode(cpState.boardStateNode),cpState.boardStateNode)
                 props.onCommitCheckerPlay?.(cpState)
             },
         }
@@ -154,3 +154,4 @@ function layoutDicesAsRed(dices: Dice[] | BlankDice[]): DiceLayout {
 function layoutDicesAsWhite(dices: Dice[] | BlankDice[]): DiceLayout {
     return { redDices: { dices: [] }, whiteDices: { dices } }
 }
+
