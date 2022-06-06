@@ -92,7 +92,7 @@ function useRecordedCubeless(
             ...handlers,
             onResumeState: (index: number) => {
                 const resumed = matchRecorder.resumeTo(index)
-                setSGState(resumed)
+                setSGState(resumed.state)
             },
         },
         matchRecord,

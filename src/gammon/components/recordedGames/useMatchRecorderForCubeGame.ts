@@ -73,7 +73,8 @@ function bgMatchRecorderToSG(
             matchRecorder.resetCurGame()
         },
         resumeTo: (index: number) => {
-            return matchRecorder.resumeTo(index).sgState
+            const record =  matchRecorder.resumeTo(index)
+            return {...record, state:record.state.sgState}
         },
     }
 }
