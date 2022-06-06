@@ -6,6 +6,7 @@ import {
 } from 'tsgammon-core/records/MatchRecord'
 import { MatchRecorder } from 'tsgammon-core/records/MatchRecorder'
 import { PlyRecordEoG, PlyRecordInPlay } from 'tsgammon-core/records/PlyRecord'
+import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
 
 /**
  * MatchRecordを管理するHook
@@ -43,9 +44,9 @@ export function useMatchRecorder<T>(
         )
     }
 
-    function resumeTo(index: number): T {
+    function resumeTo(index: number): PlyStateRecord<T> {
         setMatchRecord((prev) => trimPlyRecords(prev, index))
-        return matchRecord.curGameRecord.plyRecords[index].state
+        return matchRecord.curGameRecord.plyRecords[index]
     }
 
     const matchRecorder: MatchRecorder<T> = {
