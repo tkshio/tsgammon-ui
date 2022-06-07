@@ -38,7 +38,7 @@ export function CubefulGame(props: CubefulGameProps) {
         isEoG: false,
         stakeConf: standardConf,
         scoreBefore: score(),
-        score:score(),
+        score: score(),
         matchLength: 0,
         isCrawford: false,
     }
@@ -120,11 +120,11 @@ function dialogForCubefulGame(
 ): JSX.Element {
     const { cbState, sgState } = bgState
     const isResponse = cbState.tag === 'CBResponse'
-    const isEoG = matchState && matchState.isEoG
+    const isEoG = cbState.tag === 'CBEoG' && matchState.isEoG
     return (
         <Fragment>
             {isResponse && dialogs.cubeResponseDialog({ cbState, sgState })}
-            {!isResponse && isEoG && dialogs.eogDialog(matchState)}
+            {isEoG && dialogs.eogDialog(matchState)}
         </Fragment>
     )
 }
