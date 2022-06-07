@@ -3,6 +3,7 @@ import { GameConf } from 'tsgammon-core'
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { matchStateLastGame } from 'tsgammon-core/dispatchers/MatchState'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
@@ -50,17 +51,22 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const minimalProps = {
         bgState,
         cpState,
-        matchState,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest
         ? {
               ...minimalProps,
               ...eventHandlers,
+              matchState,
               cbConfs,
               autoOperators,
           }
-        : minimalProps
+        : {
+              ...minimalProps,
+              matchState: matchState.isEoG
+                  ? matchStateLastGame(matchState)
+                  : matchState,
+          }
 
     const key = isLatest ? 'latest' : 'past' + index
 
@@ -71,10 +77,9 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     }
 
     const plyInfoProps = {
-        cbState: bgState.cbState,
-        sgState: bgState.sgState,
+        ...cubeGameProps.bgState,
         cpState,
-        score: matchState.score,
+        score: cubeGameProps.matchState.score,
     }
 
     return (
