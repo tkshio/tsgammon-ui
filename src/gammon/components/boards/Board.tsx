@@ -31,6 +31,8 @@ export type BoardProps = {
     redCube?: CubeProps
     whiteCube?: CubeProps
     centerButton?: JSX.Element | null
+    upperButton?: JSX.Element | null
+    lowerButton?: JSX.Element | null
     dialog?: JSX.Element
 } & Partial<BoardEventHandlers>
 
@@ -60,6 +62,8 @@ export function Board(props: BoardProps) {
         redCube,
         whiteCube,
         centerButton,
+        upperButton,
+        lowerButton,
         onClickCube = () => {
             //
         },
@@ -220,7 +224,9 @@ export function Board(props: BoardProps) {
                     </div>
                     <div className={'side-bar'}>
                         <div className={'goal upper'} />
+                        <div className={'button upper'} >{lowerButton}</div>
                         <div className={'cube-space'}>{centerButton}</div>
+                        <div className={'button lower'} >{upperButton}</div>
                         <div className={'goal lower'} />
                     </div>
                 </div>
