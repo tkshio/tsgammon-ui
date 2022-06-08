@@ -11,6 +11,7 @@ import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import {
     Board,
     BoardEventHandlers,
+    BoardProps,
     decorate as decorateBEHandlers,
     DiceLayout,
     layoutCube,
@@ -36,7 +37,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
         props
     )
 
-    const boardProps = {
+    const boardProps:BoardProps = {
         board: cpState.absBoard,
         ...layoutDices(
             cpState.curBoardState.dices,
@@ -48,7 +49,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
         onClickDice,
         onClickPoint,
         onClickCube,
-        cubeSpace: cpState.isUndoable ? (
+        centerButton: cpState.isUndoable ? (
             <RevertButton
                 onClick={() => {
                     dispatcher.doUndo(cpState)
