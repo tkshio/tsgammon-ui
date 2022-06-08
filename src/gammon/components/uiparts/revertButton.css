@@ -16,3 +16,7 @@
 .revertButton[mode='redo']:after {
     color: black;
 }
+
+.revertButton[mode='none']:after {
+    content: '';
+}

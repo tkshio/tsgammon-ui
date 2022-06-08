@@ -1,7 +1,7 @@
 import './revertButton.css'
 
 type RevertButtonProps = JSX.IntrinsicElements['div'] & {
-    mode?: 'undo' | 'redo'
+    mode?: 'undo' | 'redo' | 'none'
 }
 
 /**

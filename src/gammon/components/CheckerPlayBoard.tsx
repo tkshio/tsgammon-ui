@@ -22,6 +22,8 @@ export type CheckerPlayBoardProps = {
     cpState: CheckerPlayState
     diceLayout: (dices: Dice[]) => DiceLayout
     cube?: CubeState
+    upperButton?: JSX.Element | null
+    lowerButton?: JSX.Element | null
 } & Partial<CheckerPlayListeners & BoardEventHandlers>
 
 export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
@@ -31,13 +33,13 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
 
     const dispatcher: CheckerPlayDispatcher = checkerPlayDispatcher(cpListeners)
 
-    const { cube, diceLayout, onClickCube } = props
+    const { cube, diceLayout, onClickCube, upperButton, lowerButton } = props
     const { onClickDice, onClickPoint } = decorateBEHandlers(
         { onClickDice: doClickDice, onClickPoint: doClickPoint },
         props
     )
 
-    const boardProps:BoardProps = {
+    const boardProps: BoardProps = {
         board: cpState.absBoard,
         ...layoutDices(
             cpState.curBoardState.dices,
@@ -64,7 +66,9 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
                     setRedoState(undefined)
                 }}
             />
-        ) : null,
+        ) : <RevertButton mode="none" />,
+        upperButton,
+        lowerButton,
     }
 
     return <Board {...boardProps} />

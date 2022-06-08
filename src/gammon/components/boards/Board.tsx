@@ -116,6 +116,8 @@ export function Board(props: BoardProps) {
         }
     }
 
+    const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
+
     return (
         <div className="boardContainer" data-testid={'tid_gammonboard'}>
             {dialog}
@@ -224,9 +226,9 @@ export function Board(props: BoardProps) {
                     </div>
                     <div className={'side-bar'}>
                         <div className={'goal upper'} />
-                        <div className={'button upper'} >{lowerButton}</div>
-                        <div className={'cube-space'}>{centerButton}</div>
-                        <div className={'button lower'} >{upperButton}</div>
+                        <div className={'button-space upper'} >{upperButton??ZERO_WIDTH_SPACE}</div>
+                        <div className={'cube-space'}>{centerButton??ZERO_WIDTH_SPACE}</div>
+                        <div className={'button-space lower'} >{lowerButton??ZERO_WIDTH_SPACE}</div>
                         <div className={'goal lower'} />
                     </div>
                 </div>

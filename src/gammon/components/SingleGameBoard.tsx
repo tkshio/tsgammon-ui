@@ -26,6 +26,8 @@ import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 
 import { PositionID } from './uiparts/PositionID'
+import { ResignButton } from './uiparts/ResignButton'
+import { RevertButton } from './uiparts/RevertButton'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
 export type SingleGameConfs = {
@@ -39,6 +41,7 @@ export type SingleGameBoardProps = {
     cube?: CubeState
     sgConfs?: SingleGameConfs
     dialog?: JSX.Element
+    onResign?: () => void
 } & Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 
 export function SingleGameBoard(props: SingleGameBoardProps) {
@@ -75,17 +78,23 @@ function renderBoard(
             }
         },
     })
+    const lowerButton = (<ResignButton {...props}/>)
     const boardProps = {
         ...props,
         board: sgState.absBoard,
         ...layoutDices(sgState),
         ...layoutCube(props.cube),
         onClickDice,
+        upperButton:(<RevertButton mode='none'/>),
+        centerButton:(<RevertButton mode='none'/>),
+        lowerButton,
     }
     return <Board {...boardProps} />
 }
 
 function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
+    const lowerButton = (<ResignButton {...props}/>)
+
     // チェッカープレイ中の操作は専用のコンポーネントに任せる
     const cpProps: CheckerPlayBoardProps = {
         ...props,
@@ -97,6 +106,8 @@ function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
             props.onCommit?.(sgState.withNode(cpState.boardStateNode))
             props.onCommitCheckerPlay?.(cpState)
         },
+        lowerButton,
+        upperButton:(<RevertButton mode='none'/>)
     }
     return <CheckerPlayBoard {...cpProps} />
 }
