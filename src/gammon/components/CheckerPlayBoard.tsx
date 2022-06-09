@@ -16,14 +16,15 @@ import {
     DiceLayout,
     layoutCube,
 } from './boards/Board'
+import { IconButton } from './uiparts/IconButton'
 import { RevertButton } from './uiparts/RevertButton'
 
 export type CheckerPlayBoardProps = {
     cpState: CheckerPlayState
     diceLayout: (dices: Dice[]) => DiceLayout
     cube?: CubeState
-    upperButton?: JSX.Element | null
-    lowerButton?: JSX.Element | null
+    upperButton?: JSX.Element
+    lowerButton?: JSX.Element
 } & Partial<CheckerPlayListeners & BoardEventHandlers>
 
 export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
@@ -66,7 +67,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
                     setRedoState(undefined)
                 }}
             />
-        ) : <RevertButton mode="none" />,
+        ) : <IconButton />,
         upperButton,
         lowerButton,
     }

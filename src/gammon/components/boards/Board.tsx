@@ -11,6 +11,7 @@ import { Point } from './Point'
 
 import './board.appearance.css'
 import './board.css'
+import { IconButton } from '../uiparts/IconButton'
 
 export type DiceLayout = {
     redDices: DiceProps
@@ -30,9 +31,9 @@ export type BoardProps = {
     centerCube?: CubeProps
     redCube?: CubeProps
     whiteCube?: CubeProps
-    centerButton?: JSX.Element | null
-    upperButton?: JSX.Element | null
-    lowerButton?: JSX.Element | null
+    centerButton?: JSX.Element
+    upperButton?: JSX.Element
+    lowerButton?: JSX.Element
     dialog?: JSX.Element
 } & Partial<BoardEventHandlers>
 
@@ -61,9 +62,9 @@ export function Board(props: BoardProps) {
         centerCube,
         redCube,
         whiteCube,
-        centerButton,
-        upperButton,
-        lowerButton,
+        centerButton = <IconButton />,
+        upperButton = <IconButton />,
+        lowerButton = <IconButton />,
         onClickCube = () => {
             //
         },
@@ -73,7 +74,7 @@ export function Board(props: BoardProps) {
         onClickPoint = () => {
             //
         },
-        dialog
+        dialog,
     } = { ...props }
 
     function renderColumn(pos: number) {
@@ -226,9 +227,15 @@ export function Board(props: BoardProps) {
                     </div>
                     <div className={'side-bar'}>
                         <div className={'goal upper'} />
-                        <div className={'button-space upper'} >{upperButton??ZERO_WIDTH_SPACE}</div>
-                        <div className={'cube-space'}>{centerButton??ZERO_WIDTH_SPACE}</div>
-                        <div className={'button-space lower'} >{lowerButton??ZERO_WIDTH_SPACE}</div>
+                        <div className={'button-space upper'}>
+                            {upperButton ?? ZERO_WIDTH_SPACE}
+                        </div>
+                        <div className={'cube-space'}>
+                            {centerButton ?? ZERO_WIDTH_SPACE}
+                        </div>
+                        <div className={'button-space lower'}>
+                            {lowerButton ?? ZERO_WIDTH_SPACE}
+                        </div>
                         <div className={'goal lower'} />
                     </div>
                 </div>

@@ -1,8 +1,0 @@
-.resignButton{
-    height: var(--pieceSize);
-    align-items: center;
-}
-.resignButton:after {
-    content: '🏳';
-    color: white;
-}

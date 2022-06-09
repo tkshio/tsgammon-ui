@@ -1,7 +1,8 @@
+import { IconButton, IconButtonProps } from './IconButton'
 import './revertButton.css'
 
-type RevertButtonProps = JSX.IntrinsicElements['div'] & {
-    mode?: 'undo' | 'redo' | 'none'
+type RevertButtonProps = IconButtonProps & {
+    mode?: 'undo' | 'redo'
 }
 
 /**
@@ -10,5 +11,5 @@ type RevertButtonProps = JSX.IntrinsicElements['div'] & {
  * @constructor
  */
 export function RevertButton(prop: RevertButtonProps) {
-    return <div className={'revertButton'} {...prop} />
+    return <IconButton id={'revertButton'} {...prop} />
 }

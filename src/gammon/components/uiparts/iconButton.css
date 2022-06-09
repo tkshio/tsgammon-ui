@@ -1,0 +1,12 @@
+.iconButton{
+    height: var(--pieceSize);
+    width: var(--pieceSize);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#resignButton:after {
+    content: '🏳';
+    color: white;
+}
