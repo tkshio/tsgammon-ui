@@ -1,27 +1,17 @@
 import { Fragment } from 'react'
-import { GameConf } from 'tsgammon-core'
-import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { matchStateLastGame } from 'tsgammon-core/dispatchers/MatchState'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { CubefulGame, CubefulGameConfs, CubefulGameProps } from '../CubefulGame'
-import { CBOperator } from '../operators/CBOperator'
-import { SGOperator } from '../operators/SGOperator'
+import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { PlyInfo } from '../uiparts/PlyInfo'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedCubefulGameProps = {
-    gameConf: GameConf
-    cbConfs: CubefulGameConfs
-    autoOperators?: { sg?: SGOperator; cb?: CBOperator }
+export type RecordedCubefulGameProps = Omit<CubefulGameProps, 'matchState'|'cpState'> & {
     matchRecord: MatchRecord<BGState>
-    bgState: BGState
     onResumeState?: (index: number) => void
-} & Partial<BGEventHandlers & CheckerPlayListeners & RollListener>
+}
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {

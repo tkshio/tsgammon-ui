@@ -1,29 +1,19 @@
 import { Fragment } from 'react'
 import { Score, score } from 'tsgammon-core'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-
 import {
     SingleGameBoard,
-    SingleGameBoardProps,
-    SingleGameConfs,
+    SingleGameBoardProps
 } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 
-export type SingleGameProps = {
-    cpState?: CheckerPlayState
-    sgState: SGState
-    sgConfs?: SingleGameConfs
+
+export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     matchScore?: Score
-    dialog?: JSX.Element
-} & Partial<SingleGameEventHandlers & CheckerPlayListeners & RollListener>
+}
 
 export function SingleGame(props: SingleGameProps) {
-        const {
+    const {
         cpState,
         sgState,
         sgConfs = {},

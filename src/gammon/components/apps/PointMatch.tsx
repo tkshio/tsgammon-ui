@@ -121,7 +121,6 @@ export function PointMatch(props: PointMatchProps) {
     )
 
     const recordedMatchProps: RecordedCubefulGameProps = {
-        gameConf,
         matchRecord,
         bgState: { sgState, cbState },
         cbConfs,

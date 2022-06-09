@@ -1,23 +1,15 @@
 import { Fragment } from 'react'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { SingleGame, SingleGameProps } from '../SingleGame'
-import { SingleGameConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedSingleGameProps = {
-    sgState: SGState
-    sgConfs: SingleGameConfs
+export type RecordedSingleGameProps = Omit<SingleGameProps, 'cpState'|'matchScore'> &{
     matchRecord: MatchRecord<SGState>
     onResumeState?: (index: number) => void
-} & SingleGameEventHandlers &
-    Partial<CheckerPlayListeners & RollListener>
-
+}
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
         sgState: curSGState,

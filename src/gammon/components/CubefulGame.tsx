@@ -2,15 +2,12 @@ import { Fragment } from 'react'
 import { standardConf } from 'tsgammon-core'
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
-import { BoardEventHandlers } from './boards/Board'
-import { CubefulGameBoard } from './CubefulGameBoard'
+import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
 import { SingleGameConfs } from './SingleGameBoard'
@@ -25,14 +22,11 @@ export type CubefulGameConfs = {
     stakeConf?: StakeConf
 }
 
-export type CubefulGameProps = {
-    bgState: BGState
-    cpState?: CheckerPlayState
+export type CubefulGameProps = CubefulGameBoardProps &{
     matchState: MatchState
-    cbConfs?: CubefulGameConfs
     autoOperators?: { sg?: SGOperator; cb?: CBOperator }
-    dialog?: JSX.Element
-} & Partial<BGEventHandlers & CheckerPlayListeners & BoardEventHandlers>
+} & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>>
+
 export function CubefulGame(props: CubefulGameProps) {
     const defaultMatchState: MatchState = {
         isEoG: false,
@@ -64,8 +58,7 @@ export function CubefulGame(props: CubefulGameProps) {
         })
 
     const cbProps = {
-        cbState,
-        sgState,
+        bgState,
         cpState,
         cbConfs,
         dialog: cbDialog,

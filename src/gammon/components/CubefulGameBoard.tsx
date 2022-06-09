@@ -1,11 +1,13 @@
-import { BGEventHandlers, asSGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import {
+    BGEventHandlers,
+    asSGEventHandlers,
+} from 'tsgammon-core/dispatchers/BGEventHandlers'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { BoardEventHandlers } from './boards/Board'
-
 import {
     SingleGameBoard,
     SingleGameBoardProps,
@@ -17,12 +19,12 @@ export type CubefulGameConfs = {
 }
 
 export type CubefulGameBoardProps = {
-    cbState: CBState
-    sgState: SGState
+    bgState: BGState
     cpState?: CheckerPlayState
 
     cbConfs?: CubefulGameConfs
     dialog?: JSX.Element
+    onResign?: () => void
 } & Partial<
     Omit<BGEventHandlers, 'onTake' | 'onPass'> &
         CheckerPlayListeners &
@@ -31,15 +33,14 @@ export type CubefulGameBoardProps = {
 
 export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const {
-        cbState,
-        sgState,
+        bgState,
         cpState,
         dialog,
         cbConfs = { sgConfs: {} },
         onDouble,
         ...handlers
     } = props
-
+    const { cbState, sgState } = bgState
     const autoRoll: boolean = mayAutoRoll(cbState, cbConfs.sgConfs.autoRoll)
 
     const sgConfs: SingleGameConfs = {
