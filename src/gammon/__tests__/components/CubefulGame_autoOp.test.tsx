@@ -11,7 +11,8 @@ import {
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
+import { CubefulGame } from '../../components/CubefulGame'
+import { AutoOperateCBGame } from './AutoOperateCBGame'
 import {
     BoardOp,
     isRed,
@@ -70,7 +71,7 @@ describe('CubeGameBoard(with autoOp)', () => {
             absPos: standardConf.initialPos,
         })
         render(
-            <CubefulGame
+            <AutoOperateCBGame
                 {...{ ...props, autoOperators: setRedAutoOp(engine) }}
             />
         )
@@ -90,7 +91,7 @@ describe('CubeGameBoard(with autoOp)', () => {
         })
         const onRoll = jest.fn(props.onRoll)
         const autoOperators = setWhiteAutoOp(engine)
-        const next: CubefulGameProps = {
+        const next = {
             ...props,
             onRoll,
             autoOperators: {
@@ -103,7 +104,7 @@ describe('CubeGameBoard(with autoOp)', () => {
                 },
             },
         }
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -127,7 +128,7 @@ describe('CubeGameBoard(with autoOp)', () => {
             ...props,
             autoOperators: setWhiteAutoOp(engine),
         }
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -159,7 +160,7 @@ describe('CubeGameBoard(with autoOp)', () => {
             },
         }
 
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -181,7 +182,7 @@ describe('CubeGameBoard(with autoOp)', () => {
             ...props,
             autoOperators: setRedAutoOp(engine),
         }
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })

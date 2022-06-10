@@ -13,7 +13,7 @@ import {
 } from 'tsgammon-core/engines/GammonEngine'
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGame } from '../../components/CubefulGame'
+import { AutoOperateCBGame } from './AutoOperateCBGame'
 import { setupEventHandlers } from './CubefulGame.common'
 import { setRedAutoOp, setWhiteAutoOp } from './CubefulGame_autoOp.common'
 
@@ -57,7 +57,7 @@ describe('CubeGameBoard', () => {
             ...state,
             autoOperators: setRedAutoOp(engine),
         }
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })
@@ -70,7 +70,7 @@ describe('CubeGameBoard', () => {
             ...state,
             autoOperators: setWhiteAutoOp(engine),
         }
-        render(<CubefulGame {...next} />)
+        render(<AutoOperateCBGame {...next} />)
         act(() => {
             jest.advanceTimersByTime(10)
         })

@@ -39,6 +39,7 @@ const matchState: MatchStateInPlay = {
     matchLength: 5,
     stakeConf: { jacobyRule: false },
     scoreBefore: score({ redScore: 4, whiteScore: 3 }),
+    score: score({ redScore: 4, whiteScore: 3 }),
     isCrawford: true,
 }
 
