@@ -21,9 +21,6 @@ const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
 export const cpuPlaysRed3pt = Template.bind({})
 cpuPlaysRed3pt.args = {
     matchLength: 3,
-    cbConfs: {
-        sgConfs: {},
-    },
     autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }
 
@@ -40,9 +37,6 @@ endGame3pt.args = {
         dice2: 2,
         absPos: minimalPieces,
     },
-    cbConfs: {
-        sgConfs: {},
-    },
 }
 
 export const goIntoCrawford = Template.bind({})
@@ -54,9 +48,6 @@ goIntoCrawford.args = {
         dice1: 2,
         dice2: 2,
         absPos: minimalPieces,
-    },
-    cbConfs: {
-        sgConfs: {},
     },
     autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
 }

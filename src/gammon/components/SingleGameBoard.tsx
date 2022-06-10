@@ -1,4 +1,4 @@
-import { Fragment, useCallback } from 'react'
+import { useCallback } from 'react'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
@@ -26,11 +26,9 @@ import {
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 
-import { PositionID } from './uiparts/PositionID'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
-export type SingleGameConfs = {
-    showPositionID?: boolean
+export type OperationConfs = {
     autoRoll?: boolean
 }
 
@@ -38,29 +36,20 @@ export type SingleGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState
     cube?: CubeState
-    sgConfs?: SingleGameConfs
+    opConfs?: OperationConfs
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
-    const { sgState, sgConfs = {} } = props
-    const { showPositionID = true, autoRoll = false } = sgConfs
+    const { sgState, opConfs = {} } = props
+    const { autoRoll = false } = opConfs
     useAutoRoll(sgState, autoRoll, props.onRoll)
-
-    const positionID = showPositionID && (
-        <PositionID points={sgState.boardState.points} />
-    )
 
     const board =
         sgState.tag === 'SGInPlay'
             ? renderBoardInPlay(props, sgState)
             : renderBoard(props, sgState)
 
-    return (
-        <Fragment>
-            {positionID}
-            {board}
-        </Fragment>
-    )
+    return board
 }
 function renderBoard(
     props: SingleGameBoardProps,

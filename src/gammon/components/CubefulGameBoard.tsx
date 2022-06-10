@@ -11,18 +11,14 @@ import { BoardEventHandlers, BoardProps } from './boards/Board'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
-    SingleGameConfs,
+    OperationConfs,
 } from './SingleGameBoard'
-
-export type CubefulGameConfs = {
-    sgConfs: SingleGameConfs
-}
 
 export type CubefulGameBoardProps = {
     bgState: BGState
     cpState?: CheckerPlayState
 
-    cbConfs?: CubefulGameConfs
+    opConfs?: OperationConfs
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<
         Omit<BGEventHandlers, 'onTake' | 'onPass'> &
@@ -33,7 +29,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const {
         bgState,
         cpState,
-        cbConfs = { sgConfs: {} },
+        opConfs = {},
         dialog,
         lowerButton,
         upperButton,
@@ -41,10 +37,10 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         ...handlers
     } = props
     const { cbState, sgState } = bgState
-    const autoRoll: boolean = mayAutoRoll(cbState, cbConfs.sgConfs.autoRoll)
+    const autoRoll: boolean = mayAutoRoll(cbState, opConfs.autoRoll)
 
-    const sgConfs: SingleGameConfs = {
-        ...cbConfs.sgConfs,
+    const sgConfs: OperationConfs = {
+        ...opConfs,
         autoRoll,
     }
 
@@ -63,7 +59,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         sgState,
         cpState,
         cube: cbState.cubeState,
-        sgConfs,
+        opConfs: sgConfs,
         dialog,
         lowerButton,
         upperButton,

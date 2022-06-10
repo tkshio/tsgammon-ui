@@ -21,7 +21,6 @@ import {
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulGameConfs } from '../CubefulGameBoard'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
@@ -29,6 +28,7 @@ import {
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
+import { OperationConfs } from '../SingleGameBoard'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
 import { useSingleGameState } from '../useSingleGameState'
@@ -40,7 +40,7 @@ export type PointMatchProps = {
     matchScore?: Score
     isCrawford?: boolean
     board?: GameSetup
-    cbConfs?: CubefulGameConfs
+    opConfs?: OperationConfs
     autoOperators: { cb: CBOperator; sg: SGOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
@@ -57,7 +57,7 @@ export type PointMatchProps = {
 export function PointMatch(props: PointMatchProps) {
     const {
         gameConf = standardConf,
-        cbConfs = { sgConfs: {} },
+        opConfs,
         autoOperators = { cb: undefined, sg: undefined },
         matchLength = 0,
         matchScore: curScore = score(),
@@ -126,7 +126,7 @@ export function PointMatch(props: PointMatchProps) {
     const recordedMatchProps: RecordedCubefulGameProps = {
         matchRecord,
         bgState: { sgState, cbState },
-        cbConfs,
+        opConfs,
         autoOperators,
         ...handlers,
         onResumeState,

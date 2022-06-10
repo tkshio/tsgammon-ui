@@ -9,21 +9,18 @@ import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
-import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
+import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { useCBAutoOperator } from './useCBAutoOperator'
 import { eogMatchState } from './useMatchState'
 
-export type CubefulGameConfs = {
-    sgConfs: SingleGameConfs
-}
-
 export type CubefulGameProps = Omit<CubefulGameBoardProps, 'lowerButton'> & {
     matchState: MatchState
     autoOperators?: { sg?: SGOperator; cb?: CBOperator }
-    onResign?:()=>void
+    showPositionID?: boolean
+    onResign?: () => void
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>>
 
 export function CubefulGame(props: CubefulGameProps) {
@@ -41,10 +38,11 @@ export function CubefulGame(props: CubefulGameProps) {
         matchState = props.bgState.cbState.tag === 'CBEoG'
             ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
-        cbConfs = { sgConfs: {} },
+        opConfs,
         dialog,
         upperButton,
         autoOperators = { sg: undefined, cb: undefined },
+        showPositionID = true,
         onResign,
         ...eventHandlers
     } = props
@@ -61,16 +59,23 @@ export function CubefulGame(props: CubefulGameProps) {
     const lowerButton = onResign ? (
         <ResignButton {...{ onResign }} />
     ) : undefined
-    const cbProps = {
+    const cbProps: CubefulGameBoardProps = {
         bgState,
         cpState,
-        cbConfs,
+        opConfs,
         dialog: cbDialog,
         upperButton,
         lowerButton,
         ...eventHandlers,
     }
-    return <CubefulGameBoard {...cbProps} />
+    return (
+        <Fragment>
+            {showPositionID && (
+                <PositionID points={sgState.boardState.points} />
+            )}
+            <CubefulGameBoard {...cbProps} />
+        </Fragment>
+    )
 }
 
 function eogDialog(

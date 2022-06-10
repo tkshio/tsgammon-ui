@@ -13,9 +13,9 @@ import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
-import { CubefulGameConfs } from '../CubefulGameBoard'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
+import { OperationConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
@@ -26,7 +26,7 @@ export type MoneyGameProps = {
     matchScore?: Score
     setup?: GameSetup
     autoOperator?: { cb?: CBOperator; sg?: SGOperator }
-    cbConfs?: CubefulGameConfs
+    opConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
 } & Partial<

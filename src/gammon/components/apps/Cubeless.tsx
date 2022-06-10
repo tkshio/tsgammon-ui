@@ -15,7 +15,7 @@ import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { SGOperator } from '../operators/SGOperator'
 import { SingleGame, SingleGameProps } from '../SingleGame'
-import { SingleGameConfs } from '../SingleGameBoard'
+import { OperationConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
@@ -23,7 +23,7 @@ import { useSingleGameState } from '../useSingleGameState'
 export type CubelessProps = {
     gameConf?: GameConf
     autoOperator?: SGOperator
-    sgConfs?: SingleGameConfs
+    sgConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource: DiceSource
 } & GameSetup &
@@ -71,7 +71,7 @@ export function Cubeless(props: CubelessProps) {
     const sgProps: SingleGameProps = {
         sgState,
         cpState,
-        sgConfs,
+        opConfs: sgConfs,
         matchScore:
             sgState.tag === 'SGEoG'
                 ? matchScore.add(sgState.stake)

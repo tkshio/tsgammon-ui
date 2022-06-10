@@ -4,9 +4,11 @@ import { ResignButton } from './uiparts/ResignButton'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
+import { PositionID } from './uiparts/PositionID'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     matchScore?: Score
+    showPositionID?: boolean
     onResign?: () => void
 }
 
@@ -14,8 +16,9 @@ export function SingleGame(props: SingleGameProps) {
     const {
         cpState,
         sgState,
-        sgConfs = {},
+        opConfs = {},
         matchScore = score(),
+        showPositionID = true,
         dialog,
         onStartGame,
         onResign,
@@ -41,7 +44,7 @@ export function SingleGame(props: SingleGameProps) {
     const singleGameProps: SingleGameBoardProps = {
         sgState,
         cpState,
-        sgConfs,
+        opConfs: opConfs,
         dialog: eogDialog,
         lowerButton,
         ...listeners,
@@ -54,6 +57,9 @@ export function SingleGame(props: SingleGameProps) {
 
     return (
         <Fragment>
+            {showPositionID && (
+                <PositionID points={sgState.boardState.points} />
+            )}
             <SingleGameBoard {...singleGameProps} />
             <PlyInfo {...plyInfoProps} />
         </Fragment>

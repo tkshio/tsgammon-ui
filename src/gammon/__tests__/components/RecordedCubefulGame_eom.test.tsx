@@ -65,10 +65,9 @@ const state = {
 }
 const props: RecordedCubefulGameProps = {
     ...setupEventHandlers(state, presetDiceSource()),
-    gameConf: conf,
     bgState,
     matchRecord: initialMatchRecord,
-    cbConfs: { sgConfs: {} },
+    opConfs: {},
     onResumeState: () => {
         //
     },

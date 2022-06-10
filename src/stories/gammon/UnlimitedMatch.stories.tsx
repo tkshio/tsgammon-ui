@@ -50,10 +50,6 @@ gameFromMidst.args = {
         ],
     },
     diceSource,
-    cbConfs: {
-        sgConfs: {
-        },
-    },
 }
 
 const minimalPieces = [
