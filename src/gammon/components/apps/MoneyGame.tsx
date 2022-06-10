@@ -16,6 +16,7 @@ import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { OperationConfs } from '../SingleGameBoard'
+import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
@@ -25,7 +26,7 @@ export type MoneyGameProps = {
     gameConf: GameConf
     matchScore?: Score
     setup?: GameSetup
-    autoOperator?: { cb?: CBOperator; sg?: SGOperator }
+    autoOperators?: { cb?: CBOperator; sg?: SGOperator }
     opConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
@@ -42,6 +43,7 @@ export function MoneyGame(props: MoneyGameProps) {
         gameConf = { ...standardConf, jacobyRule: true },
         matchScore = score(),
         setup,
+        autoOperators = { cb: undefined, sg: undefined },
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
         onRollRequest = () => {
@@ -75,6 +77,8 @@ export function MoneyGame(props: MoneyGameProps) {
         matchStateAddOn,
         { eventHandlers: {}, listeners: props }
     )
+
+    useCBAutoOperator(cbState, sgState, autoOperators, handlers)
 
     const onResign = () => {
         //

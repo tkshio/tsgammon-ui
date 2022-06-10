@@ -7,18 +7,14 @@ import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
-import { CBOperator } from './operators/CBOperator'
-import { SGOperator } from './operators/SGOperator'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
-import { useCBAutoOperator } from './useCBAutoOperator'
 import { eogMatchState } from './useMatchState'
 
 export type CubefulGameProps = Omit<CubefulGameBoardProps, 'lowerButton'> & {
     matchState: MatchState
-    autoOperators?: { sg?: SGOperator; cb?: CBOperator }
     showPositionID?: boolean
     onResign?: () => void
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>>
@@ -41,13 +37,11 @@ export function CubefulGame(props: CubefulGameProps) {
         opConfs,
         dialog,
         upperButton,
-        autoOperators = { sg: undefined, cb: undefined },
         showPositionID = true,
         onResign,
         ...eventHandlers
     } = props
-    const { cbState, sgState } = bgState
-    useCBAutoOperator(cbState, sgState, autoOperators, eventHandlers)
+    const { sgState } = bgState
 
     const cbDialog =
         dialog ??
