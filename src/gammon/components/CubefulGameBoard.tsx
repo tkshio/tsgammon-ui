@@ -7,7 +7,7 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { BoardEventHandlers } from './boards/Board'
+import { BoardEventHandlers, BoardProps } from './boards/Board'
 import {
     SingleGameBoard,
     SingleGameBoardProps,
@@ -23,20 +23,20 @@ export type CubefulGameBoardProps = {
     cpState?: CheckerPlayState
 
     cbConfs?: CubefulGameConfs
-    dialog?: JSX.Element
-    onResign?: () => void
-} & Partial<
-    Omit<BGEventHandlers, 'onTake' | 'onPass'> &
-        CheckerPlayListeners &
-        BoardEventHandlers
->
-
+} & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
+    Partial<
+        Omit<BGEventHandlers, 'onTake' | 'onPass'> &
+            CheckerPlayListeners &
+            BoardEventHandlers
+    >
 export function CubefulGameBoard(props: CubefulGameBoardProps) {
     const {
         bgState,
         cpState,
-        dialog,
         cbConfs = { sgConfs: {} },
+        dialog,
+        lowerButton,
+        upperButton,
         onDouble,
         ...handlers
     } = props
@@ -58,12 +58,15 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
         cbState,
         handlers
     )
+
     const sgProps: SingleGameBoardProps = {
         sgState,
         cpState,
         cube: cbState.cubeState,
         sgConfs,
         dialog,
+        lowerButton,
+        upperButton,
         ...handlers,
         ...sgHandlers,
         onClickCube,

@@ -65,7 +65,9 @@ export function Cubeless(props: CubelessProps) {
     useSGAutoOperator(sgState, autoOperator, handlers)
 
     const [cpState, cpListeners] = useCheckerPlayListeners()
-
+    const onResign = () => {
+        //
+    }
     const sgProps: SingleGameProps = {
         sgState,
         cpState,
@@ -74,6 +76,7 @@ export function Cubeless(props: CubelessProps) {
             sgState.tag === 'SGEoG'
                 ? matchScore.add(sgState.stake)
                 : matchScore,
+        onResign,
         ...handlers,
         ...cpListeners,
     }

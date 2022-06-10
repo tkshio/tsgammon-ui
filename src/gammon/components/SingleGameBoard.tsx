@@ -18,6 +18,7 @@ import {
 import {
     Board,
     BoardEventHandlers,
+    BoardProps,
     decorate,
     DiceLayout,
     layoutCube,
@@ -26,7 +27,6 @@ import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 
 import { PositionID } from './uiparts/PositionID'
-import { IconButton } from './uiparts/IconButton'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
 export type SingleGameConfs = {
@@ -39,10 +39,8 @@ export type SingleGameBoardProps = {
     cpState?: CheckerPlayState
     cube?: CubeState
     sgConfs?: SingleGameConfs
-    dialog?: JSX.Element
-    onResign?: () => void
-} & Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
-
+} & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
+    Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
     const { sgState, sgConfs = {} } = props
     const { showPositionID = true, autoRoll = false } = sgConfs
@@ -77,21 +75,17 @@ function renderBoard(
             }
         },
     })
-    const lowerButton = resignButton(props)
     const boardProps = {
         ...props,
         board: sgState.absBoard,
         ...layoutDices(sgState),
         ...layoutCube(props.cube),
         onClickDice,
-        lowerButton,
     }
     return <Board {...boardProps} />
 }
 
 function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
-    const lowerButton = resignButton(props)
-
     // チェッカープレイ中の操作は専用のコンポーネントに任せる
     const cpProps: CheckerPlayBoardProps = {
         ...props,
@@ -103,7 +97,6 @@ function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
             props.onCommit?.(sgState.withNode(cpState.boardStateNode))
             props.onCommitCheckerPlay?.(cpState)
         },
-        lowerButton,
     }
     return <CheckerPlayBoard {...cpProps} />
 }
@@ -150,10 +143,4 @@ function layoutDicesAsRed(dices: Dice[] | BlankDice[]): DiceLayout {
 
 function layoutDicesAsWhite(dices: Dice[] | BlankDice[]): DiceLayout {
     return { redDices: { dices: [] }, whiteDices: { dices } }
-}
-
-function resignButton(props: { onResign?: () => void }) {
-    return props.onResign ? (
-        <IconButton onClick={props?.onResign} id="resignButton" />
-    ) : undefined
 }

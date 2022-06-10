@@ -64,10 +64,15 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         rollListener
     )
     useSGAutoOperator(sgState, autoOperator, handlers)
+    const onResign = () => {
+        //
+    }
+
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
         sgConfs,
         matchRecord,
+        onResign,
         ...handlers,
     }
 
@@ -86,7 +91,6 @@ function useRecordedCubeless(
         rollListener,
         matchRecordAddOn
     )
-
     return {
         handlers: {
             ...handlers,

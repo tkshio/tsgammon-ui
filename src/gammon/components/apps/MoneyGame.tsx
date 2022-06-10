@@ -6,7 +6,7 @@ import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -76,9 +76,14 @@ export function MoneyGame(props: MoneyGameProps) {
         { eventHandlers: {}, listeners: props }
     )
 
+    const onResign = () => {
+        //
+    }
+
     const cbProps: CubefulGameProps = {
         bgState: { sgState, cbState },
         cpState,
+        onResign,
         ...listeners,
         matchState,
         ...handlers,

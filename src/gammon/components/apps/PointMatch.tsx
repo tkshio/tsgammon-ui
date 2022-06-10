@@ -3,11 +3,12 @@ import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
-    matchStateForPointMatch, matchStateForUnlimitedMatch
+    matchStateForPointMatch,
+    matchStateForUnlimitedMatch,
 } from 'tsgammon-core/dispatchers/MatchState'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -16,7 +17,7 @@ import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay
+    MatchRecordInPlay,
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
@@ -25,7 +26,7 @@ import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useCubeGameState } from '../useCubeGameState'
@@ -119,13 +120,17 @@ export function PointMatch(props: PointMatchProps) {
         matchKeyAddOn,
         matchRecorderAddOn
     )
-
+    const onResign = () => {
+        //
+    }
     const recordedMatchProps: RecordedCubefulGameProps = {
         matchRecord,
         bgState: { sgState, cbState },
         cbConfs,
         autoOperators,
-        ...{ ...handlers, onResumeState },
+        ...handlers,
+        onResumeState,
+        onResign,
     }
 
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />

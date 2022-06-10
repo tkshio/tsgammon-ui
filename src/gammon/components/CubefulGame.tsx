@@ -5,7 +5,6 @@ import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { CBOperator } from './operators/CBOperator'
@@ -13,18 +12,18 @@ import { SGOperator } from './operators/SGOperator'
 import { SingleGameConfs } from './SingleGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
+import { ResignButton } from './uiparts/ResignButton'
 import { useCBAutoOperator } from './useCBAutoOperator'
 import { eogMatchState } from './useMatchState'
 
 export type CubefulGameConfs = {
     sgConfs: SingleGameConfs
-    autoOperator?: CBOperator
-    stakeConf?: StakeConf
 }
 
-export type CubefulGameProps = CubefulGameBoardProps &{
+export type CubefulGameProps = Omit<CubefulGameBoardProps, 'lowerButton'> & {
     matchState: MatchState
     autoOperators?: { sg?: SGOperator; cb?: CBOperator }
+    onResign?:()=>void
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>>
 
 export function CubefulGame(props: CubefulGameProps) {
@@ -42,9 +41,11 @@ export function CubefulGame(props: CubefulGameProps) {
         matchState = props.bgState.cbState.tag === 'CBEoG'
             ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
-        dialog,
         cbConfs = { sgConfs: {} },
+        dialog,
+        upperButton,
         autoOperators = { sg: undefined, cb: undefined },
+        onResign,
         ...eventHandlers
     } = props
     const { cbState, sgState } = bgState
@@ -57,11 +58,16 @@ export function CubefulGame(props: CubefulGameProps) {
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 
+    const lowerButton = onResign ? (
+        <ResignButton {...{ onResign }} />
+    ) : undefined
     const cbProps = {
         bgState,
         cpState,
         cbConfs,
         dialog: cbDialog,
+        upperButton,
+        lowerButton,
         ...eventHandlers,
     }
     return <CubefulGameBoard {...cbProps} />
