@@ -17,26 +17,20 @@
     align-self: center;
 }
 
-.dialog > .cubeResponse > .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
 
-.button.take {
+.button#take {
     background: darkslategray;
     color: white;
 }
 
-.button.pass {
+.button#pass {
     background: lightgray;
 }
 
-.button.take:after {
+.button#take:after {
     content: 'Take';
 }
 
-.button.pass:after {
+.button#pass:after {
     content: 'Pass';
 }

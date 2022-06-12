@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Dialog } from './Dialog'
 import './button.css'
 import './cubeResponseDialog.css'
+import { Buttons } from './Buttons'
+import { Button } from './Button'
 
 export type CubeResponseDialogProps = {
     onTake: () => void
@@ -15,22 +17,23 @@ export type CubeResponseDialogProps = {
  */
 export function CubeResponseDialog(props: CubeResponseDialogProps) {
     return (
-        <Dialog {...{ msgs: [], onClick: () => {
-            //
-        } }}>
+        <Dialog
+            {...{
+                msgs: [],
+                onClick: () => {
+                    //
+                },
+            }}
+        >
             <div className="cubeResponse">
                 <div className="csscaption" />
-                <div className="buttons">
-                    {' '}
-                    <div
-                        className={'button take'}
-                        onClick={() => props.onTake()}
-                    ></div>
-                    <div
-                        className={'button pass'}
-                        onClick={() => props.onPass()}
-                    ></div>
-                </div>
+                <Buttons>
+                    <Fragment>
+                        {' '}
+                        <Button id="take" onClick={() => props.onTake()} />
+                        <Button id="pass" onClick={() => props.onPass()} />
+                    </Fragment>
+                </Buttons>
             </div>
         </Dialog>
     )

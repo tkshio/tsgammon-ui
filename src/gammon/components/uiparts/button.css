@@ -4,3 +4,10 @@
     align-items: center;
     padding: 15px 30px;
 }
+
+.buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
