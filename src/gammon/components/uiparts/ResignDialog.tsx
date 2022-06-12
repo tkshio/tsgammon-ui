@@ -2,10 +2,8 @@ import { Fragment } from 'react'
 import {
     ResignOffer,
     ResignState,
-    rsNone,
-    RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignEventHandlers } from '../useResignDialog'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
@@ -14,11 +12,7 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved?: boolean
     resignState: ResignState | ResignStateInChoose
-    setResignState: (resign: ResignState | ResignStateInChoose) => void
-    onAcceptResign: (
-        resign: ResignOffer,
-        result: SGResult.REDWON | SGResult.WHITEWON
-    ) => void
+    resignEventHandlers: ResignEventHandlers
 }
 export type ResignStateInChoose = {
     tag: 'RSInChoose'
@@ -30,35 +24,9 @@ export function ResignDialog(props: ResignDialogProps) {
     const {
         isGammonSaved = false,
         resignState,
-        setResignState = () => {
-            //
-        },
-        onAcceptResign = () => {
-            //
-        },
+        resignEventHandlers,
     } = props
-    const eventHandlers = {
-        cancel: () => setResignState(rsNone()),
-        offer: (resignState: ResignStateInChoose, offer: ResignOffer) =>
-            setResignState(
-                resignState.isRed
-                    ? rsNone().doOfferResignWhite(offer)
-                    : rsNone().doOfferResignRed(offer)
-            ),
-        reject: (resignState: RSOffered) =>
-            setResignState({
-                tag: 'RSInChoose',
-                isRed: !resignState.isRed,
-                lastOffer: resignState.offer,
-            }),
-        accept: (resignState: RSOffered) => {
-            setResignState(rsNone())
-            onAcceptResign(
-                resignState.offer,
-                resignState.isRed ? SGResult.WHITEWON : SGResult.REDWON
-            )
-        },
-    }
+
     function format(offer: ResignOffer): string {
         switch (offer) {
             case ResignOffer.Backgammon:
@@ -91,20 +59,23 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offer"
                             onClick={() =>
-                                eventHandlers.offer(
+                                resignEventHandlers.offer(
                                     resignState,
                                     ResignOffer.Single
                                 )
                             }
                         />
-                        <Button id="cancel" onClick={eventHandlers.cancel} />
+                        <Button
+                            id="cancel"
+                            onClick={resignEventHandlers.cancel}
+                        />
                     </Fragment>
                 ) : (
                     <Fragment>
                         <Button
                             id="offerSingle"
                             onClick={() =>
-                                eventHandlers.offer(
+                                resignEventHandlers.offer(
                                     resignState,
                                     ResignOffer.Single
                                 )
@@ -113,7 +84,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offerGammon"
                             onClick={() =>
-                                eventHandlers.offer(
+                                resignEventHandlers.offer(
                                     resignState,
                                     ResignOffer.Gammon
                                 )
@@ -122,7 +93,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offerBackgammon"
                             onClick={() =>
-                                eventHandlers.offer(
+                                resignEventHandlers.offer(
                                     resignState,
                                     ResignOffer.Backgammon
                                 )
@@ -130,7 +101,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         />
                         <Button
                             id="cancelResign"
-                            onClick={eventHandlers.cancel}
+                            onClick={resignEventHandlers.cancel}
                         />
                     </Fragment>
                 )}
@@ -147,11 +118,11 @@ export function ResignDialog(props: ResignDialogProps) {
             <Buttons>
                 <Button
                     id="acceptOffer"
-                    onClick={() => eventHandlers.accept(resignState)}
+                    onClick={() => resignEventHandlers.accept(resignState)}
                 />
                 <Button
                     id="rejectOffer"
-                    onClick={() => eventHandlers.reject(resignState)}
+                    onClick={() => resignEventHandlers.reject(resignState)}
                 />
             </Buttons>
         </Dialog>
