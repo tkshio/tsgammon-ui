@@ -25,9 +25,9 @@ export type BoardEventHandlers = {
 }
 
 export type BoardProps = {
-    board: AbsoluteBoardState
-    redDices: DiceProps
-    whiteDices: DiceProps
+    board?: AbsoluteBoardState
+    redDices?: DiceProps
+    whiteDices?: DiceProps
     centerCube?: CubeProps
     redCube?: CubeProps
     whiteCube?: CubeProps
