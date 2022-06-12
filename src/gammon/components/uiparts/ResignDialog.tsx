@@ -6,9 +6,13 @@ import {
     RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
+import { Button } from './Button'
+import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
+import './resignDialog.css'
 
 export type ResignDialogProps = {
+    isGammonSaved?: boolean
     resignState: ResignState | ResignStateInChoose
     setResignState: (resign: ResignState | ResignStateInChoose) => void
     onAcceptResign: (
@@ -22,7 +26,9 @@ export type ResignStateInChoose = {
     lastOffer?: ResignOffer
 }
 export function ResignDialog(props: ResignDialogProps) {
+    const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
     const {
+        isGammonSaved = false,
         resignState,
         setResignState = () => {
             //
@@ -69,53 +75,85 @@ export function ResignDialog(props: ResignDialogProps) {
             msgs={
                 resignState.lastOffer
                     ? [
-                          `Your offer(${format(
-                              resignState.lastOffer
-                          )}) was rejected`,
+                          `Your offer${
+                              isGammonSaved
+                                  ? ''
+                                  : ' (' + format(resignState.lastOffer) + ')'
+                          } was rejected`,
+                          ZERO_WIDTH_SPACE,
                       ]
-                    : []
+                    : [`Select offer: `, ZERO_WIDTH_SPACE]
             }
         >
-            <Fragment>
-                <div
-                    onClick={() =>
-                        eventHandlers.offer(resignState, ResignOffer.Single)
-                    }
-                >
-                    Single
-                </div>
-                <div
-                    onClick={() =>
-                        eventHandlers.offer(resignState, ResignOffer.Gammon)
-                    }
-                >
-                    Gammon
-                </div>
-                <div
-                    onClick={() =>
-                        eventHandlers.offer(resignState, ResignOffer.Backgammon)
-                    }
-                >
-                    Backgammon
-                </div>
-                <div onClick={eventHandlers.cancel}>Cancel</div>
-            </Fragment>
+            <Buttons>
+                {isGammonSaved ? (
+                    <Fragment>
+                        <Button
+                            id="offer"
+                            onClick={() =>
+                                eventHandlers.offer(
+                                    resignState,
+                                    ResignOffer.Single
+                                )
+                            }
+                        />
+                        <Button id="cancel" onClick={eventHandlers.cancel} />
+                    </Fragment>
+                ) : (
+                    <Fragment>
+                        <Button
+                            id="offerSingle"
+                            onClick={() =>
+                                eventHandlers.offer(
+                                    resignState,
+                                    ResignOffer.Single
+                                )
+                            }
+                        />
+                        <Button
+                            id="offerGammon"
+                            onClick={() =>
+                                eventHandlers.offer(
+                                    resignState,
+                                    ResignOffer.Gammon
+                                )
+                            }
+                        />
+                        <Button
+                            id="offerBackgammon"
+                            onClick={() =>
+                                eventHandlers.offer(
+                                    resignState,
+                                    ResignOffer.Backgammon
+                                )
+                            }
+                        />
+                        <Button
+                            id="cancelResign"
+                            onClick={eventHandlers.cancel}
+                        />
+                    </Fragment>
+                )}
+            </Buttons>
         </Dialog>
     ) : // 提示を受けるかどうかのダイアログ
     resignState.tag === 'RSOffered' ? (
         <Dialog
             msgs={[
-                `Opponent offers to resign at a ${format(resignState.offer)}`,
+                `Opponent offers to resign at: ${format(resignState.offer)}`,
+                ZERO_WIDTH_SPACE,
             ]}
         >
-            <Fragment>
-                <div onClick={() => eventHandlers.accept(resignState)}>
-                    Accept
-                </div>
-                <div onClick={() => eventHandlers.reject(resignState)}>
-                    Reject
-                </div>
-            </Fragment>
+            <Buttons>
+                <Button
+                    id="acceptOffer"
+                    onClick={() => eventHandlers.accept(resignState)}
+                />
+                <Button
+                    id="rejectOffer"
+                    onClick={() => eventHandlers.reject(resignState)}
+                />
+            </Buttons>
         </Dialog>
     ) : null
 }

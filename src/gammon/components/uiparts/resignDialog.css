@@ -1,0 +1,41 @@
+.button#offerSingle,.button#offerGammon,.button#offerBackgammon{
+    background: darkslategray;
+    color: white;
+    padding: 4px 8px;
+}
+
+.button#cancelResign {
+    background: lightgray;
+    padding: 4px 8px;
+}
+
+.button#acceptOffer, .button#offer{
+    background: darkslategray;
+    color: white;
+}
+
+.button#rejectOffer, .button#cancel {
+    background: lightgray;
+}
+
+.button#offerSingle:after,.button#offer:after {
+    content: 'Single(1)';
+}
+
+.button#offerGammon:after {
+    content: 'Gammon(2)';
+}
+
+.button#offerBackgammon:after {
+    content: 'Backgammon(3)';
+}
+.button#cancelResign:after,.button#cancel:after {
+    content: 'Cancel';
+}
+
+.button#acceptOffer:after {
+    content:'Accept';
+}
+.button#rejectOffer:after {
+    content:'Reject';
+}
