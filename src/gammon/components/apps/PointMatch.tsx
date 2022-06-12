@@ -1,14 +1,20 @@
-import { score, Score } from 'tsgammon-core'
+import { useState } from 'react'
+import { eog, score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     matchStateForPointMatch,
-    matchStateForUnlimitedMatch
+    matchStateForUnlimitedMatch,
 } from 'tsgammon-core/dispatchers/MatchState'
 import {
+    ResignOffer,
+    ResignState,
+    rsNone,
+} from 'tsgammon-core/dispatchers/ResignState'
+import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -17,18 +23,20 @@ import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay
+    MatchRecordInPlay,
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CBOperator } from '../operators/CBOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { OperationConfs } from '../SingleGameBoard'
+import { ResignDialog, ResignStateInChoose } from '../uiparts/ResignDialog'
 import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
@@ -124,9 +132,48 @@ export function PointMatch(props: PointMatchProps) {
 
     useCBAutoOperator(cbState, sgState, autoOperators, handlers)
 
-    const onResign = () => {
-        //
+    const [resignState, setResignState] = useState<
+        ResignState | ResignStateInChoose
+    >(rsNone())
+    const {
+        mayResign,
+        isRed,
+    }:
+        | { mayResign: true; isRed: boolean }
+        | { mayResign: false; isRed: undefined } =
+        cbState.tag === 'CBAction' ||
+        cbState.tag === 'CBInPlay' ||
+        cbState.tag === 'CBToRoll'
+            ? { mayResign: true, isRed: cbState.isRed }
+            : { mayResign: false, isRed: undefined }
+
+    // Resign可能な時は、ハンドラーを設定してU.I.から降参が選べるようにする
+    const onResign =
+        mayResign && resignState.tag === 'RSNone'
+            ? () => {
+                  setResignState({ tag: 'RSInChoose', isRed})
+              }
+            : undefined
+
+    // Resign中は、ダイアログを生成する
+    const onAcceptResign = (
+        offer: ResignOffer,
+        result: SGResult.REDWON | SGResult.WHITEWON
+    ) => {
+        const eogStatus = eog({
+            isGammon:
+                offer === ResignOffer.Gammon ||
+                offer === ResignOffer.Backgammon,
+            isBackgammon: offer === ResignOffer.Backgammon,
+        })
+        handlers.onEndGame({ cbState, sgState }, result, eogStatus)
     }
+    const resignDialog =
+        resignState.tag === 'RSNone' ? undefined : (
+            <ResignDialog
+                {...{ resignState, setResignState:(r)=>setResignState(r), onAcceptResign }}
+            />
+        )
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         matchRecord,
@@ -135,6 +182,7 @@ export function PointMatch(props: PointMatchProps) {
         ...handlers,
         onResumeState,
         onResign,
+        dialog: resignDialog,
     }
 
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />

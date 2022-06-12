@@ -15,6 +15,7 @@ import {
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import {
     Board,
     BoardEventHandlers,
@@ -122,8 +123,15 @@ function useAutoRoll(
 
 // InPlay時は、ダイスはチェッカープレイに応じて変わるので、
 // 関数だけ返して動的にレイアウトする
-function selectDiceLayout(sgState: SGToRoll | SGEoG | SGInPlay) {
-    return sgState.isRed ? layoutDicesAsRed : layoutDicesAsWhite
+function selectDiceLayout(
+    sgState: SGToRoll | SGEoG | SGInPlay
+): (dices: Dice[] | BlankDice[]) => DiceLayout {
+    if (sgState.tag === 'SGEoG' && sgState.result === SGResult.NOGAME) {
+        // 中断時はダイスを表示しない
+        return () => ({ redDices: { dices: [] }, whiteDices: { dices: [] } })
+    } else {
+        return sgState.isRed ? layoutDicesAsRed : layoutDicesAsWhite
+    }
 }
 
 function layoutDicesAsRed(dices: Dice[] | BlankDice[]): DiceLayout {

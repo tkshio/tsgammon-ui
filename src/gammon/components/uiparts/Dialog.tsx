@@ -2,8 +2,8 @@ import React from 'react'
 import './dialog.css'
 
 export type DialogProps = {
-    msgs: string[]
-    onClick: () => void
+    msgs?: string[]
+    onClick?: () => void
     children?: JSX.Element
 }
 
