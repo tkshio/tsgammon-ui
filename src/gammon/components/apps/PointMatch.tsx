@@ -35,7 +35,7 @@ import { ResignDialog } from '../uiparts/ResignDialog'
 import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
-import { MayResignOrNot, useResignDialog } from '../useResignDialog'
+import { MayResignOrNot, useResignState } from '../useResignDialog'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
 
@@ -129,7 +129,7 @@ export function PointMatch(props: PointMatchProps) {
     useCBAutoOperator(cbState, sgState, autoOperators, handlers)
 
     const { resignState,  onResign,  resignEventHandlers} =
-        useResignDialog(
+        useResignState(
             mayResignOrNot(cbState),
             (result: SGResult, eogStatus: EOGStatus) =>
                 handlers.onEndGame({ cbState, sgState }, result, eogStatus)

@@ -20,7 +20,7 @@ export type ResignEventHandlers = {
     onAccept: (resignState: RSOffered) => void
 }
 
-export function useResignDialog(
+export function useResignState(
     mayResignOrNot: MayResignOrNot,
     onEndGame: (result: SGResult, eogStatus: EOGStatus) => void
 ) {
