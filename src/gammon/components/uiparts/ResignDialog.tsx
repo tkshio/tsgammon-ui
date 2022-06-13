@@ -1,8 +1,5 @@
 import { Fragment } from 'react'
-import {
-    ResignOffer,
-    ResignState,
-} from 'tsgammon-core/dispatchers/ResignState'
+import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { ResignEventHandlers } from '../useResignDialog'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
@@ -12,8 +9,7 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved?: boolean
     resignState: ResignState | ResignStateInChoose
-    resignEventHandlers: ResignEventHandlers
-}
+} & Partial<ResignEventHandlers>
 export type ResignStateInChoose = {
     tag: 'RSInChoose'
     isRed: boolean
@@ -21,11 +17,17 @@ export type ResignStateInChoose = {
 }
 export function ResignDialog(props: ResignDialogProps) {
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
-    const {
-        isGammonSaved = false,
-        resignState,
-        resignEventHandlers,
-    } = props
+    const doNothing = () => {
+        //
+    }
+    const { isGammonSaved = false, resignState, ...handlers } = props
+    const resignEventHandlers: ResignEventHandlers = {
+        onCancel: doNothing,
+        onOffer: doNothing,
+        onReject: doNothing,
+        onAccept: doNothing,
+        ...handlers,
+    }
 
     function format(offer: ResignOffer): string {
         switch (offer) {
@@ -59,7 +61,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offer"
                             onClick={() =>
-                                resignEventHandlers.offer(
+                                resignEventHandlers.onOffer(
                                     resignState,
                                     ResignOffer.Single
                                 )
@@ -67,7 +69,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         />
                         <Button
                             id="cancel"
-                            onClick={resignEventHandlers.cancel}
+                            onClick={resignEventHandlers.onCancel}
                         />
                     </Fragment>
                 ) : (
@@ -75,7 +77,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offerSingle"
                             onClick={() =>
-                                resignEventHandlers.offer(
+                                resignEventHandlers.onOffer(
                                     resignState,
                                     ResignOffer.Single
                                 )
@@ -84,7 +86,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offerGammon"
                             onClick={() =>
-                                resignEventHandlers.offer(
+                                resignEventHandlers.onOffer(
                                     resignState,
                                     ResignOffer.Gammon
                                 )
@@ -93,7 +95,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         <Button
                             id="offerBackgammon"
                             onClick={() =>
-                                resignEventHandlers.offer(
+                                resignEventHandlers.onOffer(
                                     resignState,
                                     ResignOffer.Backgammon
                                 )
@@ -101,7 +103,7 @@ export function ResignDialog(props: ResignDialogProps) {
                         />
                         <Button
                             id="cancelResign"
-                            onClick={resignEventHandlers.cancel}
+                            onClick={resignEventHandlers.onCancel}
                         />
                     </Fragment>
                 )}
@@ -118,11 +120,11 @@ export function ResignDialog(props: ResignDialogProps) {
             <Buttons>
                 <Button
                     id="acceptOffer"
-                    onClick={() => resignEventHandlers.accept(resignState)}
+                    onClick={() => resignEventHandlers.onAccept(resignState)}
                 />
                 <Button
                     id="rejectOffer"
-                    onClick={() => resignEventHandlers.reject(resignState)}
+                    onClick={() => resignEventHandlers.onReject(resignState)}
                 />
             </Buttons>
         </Dialog>

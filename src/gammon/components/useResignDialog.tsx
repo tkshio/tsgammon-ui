@@ -14,10 +14,10 @@ export type MayResignOrNot =
     | { mayResign: false; isRed: undefined }
 
 export type ResignEventHandlers = {
-    cancel: () => void
-    offer: (resignState: ResignStateInChoose, offer: ResignOffer) => void
-    reject: (resignState: RSOffered) => void
-    accept: (resignState: RSOffered) => void
+    onCancel: () => void
+    onOffer: (resignState: ResignStateInChoose, offer: ResignOffer) => void
+    onReject: (resignState: RSOffered) => void
+    onAccept: (resignState: RSOffered) => void
 }
 
 export function useResignDialog(
@@ -52,21 +52,21 @@ export function useResignDialog(
     }
 
     // 必要な状態管理機能を集約
-    const resignEventHandlers = {
-        cancel: () => setResignState(rsNone()),
-        offer: (resignState: ResignStateInChoose, offer: ResignOffer) =>
+    const resignEventHandlers :ResignEventHandlers= {
+        onCancel: () => setResignState(rsNone()),
+        onOffer: (resignState: ResignStateInChoose, offer: ResignOffer) =>
             setResignState(
                 resignState.isRed
                     ? rsNone().doOfferResignWhite(offer)
                     : rsNone().doOfferResignRed(offer)
             ),
-        reject: (resignState: RSOffered) =>
+        onReject: (resignState: RSOffered) =>
             setResignState({
                 tag: 'RSInChoose',
                 isRed: !resignState.isRed,
                 lastOffer: resignState.offer,
             }),
-        accept: (resignState: RSOffered) => {
+        onAccept: (resignState: RSOffered) => {
             setResignState(rsNone())
             onAcceptResign(
                 resignState.offer,

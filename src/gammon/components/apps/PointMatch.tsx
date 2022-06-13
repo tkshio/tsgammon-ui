@@ -140,7 +140,7 @@ export function PointMatch(props: PointMatchProps) {
             <ResignDialog
                 {...{
                     resignState,
-                    resignEventHandlers,
+                    ...resignEventHandlers,
                 }}
             />
         )
