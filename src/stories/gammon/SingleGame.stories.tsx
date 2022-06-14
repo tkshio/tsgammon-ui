@@ -36,12 +36,12 @@ const engine: GammonEngine = simpleEvalEngine(
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    autoOperator: redSGAutoOperator(engine),
+    autoOperators: {sg:redSGAutoOperator(engine)},
     sgConfs: {},
 }
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    autoOperator: bothSGAutoOperator(engine),
+    autoOperators: {sg:bothSGAutoOperator(engine)},
     sgConfs: {},
 }
 

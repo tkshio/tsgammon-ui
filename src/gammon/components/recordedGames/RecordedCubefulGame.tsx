@@ -15,6 +15,7 @@ export type RecordedCubefulGameProps = Omit<CubefulGameProps, 'matchState'|'cpSt
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
+        resignState,
         bgState: curBGState,
         matchRecord,
         opConfs,
@@ -36,6 +37,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const isLatest = index === undefined
 
     const minimalProps = {
+        resignState,
         bgState,
         cpState,
         ...cpListeners,

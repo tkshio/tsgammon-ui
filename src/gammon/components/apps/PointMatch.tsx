@@ -1,4 +1,4 @@
-import { EOGStatus, score, Score } from 'tsgammon-core'
+import { score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
@@ -30,7 +30,6 @@ import {
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { OperationConfs } from '../SingleGameBoard'
-import { ResignDialog } from '../uiparts/ResignDialog'
 import { useCBAutoOperatorWithRS } from '../useCBAutoOperatorWithRS'
 import { RSOperator } from '../operators/RSOperator'
 import { useCubeGameState } from '../useCubeGameState'
@@ -38,7 +37,6 @@ import { useMatchKey } from '../useMatchKey'
 import { MayResignOrNot, useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
 import './main.css'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -120,8 +118,9 @@ export function PointMatch(props: PointMatchProps) {
     }
 
     // 降参機能
-    const { resignState, onResign, resignStateAddOn, resignEventHandlers } =
-        useResignState(mayResignOrNot(cbState), autoOperators)
+    const mayResign = mayResignOrNot(cbState)
+    const { resignState, resignStateAddOn, resignEventHandlers } =
+        useResignState(mayResign, autoOperators)
 
     const { handlers } = cubefulGameEventHandlers(
         matchRecord.matchState.isCrawford,
@@ -143,36 +142,20 @@ export function PointMatch(props: PointMatchProps) {
         handlers
     )
 
-    const resignDialog =
-        resignState.tag === 'RSNone' ? undefined : (
-            <ResignDialog
-                {...{
-                    resignState,
-                    onAcceptResign: (result: SGResult, eogStatus: EOGStatus) =>
-                        handlers.onEndGame(
-                            { cbState, sgState },
-                            result,
-                            eogStatus
-                        ),
-                    ...resignEventHandlers,
-                }}
-            />
-        )
-
     const recordedMatchProps: RecordedCubefulGameProps = {
+        resignState,
         matchRecord,
         bgState: { sgState, cbState },
         opConfs,
         ...handlers,
+        ...resignEventHandlers,
         onResumeState,
-        onResign,
-        dialog: resignDialog,
     }
 
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />
 }
 
-function mayResignOrNot(cbState: CBState): MayResignOrNot {
+export function mayResignOrNot(cbState: CBState): MayResignOrNot {
     return cbState.tag === 'CBAction' ||
         cbState.tag === 'CBInPlay' ||
         cbState.tag === 'CBToRoll'

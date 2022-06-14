@@ -14,19 +14,22 @@ import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CBOperator } from '../operators/CBOperator'
+import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { OperationConfs } from '../SingleGameBoard'
 import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
+import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
+import { mayResignOrNot } from './PointMatch'
 
 export type MoneyGameProps = {
     gameConf: GameConf
     matchScore?: Score
     setup?: GameSetup
-    autoOperators?: { cb?: CBOperator; sg?: SGOperator }
+    autoOperators?: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator }
     opConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
@@ -68,6 +71,10 @@ export function MoneyGame(props: MoneyGameProps) {
         rollListener: { onRollRequest },
     })
 
+    const mayResign = mayResignOrNot(cbState)
+
+    const { resignState, resignStateAddOn, resignEventHandlers } =
+        useResignState(mayResign, autoOperators)
     const { handlers } = cubefulGameEventHandlers(
         false,
         defaultState,
@@ -75,23 +82,21 @@ export function MoneyGame(props: MoneyGameProps) {
         setCBState,
         rollListener,
         matchStateAddOn,
+        resignStateAddOn,
         { eventHandlers: {}, listeners: props }
     )
 
     useCBAutoOperator(cbState, sgState, autoOperators, handlers)
 
-    const onResign = () => {
-        //
-    }
-
     const cbProps: CubefulGameProps = {
+        resignState,
         bgState: { sgState, cbState },
         cpState,
-        onResign,
         ...listeners,
         matchState,
         ...handlers,
         ...cpListeners,
+        ...resignEventHandlers,
     }
 
     return <CubefulGame {...cbProps} />

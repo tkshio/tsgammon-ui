@@ -16,10 +16,14 @@ export type MayResignOrNot =
     | { mayResign: false; isRed: undefined }
 
 export type ResignEventHandlers = {
-    onCancel: () => void
-    onOffer: (resignState: ResignStateInChoose, offer: ResignOffer) => void
-    onReject: (resignState: RSOffered) => void
-    onReset: () => void
+    onResign?: () => void
+    onCancelResign: () => void
+    onOfferResign: (
+        resignState: ResignStateInChoose,
+        offer: ResignOffer
+    ) => void
+    onRejectResign: (resignState: RSOffered) => void
+    onResetResign: () => void
 }
 
 const RSNONE = rsNone()
@@ -32,32 +36,28 @@ export function useResignState(
         ResignState | ResignStateInChoose
     >(RSNONE)
 
-    // Resign可能な時は、ハンドラーを設定してU.I.から降参が選べるようにする
-    const onResign =
-        mayResign && resignState.tag === 'RSNone'
-            ? () => {
-                  setResignState({ tag: 'RSInChoose', isRed })
-              }
-            : undefined
-
     // 必要な状態管理機能を集約
     const resignEventHandlers: ResignEventHandlers = {
-        onCancel: doReset,
-        onOffer: (resignState: ResignStateInChoose, offer: ResignOffer) =>
+        onCancelResign: doReset,
+        onOfferResign: (resignState: ResignStateInChoose, offer: ResignOffer) =>
             resignState.isRed
                 ? offerFromRedToWhite(offer)
                 : offerFromWhiteToRed(offer),
-        onReject: (resignState: RSOffered) =>
+        onRejectResign: (resignState: RSOffered) =>
             setResignState({
                 tag: 'RSInChoose',
                 isRed: !resignState.isRed,
                 lastOffer: resignState.offer,
             }),
-        onReset: doReset,
+        onResetResign: doReset,
+        onResign:
+            mayResign && resignState.tag === 'RSNone'
+                ? () => {
+                      setResignState({ tag: 'RSInChoose', isRed })
+                  }
+                : undefined,
     }
-    function doReset() {
-        setResignState(RSNONE)
-    }
+
     const { rs } = autoOperators ?? {}
     const resignStateAddOn: SGEventHandlerAddOn = rs
         ? {
@@ -71,7 +71,11 @@ export function useResignState(
           }
         : { eventHandlers: {}, listeners: {} }
 
-    return { resignState, onResign, resignStateAddOn, resignEventHandlers }
+    return { resignState, resignStateAddOn, resignEventHandlers }
+
+    function doReset() {
+        setResignState(RSNONE)
+    }
 
     function doOfferOperation(
         rs: RSOperator,

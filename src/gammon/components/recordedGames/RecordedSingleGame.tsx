@@ -12,6 +12,7 @@ export type RecordedSingleGameProps = Omit<SingleGameProps, 'cpState'|'matchScor
 }
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
+        resignState,
         sgState: curSGState,
         opConfs,
         matchRecord,
@@ -33,6 +34,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const isLatest = index === undefined
 
     const minimalProps: Omit<SingleGameProps, 'onStartNextGame'> = {
+        resignState,
         sgState,
         cpState,
         opConfs,

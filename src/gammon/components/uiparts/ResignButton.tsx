@@ -1,5 +1,5 @@
 import { IconButton } from './IconButton'
 
-export function ResignButton(props: { onResign: () => void }) {
-    return <IconButton onClick={props.onResign} id="resignButton" />
+export function ResignButton(props: JSX.IntrinsicElements['div']) {
+    return <IconButton id="resignButton" {...props} />
 }

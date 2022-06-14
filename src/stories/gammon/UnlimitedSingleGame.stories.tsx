@@ -4,7 +4,7 @@ import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { UnlimitedSingleGame } from '../../gammon/components/apps/RecordedCubeless'
 import {
     bothSGAutoOperator,
-    redSGAutoOperator
+    redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 
 export default {
@@ -22,16 +22,14 @@ initialBoard.args = {}
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    sgConfs: {
-    },
-    autoOperator: redSGAutoOperator(),
+    sgConfs: {},
+    autoOperators: { sg: redSGAutoOperator() },
 }
 
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    sgConfs: {
-    },
-    autoOperator: bothSGAutoOperator(),
+    sgConfs: {},
+    autoOperators: { sg: bothSGAutoOperator() },
 }
 
 export const playDoublet = Template.bind({})
