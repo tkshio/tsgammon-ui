@@ -1,6 +1,12 @@
 import { Fragment } from 'react'
-import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { ResignEventHandlers } from '../useResignDialog'
+import { eog, EOGStatus } from 'tsgammon-core'
+import {
+    ResignOffer,
+    ResignState,
+    RSOffered,
+} from 'tsgammon-core/dispatchers/ResignState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignEventHandlers } from '../useResignState'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
@@ -9,7 +15,9 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved?: boolean
     resignState: ResignState | ResignStateInChoose
+    onAcceptResign: (result: SGResult, eogStatus: EOGStatus) => void
 } & Partial<ResignEventHandlers>
+
 export type ResignStateInChoose = {
     tag: 'RSInChoose'
     isRed: boolean
@@ -20,12 +28,17 @@ export function ResignDialog(props: ResignDialogProps) {
     const doNothing = () => {
         //
     }
-    const { isGammonSaved = false, resignState, ...handlers } = props
+    const {
+        isGammonSaved = false,
+        resignState,
+        onAcceptResign,
+        ...handlers
+    } = props
     const resignEventHandlers: ResignEventHandlers = {
         onCancel: doNothing,
         onOffer: doNothing,
         onReject: doNothing,
-        onAccept: doNothing,
+        onReset: doNothing,
         ...handlers,
     }
 
@@ -120,7 +133,13 @@ export function ResignDialog(props: ResignDialogProps) {
             <Buttons>
                 <Button
                     id="acceptOffer"
-                    onClick={() => resignEventHandlers.onAccept(resignState)}
+                    onClick={() =>
+                        acceptResign(
+                            resignEventHandlers,
+                            resignState,
+                            onAcceptResign
+                        )
+                    }
                 />
                 <Button
                     id="rejectOffer"
@@ -129,4 +148,20 @@ export function ResignDialog(props: ResignDialogProps) {
             </Buttons>
         </Dialog>
     ) : null
+}
+function acceptResign(
+    resignEventHandlers: ResignEventHandlers,
+    resignState: RSOffered,
+    onAcceptResign: (result: SGResult, eogStatus: EOGStatus) => void
+): void {
+    resignEventHandlers.onReset()
+
+    const offer = resignState.offer
+    const result = resignState.isRed ? SGResult.WHITEWON : SGResult.REDWON
+    const eogStatus = eog({
+        isGammon:
+            offer === ResignOffer.Gammon || offer === ResignOffer.Backgammon,
+        isBackgammon: offer === ResignOffer.Backgammon,
+    })
+    onAcceptResign(result, eogStatus)
 }
