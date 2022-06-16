@@ -71,15 +71,7 @@ export function ResignDialog(props: ResignDialogProps) {
             <Buttons>
                 {isGammonSaved ? (
                     <Fragment>
-                        <Button
-                            id="offer"
-                            onClick={() =>
-                                resignEventHandlers.onOfferResign(
-                                    resignState,
-                                    ResignOffer.Single
-                                )
-                            }
-                        />
+                        {offerButton(resignState, ResignOffer.Single, 'offer')}
                         <Button
                             id="cancel"
                             onClick={resignEventHandlers.onCancelResign}
@@ -87,33 +79,9 @@ export function ResignDialog(props: ResignDialogProps) {
                     </Fragment>
                 ) : (
                     <Fragment>
-                        <Button
-                            id="offerSingle"
-                            onClick={() =>
-                                resignEventHandlers.onOfferResign(
-                                    resignState,
-                                    ResignOffer.Single
-                                )
-                            }
-                        />
-                        <Button
-                            id="offerGammon"
-                            onClick={() =>
-                                resignEventHandlers.onOfferResign(
-                                    resignState,
-                                    ResignOffer.Gammon
-                                )
-                            }
-                        />
-                        <Button
-                            id="offerBackgammon"
-                            onClick={() =>
-                                resignEventHandlers.onOfferResign(
-                                    resignState,
-                                    ResignOffer.Backgammon
-                                )
-                            }
-                        />
+                        {offerButton(resignState, ResignOffer.Single, 'offerSingle')}
+                        {offerButton(resignState, ResignOffer.Gammon,'offerGammon')}
+                        {offerButton(resignState, ResignOffer.Backgammon, 'offerBackgammon')}
                         <Button
                             id="cancelResign"
                             onClick={resignEventHandlers.onCancelResign}
@@ -143,12 +111,26 @@ export function ResignDialog(props: ResignDialogProps) {
                 />
                 <Button
                     id="rejectOffer"
-                    onClick={() => resignEventHandlers.onRejectResign(resignState)}
+                    onClick={() =>
+                        resignEventHandlers.onRejectResign(resignState)
+                    }
                 />
             </Buttons>
         </Dialog>
     ) : null
+
+    function offerButton(resignState: ResignStateInChoose, offer: ResignOffer, id:string) {
+        return (
+            <Button
+                id={id}
+                onClick={() =>
+                    resignEventHandlers.onOfferResign(resignState, offer)
+                }
+            />
+        )
+    }
 }
+
 function acceptResign(
     resignEventHandlers: ResignEventHandlers,
     resignState: RSOffered,
