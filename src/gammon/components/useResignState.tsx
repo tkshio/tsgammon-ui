@@ -57,7 +57,6 @@ export function useResignState(
                   }
                 : undefined,
     }
-
     const { rs } = autoOperators ?? {}
     const resignStateAddOn: SGEventHandlerAddOn = rs
         ? {
