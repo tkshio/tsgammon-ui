@@ -1,18 +1,24 @@
-import { BoardState, BoardStateNode } from 'tsgammon-core'
+import { BoardState, BoardStateNode, CubeState } from 'tsgammon-core'
 import { ResignOffer } from 'tsgammon-core/dispatchers/ResignState'
 import { RSOperator } from './RSOperator'
 
-export function redAutoRSOperator(): RSOperator {
+export function redRSAutoOperator(): RSOperator {
     return {
         operateRedOfferAction: doOfferAction,
         operateWhiteOfferAction: () => {
             //
+        },
+        operateRedResignResponse: doResponse,
+        operateWhiteResignResponse: () => {
+            return false
         },
     }
 }
 
 function doOfferAction(
     doOffer: (offer: ResignOffer) => void,
+    _: ResignOffer | undefined,
+    __: CubeState,
     boardState: BoardState,
     node?: BoardStateNode
 ) {
@@ -46,4 +52,20 @@ function doOfferAction(
     }
 
     return
+}
+
+function doResponse(
+    offer: ResignOffer,
+    doAccept: () => void,
+    doReject: () => void,
+    cube: CubeState,
+    boardState: BoardState,
+    node?: BoardStateNode
+) {
+    if ((offer === ResignOffer.Single) && boardState.myBornOff === 0 ){
+        doReject()
+    }else{
+        doAccept()
+    }
+    return true
 }

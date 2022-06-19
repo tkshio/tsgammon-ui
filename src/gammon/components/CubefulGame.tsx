@@ -1,12 +1,11 @@
 import { Fragment } from 'react'
-import { EOGStatus, standardConf } from 'tsgammon-core'
+import { standardConf } from 'tsgammon-core'
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
@@ -58,12 +57,12 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        resignDialog(resignState, bgState, eventHandlers) ??
+        resignDialog(resignState,  eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
             eogDialog: eogDialog(eventHandlers.onStartGame),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
-        
+
     const cbProps: CubefulGameBoardProps = {
         bgState,
         cpState,
@@ -85,17 +84,16 @@ export function CubefulGame(props: CubefulGameProps) {
 
 function resignDialog(
     resignState: ResignState | ResignStateInChoose,
-    bgState: BGState,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<BGEventHandlers, 'onEndGame'>
     >
 ) {
+    const isGammonSaved = false
     return resignState.tag === 'RSNone' ? undefined : (
         <ResignDialog
             {...{
+                isGammonSaved,
                 resignState,
-                onAcceptResign: (result: SGResult, eogStatus: EOGStatus) =>
-                    eventHandlers.onEndGame?.(bgState, result, eogStatus),
                 ...eventHandlers,
             }}
         />

@@ -1,3 +1,4 @@
+import { cube, EOGStatus } from 'tsgammon-core'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
@@ -10,6 +11,7 @@ import {
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
@@ -66,7 +68,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const mayResign = mayResignOrNot(sgState)
 
     const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(mayResign, autoOperators)
+        useResignState(cube(1), mayResign, autoOperators)
     const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
         setSGState,
@@ -81,7 +83,9 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         opConfs: sgConfs,
         matchRecord,
         ...handlers,
-        ...resignEventHandlers,
+        ...resignEventHandlers((result: SGResult, eogStatus: EOGStatus) =>
+            handlers.onEndGame(sgState, result, eogStatus)
+        ),
     }
 
     return <RecordedSingleGame {...recordedMatchProps} />

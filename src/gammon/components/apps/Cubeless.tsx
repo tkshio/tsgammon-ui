@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { cube } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
@@ -59,7 +60,7 @@ export function Cubeless(props: CubelessProps) {
 
     const mayResign = mayResignOrNot(sgState)
     const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(mayResign, autoOperators)
+        useResignState(cube(1), mayResign, autoOperators)
 
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),

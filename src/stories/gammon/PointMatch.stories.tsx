@@ -7,7 +7,9 @@ import {
     redCBAutoOperator,
     redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
-
+import {
+    redRSAutoOperator
+} from '../../gammon/components/operators/RSAutoOperators'
 export default {
     title: 'PointMatch',
     component: PointMatch,
@@ -21,7 +23,7 @@ const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
 export const cpuPlaysRed3pt = Template.bind({})
 cpuPlaysRed3pt.args = {
     matchLength: 3,
-    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator(), rs:redRSAutoOperator() },
 }
 
 const minimalPieces = [
@@ -49,7 +51,7 @@ goIntoCrawford.args = {
         dice2: 2,
         absPos: minimalPieces,
     },
-    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator(), rs:redRSAutoOperator() },
 }
 
 export const endOfMatch = Template.bind({})
@@ -63,5 +65,5 @@ endOfMatch.args = {
         dice2: 2,
         absPos: minimalPieces,
     },
-    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() , rs:redRSAutoOperator()},
 }

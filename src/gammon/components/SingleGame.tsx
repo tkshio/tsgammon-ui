@@ -1,16 +1,14 @@
 import { Fragment } from 'react'
-import { EOGStatus, Score, score } from 'tsgammon-core'
-import { ResignButton } from './uiparts/ResignButton'
+import { Score, score } from 'tsgammon-core'
+import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
+import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
+import { ResignButton } from './uiparts/ResignButton'
+import { ResignDialog, ResignStateInChoose } from './uiparts/ResignDialog'
 import { ResignEventHandlers } from './useResignState'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
-import { ResignStateInChoose, ResignDialog } from './uiparts/ResignDialog'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState: ResignState | ResignStateInChoose
@@ -35,7 +33,7 @@ export function SingleGame(props: SingleGameProps) {
 
     const sgDialog =
         dialog ??
-        resignDialog(resignState, sgState, eventHandlers) ??
+        resignDialog(resignState, eventHandlers) ??
         (sgState.tag === 'SGEoG' ? (
             <EOGDialog
                 stake={sgState.stake}
@@ -80,17 +78,16 @@ export function SingleGame(props: SingleGameProps) {
 }
 function resignDialog(
     resignState: ResignState | ResignStateInChoose,
-    sgState: SGState,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<SingleGameEventHandlers, 'onEndGame'>
     >
 ) {
+    const isGammonSaved = false
     return resignState.tag === 'RSNone' ? undefined : (
         <ResignDialog
             {...{
+                isGammonSaved,
                 resignState,
-                onAcceptResign: (result: SGResult, eogStatus: EOGStatus) =>
-                    eventHandlers.onEndGame?.(sgState, result, eogStatus),
                 ...eventHandlers,
             }}
         />

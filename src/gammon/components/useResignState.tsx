@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BoardState, BoardStateNode } from 'tsgammon-core'
+import { BoardState, BoardStateNode, CubeState, eog, EOGStatus } from 'tsgammon-core'
 import {
     ResignState,
     rsNone,
@@ -10,6 +10,7 @@ import { SGEventHandlerAddOn } from 'tsgammon-core/dispatchers/SingleGameEventHa
 import { SGInPlay, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { ResignStateInChoose } from './uiparts/ResignDialog'
 import { RSOperator } from './operators/RSOperator'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 
 export type MayResignOrNot =
     | { mayResign: true; isRed: boolean }
@@ -21,15 +22,17 @@ export type ResignEventHandlers = {
     onOfferResign: (
         resignState: ResignStateInChoose,
         offer: ResignOffer
-    ) => void
-    onRejectResign: (resignState: RSOffered) => void
+    ) => RSOffered | undefined
+    onRejectResign: (resignState: RSOffered) => ResignStateInChoose | undefined
     onResetResign: () => void
+    onAcceptResign: (resignState: RSOffered) => void
 }
 
 const RSNONE = rsNone()
 export function useResignState(
+    cubeState:CubeState,
     mayResignOrNot: MayResignOrNot,
-    autoOperators?: { rs?: RSOperator }
+    autoOperators?: { rs?: RSOperator },
 ) {
     const { mayResign, isRed } = mayResignOrNot
     const [resignState, setResignState] = useState<
@@ -37,18 +40,25 @@ export function useResignState(
     >(RSNONE)
 
     // 必要な状態管理機能を集約
-    const resignEventHandlers: ResignEventHandlers = {
+    const resignEventHandlers: (
+        acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
+    ) => ResignEventHandlers = (
+        acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
+    ) => ({
         onCancelResign: doReset,
         onOfferResign: (resignState: ResignStateInChoose, offer: ResignOffer) =>
             resignState.isRed
                 ? offerFromRedToWhite(offer)
                 : offerFromWhiteToRed(offer),
-        onRejectResign: (resignState: RSOffered) =>
-            setResignState({
+        onRejectResign: (resignState: RSOffered) => {
+            const inChoose: ResignStateInChoose = {
                 tag: 'RSInChoose',
                 isRed: !resignState.isRed,
                 lastOffer: resignState.offer,
-            }),
+            }
+            setResignState(inChoose)
+            return inChoose
+        },
         onResetResign: doReset,
         onResign:
             mayResign && resignState.tag === 'RSNone'
@@ -56,16 +66,44 @@ export function useResignState(
                       setResignState({ tag: 'RSInChoose', isRed })
                   }
                 : undefined,
-    }
+        onAcceptResign: (resignState: RSOffered) => {
+            doReset()
+            const offer = resignState.offer
+            // resignState = ResignをOfferされた側がRedなら、Redの勝利
+            const result = resignState.isRed
+                ? SGResult.REDWON
+                : SGResult.WHITEWON
+            const eogStatus = eog({
+                isGammon:
+                    offer === ResignOffer.Gammon ||
+                    offer === ResignOffer.Backgammon,
+                isBackgammon: offer === ResignOffer.Backgammon,
+            })
+            acceptResign(result, eogStatus)
+        },
+    })
+
     const { rs } = autoOperators ?? {}
     const resignStateAddOn: SGEventHandlerAddOn = rs
         ? {
               eventHandlers: {},
               listeners: {
                   onAwaitRoll: (sgToRoll: SGToRoll) =>
-                      doOfferOperation(rs, sgToRoll.isRed, sgToRoll),
+                      doOfferOperation(
+                          rs,
+                          sgToRoll.isRed,
+                          undefined,
+                          sgToRoll,
+                          cubeState
+                      ),
                   onStartCheckerPlay: (sgInPlay: SGInPlay) =>
-                      doOfferOperation(rs, sgInPlay.isRed, sgInPlay),
+                      doOfferOperation(
+                          rs,
+                          sgInPlay.isRed,
+                          undefined,
+                          sgInPlay,
+                          cubeState
+                      ),
               },
           }
         : { eventHandlers: {}, listeners: {} }
@@ -79,24 +117,26 @@ export function useResignState(
     function doOfferOperation(
         rs: RSOperator,
         isRed: boolean,
-        sgState: { boardState: BoardState; node?: BoardStateNode }
+        lastOffer: ResignOffer | undefined,
+        sgState: { boardState: BoardState; node?: BoardStateNode },
+        cubeState: CubeState
     ) {
-        isRed
-            ? rs.operateRedOfferAction(
-                  offerFromRedToWhite,
-                  sgState.boardState,
-                  sgState.node
-              )
-            : rs.operateWhiteOfferAction(
-                  offerFromWhiteToRed,
-                  sgState.boardState,
-                  sgState.node
-              )
+        rs[isRed ? 'operateRedOfferAction' : 'operateWhiteOfferAction'](
+            offerFromRedToWhite,
+            lastOffer,
+            cubeState,
+            sgState.boardState,
+            sgState.node
+        )
     }
     function offerFromRedToWhite(offer: ResignOffer) {
-        setResignState(RSNONE.doOfferResignRed(offer))
+        const offered = RSNONE.doOfferResignRed(offer)
+        setResignState(offered)
+        return offered
     }
     function offerFromWhiteToRed(offer: ResignOffer) {
-        setResignState(RSNONE.doOfferResignWhite(offer))
+        const offered = RSNONE.doOfferResignWhite(offer)
+        setResignState(offered)
+        return offered
     }
 }

@@ -1,4 +1,10 @@
-import { GameConf, Score, score, standardConf } from 'tsgammon-core'
+import {
+    EOGStatus,
+    GameConf,
+    Score,
+    score,
+    standardConf,
+} from 'tsgammon-core'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
@@ -10,6 +16,7 @@ import {
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
@@ -74,7 +81,7 @@ export function MoneyGame(props: MoneyGameProps) {
     const mayResign = mayResignOrNot(cbState)
 
     const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(mayResign, autoOperators)
+        useResignState(cbState.cubeState, mayResign, autoOperators)
     const { handlers } = cubefulGameEventHandlers(
         false,
         defaultState,
@@ -96,7 +103,9 @@ export function MoneyGame(props: MoneyGameProps) {
         matchState,
         ...handlers,
         ...cpListeners,
-        ...resignEventHandlers,
+        ...resignEventHandlers((result: SGResult, eogStatus: EOGStatus) =>
+            handlers.onEndGame({ sgState, cbState }, result, eogStatus)
+        ),
     }
 
     return <CubefulGame {...cbProps} />
