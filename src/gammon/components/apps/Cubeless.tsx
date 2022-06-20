@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { cube } from 'tsgammon-core'
+import { EOGStatus } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
@@ -11,6 +11,7 @@ import { buildSGEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventH
 import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { Score, score } from 'tsgammon-core/Score'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
@@ -22,6 +23,10 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { MayResignOrNot, useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
+import {
+    addOnWithRSAutoOperator,
+    handlersWithRSAutoOperator,
+} from '../withRSAutoOperator'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -59,8 +64,7 @@ export function Cubeless(props: CubelessProps) {
     })
 
     const mayResign = mayResignOrNot(sgState)
-    const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(cube(1), mayResign, autoOperators)
+    const { resignState, resignEventHandlers } = useResignState(mayResign)
 
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),
@@ -68,7 +72,7 @@ export function Cubeless(props: CubelessProps) {
         rollListener,
         { eventHandlers: {}, listeners },
         { eventHandlers: {}, listeners: matchScoreListener },
-        resignStateAddOn
+        addOnWithRSAutoOperator(autoOperators.rs, resignEventHandlers)
     )
     useSGAutoOperator(sgState, autoOperators.sg, handlers)
 
@@ -81,7 +85,13 @@ export function Cubeless(props: CubelessProps) {
         opConfs: sgConfs,
         matchScore,
         ...handlers,
-        ...resignEventHandlers,
+        ...handlersWithRSAutoOperator(
+            autoOperators.rs,
+            resignEventHandlers,
+            (result: SGResult, eogStatus: EOGStatus) =>
+                handlers.onEndGame(sgState, result, eogStatus),
+            sgState
+        ),
         ...cpListeners,
     }
 
@@ -94,7 +104,7 @@ export function useMatchScore(): {
 } {
     const [matchScore, setMatchScore] = useState(score())
     const onEndOfGame = (sgEoG: SGEoG) => {
-        setMatchScore((prev:Score) => prev.add(sgEoG.stake))
+        setMatchScore((prev: Score) => prev.add(sgEoG.stake))
     }
     return { matchScore, matchScoreListener: { onEndOfGame } }
 }

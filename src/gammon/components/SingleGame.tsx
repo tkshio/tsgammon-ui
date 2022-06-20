@@ -1,7 +1,9 @@
 import { Fragment } from 'react'
-import { Score, score } from 'tsgammon-core'
+import { EOGStatus, Score, score } from 'tsgammon-core'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
@@ -33,7 +35,7 @@ export function SingleGame(props: SingleGameProps) {
 
     const sgDialog =
         dialog ??
-        resignDialog(resignState, eventHandlers) ??
+        resignDialog(sgState, resignState, eventHandlers) ??
         (sgState.tag === 'SGEoG' ? (
             <EOGDialog
                 stake={sgState.stake}
@@ -77,6 +79,7 @@ export function SingleGame(props: SingleGameProps) {
     )
 }
 function resignDialog(
+    sgState: SGState,
     resignState: ResignState | ResignStateInChoose,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<SingleGameEventHandlers, 'onEndGame'>
@@ -88,6 +91,8 @@ function resignDialog(
             {...{
                 isGammonSaved,
                 resignState,
+                acceptResign: (result: SGResult, eogStatus: EOGStatus) =>
+                    eventHandlers.onEndGame?.(sgState, result, eogStatus),
                 ...eventHandlers,
             }}
         />

@@ -1,4 +1,4 @@
-import { cube, EOGStatus } from 'tsgammon-core'
+import { EOGStatus } from 'tsgammon-core'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
@@ -24,6 +24,10 @@ import { OperationConfs } from '../SingleGameBoard'
 import { useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
+import {
+    addOnWithRSAutoOperator,
+    handlersWithRSAutoOperator,
+} from '../withRSAutoOperator'
 import { mayResignOrNot } from './Cubeless'
 import './main.css'
 
@@ -66,9 +70,11 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
     const mayResign = mayResignOrNot(sgState)
-
-    const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(cube(1), mayResign, autoOperators)
+    const { resignState, resignEventHandlers } = useResignState(mayResign)
+    const resignStateAddOn = addOnWithRSAutoOperator(
+        autoOperators.rs,
+        resignEventHandlers
+    )
     const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
         setSGState,
@@ -83,8 +89,12 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
         opConfs: sgConfs,
         matchRecord,
         ...handlers,
-        ...resignEventHandlers((result: SGResult, eogStatus: EOGStatus) =>
-            handlers.onEndGame(sgState, result, eogStatus)
+        ...handlersWithRSAutoOperator(
+            autoOperators.rs,
+            resignEventHandlers,
+            (result: SGResult, eogStatus: EOGStatus) =>
+                handlers.onEndGame(sgState, result, eogStatus),
+            sgState
         ),
     }
 

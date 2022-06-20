@@ -1,10 +1,4 @@
-import {
-    EOGStatus,
-    GameConf,
-    Score,
-    score,
-    standardConf,
-} from 'tsgammon-core'
+import { EOGStatus, GameConf, Score, score, standardConf } from 'tsgammon-core'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
@@ -30,6 +24,10 @@ import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
+import {
+    addOnWithRSAutoOperator,
+    handlersWithRSAutoOperator,
+} from '../withRSAutoOperator'
 import { mayResignOrNot } from './PointMatch'
 
 export type MoneyGameProps = {
@@ -80,8 +78,7 @@ export function MoneyGame(props: MoneyGameProps) {
 
     const mayResign = mayResignOrNot(cbState)
 
-    const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(cbState.cubeState, mayResign, autoOperators)
+    const { resignState, resignEventHandlers } = useResignState(mayResign)
     const { handlers } = cubefulGameEventHandlers(
         false,
         defaultState,
@@ -89,7 +86,7 @@ export function MoneyGame(props: MoneyGameProps) {
         setCBState,
         rollListener,
         matchStateAddOn,
-        resignStateAddOn,
+        addOnWithRSAutoOperator(autoOperators.rs, resignEventHandlers),
         { eventHandlers: {}, listeners: props }
     )
 
@@ -103,8 +100,13 @@ export function MoneyGame(props: MoneyGameProps) {
         matchState,
         ...handlers,
         ...cpListeners,
-        ...resignEventHandlers((result: SGResult, eogStatus: EOGStatus) =>
-            handlers.onEndGame({ sgState, cbState }, result, eogStatus)
+        ...handlersWithRSAutoOperator(
+            autoOperators.rs,
+            resignEventHandlers,
+            (result: SGResult, eogStatus: EOGStatus) =>
+                handlers.onEndGame({ sgState, cbState }, result, eogStatus),
+            sgState,
+            cbState.cubeState
         ),
     }
 

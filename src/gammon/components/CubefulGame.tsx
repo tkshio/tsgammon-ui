@@ -1,11 +1,12 @@
 import { Fragment } from 'react'
-import { standardConf } from 'tsgammon-core'
+import { EOGStatus, standardConf } from 'tsgammon-core'
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
@@ -57,7 +58,7 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        resignDialog(resignState,  eventHandlers) ??
+        resignDialog(bgState, resignState, eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
             eogDialog: eogDialog(eventHandlers.onStartGame),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
@@ -83,6 +84,7 @@ export function CubefulGame(props: CubefulGameProps) {
 }
 
 function resignDialog(
+    bgState: BGState,
     resignState: ResignState | ResignStateInChoose,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<BGEventHandlers, 'onEndGame'>
@@ -94,6 +96,8 @@ function resignDialog(
             {...{
                 isGammonSaved,
                 resignState,
+                acceptResign: (result: SGResult, eogStatus: EOGStatus) =>
+                    eventHandlers.onEndGame?.(bgState, result, eogStatus),
                 ...eventHandlers,
             }}
         />

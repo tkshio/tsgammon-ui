@@ -1,4 +1,4 @@
-import { CubeState, score, Score } from 'tsgammon-core'
+import { EOGStatus, score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
@@ -7,12 +7,10 @@ import {
     matchStateForPointMatch,
     matchStateForUnlimitedMatch,
 } from 'tsgammon-core/dispatchers/MatchState'
-import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
 import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -23,6 +21,7 @@ import {
     MatchRecordInPlay,
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
@@ -33,16 +32,18 @@ import {
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { OperationConfs } from '../SingleGameBoard'
-import { ResignStateInChoose } from '../uiparts/ResignDialog'
 import { useCBAutoOperatorWithRS } from '../useCBAutoOperatorWithRS'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
 import {
     MayResignOrNot,
-    ResignEventHandlers,
     useResignState,
 } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
+import {
+    addOnWithRSAutoOperator,
+    handlersWithRSAutoOperator,
+} from '../withRSAutoOperator'
 import './main.css'
 
 export type PointMatchProps = {
@@ -126,8 +127,14 @@ export function PointMatch(props: PointMatchProps) {
 
     // 降参機能
     const mayResign = mayResignOrNot(cbState)
-    const { resignState, resignStateAddOn, resignEventHandlers } =
-        useResignState(cbState.cubeState, mayResign, autoOperators)
+    const { resignState, resignEventHandlers: _resignEventHandlers } =
+        useResignState(mayResign)
+        
+    const resignStateAddOn = addOnWithRSAutoOperator(
+        autoOperators.rs,
+        _resignEventHandlers,
+        cbState.cubeState
+    )
 
     const { handlers } = cubefulGameEventHandlers(
         matchRecord.matchState.isCrawford,
@@ -148,6 +155,14 @@ export function PointMatch(props: PointMatchProps) {
         autoOperators,
         handlers
     )
+    const resignEventHandlers = handlersWithRSAutoOperator(
+        autoOperators.rs,
+        _resignEventHandlers,
+        (result: SGResult, eogStatus: EOGStatus) =>
+            handlers.onEndGame({ sgState, cbState }, result, eogStatus),
+        sgState,
+        cbState.cubeState
+    )
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,
@@ -155,92 +170,11 @@ export function PointMatch(props: PointMatchProps) {
         bgState: { sgState, cbState },
         opConfs,
         ...handlers,
-        ...addRSOperator(
-            cbState.cubeState,
-            sgState,
-            autoOperators.rs,
-            resignEventHandlers((result, eogStatus) =>
-                handlers.onEndGame?.({ sgState, cbState }, result, eogStatus)
-            )
-        ),
+        ...resignEventHandlers,
         onResumeState,
     }
 
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />
-}
-
-function addRSOperator(
-    cubeState: CubeState,
-    sgState: SGState,
-    rs: RSOperator | undefined,
-    handlers: ResignEventHandlers
-): ResignEventHandlers {
-    if (rs === undefined) {
-        return handlers
-    }
-
-    const onOfferResign = (
-        resignState: ResignStateInChoose,
-        offer: ResignOffer
-    ) => {
-        const offered = handlers.onOfferResign(resignState, offer)
-        if (offered) {
-            const { boardState, node } = toBoardState(sgState)
-            return rs[
-                offered.isRed
-                    ? 'operateRedResignResponse'
-                    : 'operateWhiteResignResponse'
-            ](
-                offered.offer,
-                () => {
-                    handlers.onAcceptResign(offered)
-                },
-                () => {
-                    onRejectResign(offered)
-                },
-                cubeState,
-                boardState,
-                node
-            )
-                ? undefined // rsOperatorが対処したなら、それ以上は何もしない
-                : offered // 実際のところ、何か値を返しても特に使途はない
-        }
-        return undefined
-    }
-    const onRejectResign = (resignState: RSOffered) => {
-        const rejected = handlers.onRejectResign(resignState)
-        if (rejected) {
-            const { boardState, node } = toBoardState(sgState)
-            rs[
-                rejected.isRed
-                    ? 'operateRedOfferAction'
-                    : 'operateWhiteOfferAction'
-            ](
-                (offer: ResignOffer) => {
-                    onOfferResign(rejected, offer)
-                },
-                rejected.lastOffer,
-                cubeState,
-                boardState,
-                node
-            )
-            return rejected
-        }
-    }
-    return {
-        ...handlers,
-        onOfferResign,
-        onRejectResign,
-    }
-
-    function toBoardState(sgState: SGState) {
-        return {
-            boardState: sgState.boardState,
-
-            node:
-                sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
-        }
-    }
 }
 
 export function mayResignOrNot(cbState: CBState): MayResignOrNot {
@@ -267,3 +201,4 @@ function setEoG(
     }
     return mRecord
 }
+
