@@ -4,11 +4,11 @@ import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
-import { ResignStateInChoose } from './uiparts/ResignDialog'
+import { RSToOffer } from './uiparts/ResignDialog'
 import { useCBAutoOperator } from './useCBAutoOperator'
 
 export function useCBAutoOperatorWithRS(
-    resignState: ResignState | ResignStateInChoose,
+    resignState: ResignState | RSToOffer,
     cbState: CBState,
     sgState: SGState,
     autoOperators: { cb?: CBOperator; sg?: SGOperator },

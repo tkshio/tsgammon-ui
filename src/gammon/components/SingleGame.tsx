@@ -9,11 +9,11 @@ import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
-import { ResignDialog, ResignStateInChoose } from './uiparts/ResignDialog'
+import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
 import { ResignEventHandlers } from './useResignState'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
-    resignState: ResignState | ResignStateInChoose
+    resignState: ResignState | RSToOffer
     matchScore?: Score
     showPositionID?: boolean
 } & Partial<ResignEventHandlers>
@@ -30,6 +30,7 @@ export function SingleGame(props: SingleGameProps) {
         lowerButton,
         upperButton,
         onStartGame,
+        onResign,
         ...eventHandlers
     } = props
 
@@ -47,11 +48,12 @@ export function SingleGame(props: SingleGameProps) {
             />
         ) : undefined)
 
-    const { onResign } = eventHandlers
-    const resignButton =
+        const resignButton =
         lowerButton ?? //
-        onResign ? (
-            <ResignButton onClick={onResign} />
+        resignState.tag === 'RSNone' ? (
+            sgState.tag !== 'SGOpening' && sgState.tag !== 'SGEoG' ? (
+                <ResignButton onClick={() => onResign?.(sgState.isRed)} />
+            ) : undefined
         ) : undefined
 
     const singleGameProps: SingleGameBoardProps = {
@@ -80,7 +82,7 @@ export function SingleGame(props: SingleGameProps) {
 }
 function resignDialog(
     sgState: SGState,
-    resignState: ResignState | ResignStateInChoose,
+    resignState: ResignState | RSToOffer,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<SingleGameEventHandlers, 'onEndGame'>
     >

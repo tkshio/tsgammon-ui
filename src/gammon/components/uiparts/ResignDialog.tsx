@@ -10,12 +10,12 @@ import './resignDialog.css'
 
 export type ResignDialogProps = {
     isGammonSaved: boolean
-    resignState: ResignState | ResignStateInChoose
+    resignState: ResignState | RSToOffer
     acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
 } & Partial<ResignEventHandlers>
 
-export type ResignStateInChoose = {
-    tag: 'RSInChoose'
+export type RSToOffer = {
+    tag: 'RSToOffer'
     isRed: boolean
     lastOffer?: ResignOffer
 }
@@ -32,6 +32,7 @@ export function ResignDialog(props: ResignDialogProps) {
         onRejectResign: () => undefined,
         onResetResign: doNothing,
         onAcceptResign: doNothing,
+        onResign: doNothing,
         ..._handlers,
     }
 
@@ -46,7 +47,7 @@ export function ResignDialog(props: ResignDialogProps) {
         }
     }
     // 提示条件を決めるダイアログ
-    return resignState.tag === 'RSInChoose' ? (
+    return resignState.tag === 'RSToOffer' ? (
         <Dialog
             msgs={
                 resignState.lastOffer
@@ -124,7 +125,7 @@ export function ResignDialog(props: ResignDialogProps) {
     ) : null
 
     function offerButton(
-        resignState: ResignStateInChoose,
+        resignState: RSToOffer,
         offer: ResignOffer,
         id: string
     ) {

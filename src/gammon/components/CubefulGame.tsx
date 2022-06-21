@@ -13,12 +13,12 @@ import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
-import { ResignDialog, ResignStateInChoose } from './uiparts/ResignDialog'
+import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
 import { eogMatchState } from './useMatchState'
 import { ResignEventHandlers } from './useResignState'
 
 export type CubefulGameProps = CubefulGameBoardProps & {
-    resignState: ResignState | ResignStateInChoose
+    resignState: ResignState | RSToOffer
     matchState: MatchState
     showPositionID?: boolean
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>> &
@@ -52,8 +52,10 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const resignButton =
         lowerButton ?? //
-        onResign ? (
-            <ResignButton onClick={onResign} />
+        resignState.tag === 'RSNone' ? (
+            sgState.tag !== 'SGOpening' && sgState.tag !== 'SGEoG' ? (
+                <ResignButton onClick={() => onResign?.(sgState.isRed)} />
+            ) : undefined
         ) : undefined
 
     const cbDialog =
@@ -85,7 +87,7 @@ export function CubefulGame(props: CubefulGameProps) {
 
 function resignDialog(
     bgState: BGState,
-    resignState: ResignState | ResignStateInChoose,
+    resignState: ResignState | RSToOffer,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<BGEventHandlers, 'onEndGame'>
     >

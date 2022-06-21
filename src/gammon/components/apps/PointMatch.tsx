@@ -1,7 +1,6 @@
 import { EOGStatus, score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     matchStateForPointMatch,
@@ -35,10 +34,7 @@ import { OperationConfs } from '../SingleGameBoard'
 import { useCBAutoOperatorWithRS } from '../useCBAutoOperatorWithRS'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
-import {
-    MayResignOrNot,
-    useResignState,
-} from '../useResignState'
+import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
 import {
     addOnWithRSAutoOperator,
@@ -126,10 +122,9 @@ export function PointMatch(props: PointMatchProps) {
     }
 
     // 降参機能
-    const mayResign = mayResignOrNot(cbState)
     const { resignState, resignEventHandlers: _resignEventHandlers } =
-        useResignState(mayResign)
-        
+        useResignState()
+
     const resignStateAddOn = addOnWithRSAutoOperator(
         autoOperators.rs,
         _resignEventHandlers,
@@ -177,14 +172,6 @@ export function PointMatch(props: PointMatchProps) {
     return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />
 }
 
-export function mayResignOrNot(cbState: CBState): MayResignOrNot {
-    return cbState.tag === 'CBAction' ||
-        cbState.tag === 'CBInPlay' ||
-        cbState.tag === 'CBToRoll'
-        ? { mayResign: true, isRed: cbState.isRed }
-        : { mayResign: false, isRed: undefined }
-}
-
 // 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する
 function setEoG(
     curBGState: BGState,
@@ -201,4 +188,3 @@ function setEoG(
     }
     return mRecord
 }
-

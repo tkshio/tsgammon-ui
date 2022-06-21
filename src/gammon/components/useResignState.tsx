@@ -1,27 +1,19 @@
 import { useState } from 'react'
+import { eog, EOGStatus } from 'tsgammon-core'
 import {
-    eog,
-    EOGStatus
-} from 'tsgammon-core'
-import {
-    ResignOffer, ResignState,
-    rsNone, RSOffered
+    ResignOffer,
+    ResignState,
+    rsNone,
+    RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { ResignStateInChoose } from './uiparts/ResignDialog'
-
-export type MayResignOrNot =
-    | { mayResign: true; isRed: boolean }
-    | { mayResign: false; isRed: undefined }
+import { RSToOffer } from './uiparts/ResignDialog'
 
 export type ResignEventHandlers = {
-    onResign?: () => void
+    onResign: (isRed: boolean) => void
     onCancelResign: () => void
-    onOfferResign: (
-        offer: ResignOffer,
-        isRed:boolean
-    ) => RSOffered | undefined
-    onRejectResign: (resignState: RSOffered) => ResignStateInChoose | undefined
+    onOfferResign: (offer: ResignOffer, isRed: boolean) => RSOffered | undefined
+    onRejectResign: (resignState: RSOffered) => RSToOffer | undefined
     onResetResign: () => void
     onAcceptResign: (
         resignState: RSOffered,
@@ -31,44 +23,45 @@ export type ResignEventHandlers = {
 
 const RSNONE = rsNone()
 
-export function useResignState(
-    mayResignOrNot: MayResignOrNot,
-) {
-    const { mayResign, isRed } = mayResignOrNot
+export function useResignState() {
     const [resignState, setResignState] = useState<
-        ResignState | ResignStateInChoose
+        ResignState | RSToOffer
     >(RSNONE)
 
     // 必要な状態管理機能を集約
-    const resignEventHandlers: ResignEventHandlers = {
+    return {
+        resignState,
+        resignEventHandlers: resignEventHandlers(setResignState),
+    }
+}
+
+export function resignEventHandlers(
+    setResignState: (resignState: ResignState | RSToOffer) => void
+): ResignEventHandlers {
+    return {
         onCancelResign: doReset,
-        onOfferResign: ( offer: ResignOffer, isRed:boolean) =>
-            isRed
-                ? offerFromRedToWhite(offer)
-                : offerFromWhiteToRed(offer),
+        onOfferResign: (offer: ResignOffer, isRed: boolean) =>
+            isRed ? offerFromRedToWhite(offer) : offerFromWhiteToRed(offer),
         onRejectResign: (resignState: RSOffered) => {
-            const inChoose: ResignStateInChoose = {
-                tag: 'RSInChoose',
+            const toOffer: RSToOffer = {
+                tag: 'RSToOffer',
                 isRed: !resignState.isRed,
                 lastOffer: resignState.offer,
             }
-            setResignState(inChoose)
-            return inChoose
+            setResignState(toOffer)
+            return toOffer
         },
         onResetResign: doReset,
-        onResign:
-            mayResign && resignState.tag === 'RSNone'
-                ? () => {
-                      setResignState({ tag: 'RSInChoose', isRed })
-                  }
-                : undefined,
+        onResign: (isRed: boolean) => {
+            setResignState({ tag: 'RSToOffer', isRed })
+        },
         onAcceptResign: (
             resignState: RSOffered,
             acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
         ) => {
             doReset()
             const offer = resignState.offer
-            // resignState = ResignをOfferされた側がRedなら、Redの勝利
+            // resignState（=ResignをOfferされた側）がRedなら、Redの勝利
             const result = resignState.isRed
                 ? SGResult.REDWON
                 : SGResult.WHITEWON
@@ -82,8 +75,6 @@ export function useResignState(
         },
     }
 
-    return { resignState, resignEventHandlers }
-
     function doReset() {
         setResignState(RSNONE)
     }
@@ -93,7 +84,7 @@ export function useResignState(
         setResignState(offered)
         return offered
     }
-    
+
     function offerFromWhiteToRed(offer: ResignOffer) {
         const offered = RSNONE.doOfferResignWhite(offer)
         setResignState(offered)
