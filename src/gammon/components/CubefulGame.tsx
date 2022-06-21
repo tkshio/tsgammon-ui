@@ -18,7 +18,7 @@ import { eogMatchState } from './useMatchState'
 import { ResignEventHandlers } from './useResignState'
 
 export type CubefulGameProps = CubefulGameBoardProps & {
-    resignState: ResignState | RSToOffer
+    resignState?: ResignState | RSToOffer
     matchState: MatchState
     showPositionID?: boolean
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>> &
@@ -52,7 +52,7 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const resignButton =
         lowerButton ?? //
-        resignState.tag === 'RSNone' ? (
+        resignState?.tag === 'RSNone' ? (
             sgState.tag !== 'SGOpening' && sgState.tag !== 'SGEoG' ? (
                 <ResignButton onClick={() => onResign?.(sgState.isRed)} />
             ) : undefined
@@ -87,13 +87,14 @@ export function CubefulGame(props: CubefulGameProps) {
 
 function resignDialog(
     bgState: BGState,
-    resignState: ResignState | RSToOffer,
+    resignState: ResignState | RSToOffer | undefined,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<BGEventHandlers, 'onEndGame'>
     >
 ) {
     const isGammonSaved = false
-    return resignState.tag === 'RSNone' ? undefined : (
+    return resignState === undefined ||
+        resignState.tag === 'RSNone' ? undefined : (
         <ResignDialog
             {...{
                 isGammonSaved,

@@ -13,7 +13,7 @@ import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
 import { ResignEventHandlers } from './useResignState'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
-    resignState: ResignState | RSToOffer
+    resignState?: ResignState | RSToOffer
     matchScore?: Score
     showPositionID?: boolean
 } & Partial<ResignEventHandlers>
@@ -48,9 +48,9 @@ export function SingleGame(props: SingleGameProps) {
             />
         ) : undefined)
 
-        const resignButton =
+    const resignButton =
         lowerButton ?? //
-        resignState.tag === 'RSNone' ? (
+        resignState?.tag === 'RSNone' ? (
             sgState.tag !== 'SGOpening' && sgState.tag !== 'SGEoG' ? (
                 <ResignButton onClick={() => onResign?.(sgState.isRed)} />
             ) : undefined
@@ -82,13 +82,14 @@ export function SingleGame(props: SingleGameProps) {
 }
 function resignDialog(
     sgState: SGState,
-    resignState: ResignState | RSToOffer,
+    resignState: ResignState | RSToOffer | undefined,
     eventHandlers: Partial<
         ResignEventHandlers & Pick<SingleGameEventHandlers, 'onEndGame'>
     >
 ) {
     const isGammonSaved = false
-    return resignState.tag === 'RSNone' ? undefined : (
+    return resignState === undefined ||
+        resignState.tag === 'RSNone' ? undefined : (
         <ResignDialog
             {...{
                 isGammonSaved,
