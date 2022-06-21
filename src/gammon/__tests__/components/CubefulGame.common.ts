@@ -37,6 +37,7 @@ export const BoardOp = {
 export function isRed(state: SGState | CBState): boolean {
     if (
         state.tag === 'SGOpening' ||
+        state.tag === 'SGEoG' ||
         state.tag === 'CBOpening' ||
         state.tag === 'CBEoG'
     ) {
@@ -48,6 +49,7 @@ export function isRed(state: SGState | CBState): boolean {
 export function isWhite(state: SGState | CBState): boolean {
     if (
         state.tag === 'SGOpening' ||
+        state.tag === 'SGEoG' ||
         state.tag === 'CBOpening' ||
         state.tag === 'CBEoG'
     ) {
