@@ -20,7 +20,7 @@ const Template: Story<ResignDialogProps> = (args: ResignDialogProps) => {
 
 export const resign = Template.bind({})
 resign.args = {
-    resignState: { tag: 'RSInChoose', isRed: false },
+    resignState: { tag: 'RSToOffer', isRed: false },
 }
 
 export const offered = Template.bind({})
@@ -31,17 +31,32 @@ offered.args = {
 export const rejected = Template.bind({})
 rejected.args = {
     resignState: {
-        tag: 'RSInChoose',
+        tag: 'RSToOffer',
         isRed: false,
-        lastOffer: ResignOffer.Backgammon,
+        lastOffer: ResignOffer.Single,
+    },
+}
+export const rejected_gammon = Template.bind({})
+rejected_gammon.args = {
+    resignState: {
+        tag: 'RSToOffer',
+        isRed: false,
+        lastOffer: ResignOffer.Gammon,
+    },
+}
+export const rejected_backgammon = Template.bind({})
+rejected_backgammon.args = {
+    resignState: {
+        tag: 'RSToOffer',
+        isRed: false,
+        lastOffer: ResignOffer.Backgammon
     },
 }
 export const saved = Template.bind({})
 saved.args = {
     isGammonSaved: true,
     resignState: {
-        tag: 'RSInChoose',
+        tag: 'RSToOffer',
         isRed: false,
-        lastOffer: ResignOffer.Backgammon,
     },
 }

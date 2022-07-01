@@ -28,7 +28,6 @@ import {
     addOnWithRSAutoOperator,
     handlersWithRSAutoOperator,
 } from '../withRSAutoOperator'
-import { mayResignOrNot } from './Cubeless'
 import './main.css'
 
 export type UnlimitedSingleGameProps = {
@@ -69,8 +68,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     })
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
-    const mayResign = mayResignOrNot(sgState)
-    const { resignState, resignEventHandlers } = useResignState(mayResign)
+    const { resignState, resignEventHandlers } = useResignState()
     const resignStateAddOn = addOnWithRSAutoOperator(
         autoOperators.rs,
         resignEventHandlers

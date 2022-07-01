@@ -4,11 +4,11 @@ import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispa
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { buildSGEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGEoG, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -20,12 +20,12 @@ import { SGOperator } from '../operators/SGOperator'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { OperationConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import { MayResignOrNot, useResignState } from '../useResignState'
+import { useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 import {
     addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator,
+    handlersWithRSAutoOperator
 } from '../withRSAutoOperator'
 
 export type CubelessProps = {
@@ -63,8 +63,7 @@ export function Cubeless(props: CubelessProps) {
         rollListener: { onRollRequest },
     })
 
-    const mayResign = mayResignOrNot(sgState)
-    const { resignState, resignEventHandlers } = useResignState(mayResign)
+    const { resignState, resignEventHandlers } = useResignState()
 
     const { handlers } = buildSGEventHandlers(
         defaultSGState(gameConf),
@@ -107,10 +106,4 @@ export function useMatchScore(): {
         setMatchScore((prev: Score) => prev.add(sgEoG.stake))
     }
     return { matchScore, matchScoreListener: { onEndOfGame } }
-}
-
-export function mayResignOrNot(sgState: SGState): MayResignOrNot {
-    return sgState.tag === 'SGInPlay' || sgState.tag === 'SGToRoll'
-        ? { mayResign: true, isRed: sgState.isRed }
-        : { mayResign: false, isRed: undefined }
 }

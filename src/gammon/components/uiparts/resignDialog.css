@@ -9,12 +9,12 @@
     padding: 4px 8px;
 }
 
-.button#acceptOffer, .button#offer{
+.button#acceptResign, .button#offer{
     background: darkslategray;
     color: white;
 }
 
-.button#rejectOffer, .button#cancel {
+.button#rejectResign, .button#cancel {
     background: lightgray;
 }
 
@@ -33,9 +33,9 @@
     content: 'Cancel';
 }
 
-.button#acceptOffer:after {
+.button#acceptResign:after {
     content:'Accept';
 }
-.button#rejectOffer:after {
+.button#rejectResign:after {
     content:'Reject';
 }

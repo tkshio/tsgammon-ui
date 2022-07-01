@@ -14,7 +14,7 @@ import {
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { RSOperator } from './operators/RSOperator'
-import { ResignEventHandlers } from './useResignState'
+import { ResignEventHandlers } from "./ResignEventHandlers"
 
 export function addOnWithRSAutoOperator(
     rs: RSOperator | undefined,

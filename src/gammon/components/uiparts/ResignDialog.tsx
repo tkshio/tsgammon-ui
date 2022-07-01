@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { EOGStatus } from 'tsgammon-core'
 import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { ResignEventHandlers } from '../useResignState'
+import { ResignEventHandlers } from '../ResignEventHandlers'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
@@ -65,7 +65,10 @@ export function ResignDialog(props: ResignDialogProps) {
             <Buttons>
                 {isGammonSaved ? (
                     <Fragment>
-                        {offerButton(resignState, ResignOffer.Single, 'offer')}
+                        {offerButton(resignState, ResignOffer.Single, {
+                            id: 'offer',
+                            role: 'offer-single',
+                        })}
                         <Button
                             id="cancel"
                             onClick={resignEventHandlers.onCancelResign}
@@ -73,23 +76,27 @@ export function ResignDialog(props: ResignDialogProps) {
                     </Fragment>
                 ) : (
                     <Fragment>
-                        {offerButton(
-                            resignState,
-                            ResignOffer.Single,
-                            'offerSingle'
-                        )}
-                        {offerButton(
-                            resignState,
-                            ResignOffer.Gammon,
-                            'offerGammon'
-                        )}
-                        {offerButton(
-                            resignState,
-                            ResignOffer.Backgammon,
-                            'offerBackgammon'
-                        )}
+                        {resignState.lastOffer === undefined &&
+                            offerButton(resignState, ResignOffer.Single, {
+                                id: 'offerSingle',
+                                role: 'offer-single',
+                            })}
+                        {(resignState.lastOffer === undefined ||
+                            resignState.lastOffer === ResignOffer.Single) &&
+                            offerButton(resignState, ResignOffer.Gammon, {
+                                id: 'offerGammon',
+                                role: 'offer-gammon',
+                            })}
+                        {(resignState.lastOffer === undefined ||
+                            resignState.lastOffer === ResignOffer.Single ||
+                            resignState.lastOffer === ResignOffer.Gammon) &&
+                            offerButton(resignState, ResignOffer.Backgammon, {
+                                id: 'offerBackgammon',
+                                role: 'offer-backgammon',
+                            })}
                         <Button
                             id="cancelResign"
+                            role="cancel-resign"
                             onClick={resignEventHandlers.onCancelResign}
                         />
                     </Fragment>
@@ -106,7 +113,8 @@ export function ResignDialog(props: ResignDialogProps) {
         >
             <Buttons>
                 <Button
-                    id="acceptOffer"
+                    id="acceptResign"
+                    role="accept-resign"
                     onClick={() =>
                         resignEventHandlers.onAcceptResign(
                             resignState,
@@ -115,7 +123,8 @@ export function ResignDialog(props: ResignDialogProps) {
                     }
                 />
                 <Button
-                    id="rejectOffer"
+                    id="rejectResign"
+                    role="reject-resign"
                     onClick={() =>
                         resignEventHandlers.onRejectResign(resignState)
                     }
@@ -127,11 +136,11 @@ export function ResignDialog(props: ResignDialogProps) {
     function offerButton(
         resignState: RSToOffer,
         offer: ResignOffer,
-        id: string
+        attrs: { id: string; role: string }
     ) {
         return (
             <Button
-                id={id}
+                {...attrs}
                 onClick={() => {
                     resignEventHandlers.onOfferResign(offer, resignState.isRed)
                 }}

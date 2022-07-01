@@ -28,7 +28,6 @@ import {
     addOnWithRSAutoOperator,
     handlersWithRSAutoOperator,
 } from '../withRSAutoOperator'
-import { mayResignOrNot } from './PointMatch'
 
 export type MoneyGameProps = {
     gameConf: GameConf
@@ -76,10 +75,8 @@ export function MoneyGame(props: MoneyGameProps) {
         rollListener: { onRollRequest },
     })
 
-    const mayResign = mayResignOrNot(cbState)
-
-    const { resignState, resignEventHandlers } = useResignState(mayResign)
-    const { handlers } = cubefulGameEventHandlers(
+    const { resignState, resignEventHandlers } = useResignState()
+    const handlers = cubefulGameEventHandlers(
         false,
         defaultState,
         setSGState,

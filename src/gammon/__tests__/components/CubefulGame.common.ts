@@ -5,7 +5,7 @@ import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import {
     CheckerPlayListeners,
-    setCPStateListener
+    setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
@@ -16,8 +16,6 @@ import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { matchStateAddOn } from '../../components/useMatchState'
-
-
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -83,7 +81,7 @@ export function setupEventHandlers(
             state.cpState = next
         }
     )
-    const { handlers } = cubefulGameEventHandlers(
+    const handlers = cubefulGameEventHandlers(
         isCrawford,
         defaultBGState(gameConf),
         (next: SGState = state.bgState.sgState) => {

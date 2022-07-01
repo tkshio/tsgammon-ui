@@ -15,7 +15,7 @@ import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
 import { eogMatchState } from './useMatchState'
-import { ResignEventHandlers } from './useResignState'
+import { ResignEventHandlers } from "./ResignEventHandlers"
 
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer

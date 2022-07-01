@@ -131,7 +131,7 @@ export function PointMatch(props: PointMatchProps) {
         cbState.cubeState
     )
 
-    const { handlers } = cubefulGameEventHandlers(
+    const handlers = cubefulGameEventHandlers(
         matchRecord.matchState.isCrawford,
         defaultBGState(gameConf),
         setSGState,
@@ -150,6 +150,7 @@ export function PointMatch(props: PointMatchProps) {
         autoOperators,
         handlers
     )
+
     const resignEventHandlers = handlersWithRSAutoOperator(
         autoOperators.rs,
         _resignEventHandlers,
