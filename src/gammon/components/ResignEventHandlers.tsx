@@ -1,24 +1,27 @@
-import { eog, EOGStatus } from 'tsgammon-core';
-import { ResignOffer, ResignState, rsNone, RSOffered } from 'tsgammon-core/dispatchers/ResignState';
-import { SGResult } from 'tsgammon-core/records/SGResult';
-import { RSToOffer } from './uiparts/ResignDialog';
+import { eog, EOGStatus } from 'tsgammon-core'
+import {
+    ResignOffer,
+    ResignState,
+    rsNone,
+    RSOffered,
+} from 'tsgammon-core/dispatchers/ResignState'
+import { SGResult } from 'tsgammon-core/records/SGResult'
+import { RSToOffer } from './uiparts/ResignDialog'
 
 export const RSNONE = rsNone()
 
 export type ResignEventHandlers = {
-    onResign: (isRed: boolean) => void;
-    onCancelResign: () => void;
-    onOfferResign: (offer: ResignOffer, isRed: boolean) => RSOffered | undefined;
-    onRejectResign: (resignState: RSOffered) => RSToOffer | undefined;
-    onResetResign: () => void;
-    onAcceptResign: (
-        resignState: RSOffered,
-        acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
-    ) => void;
-};
+    onResign: (isRed: boolean) => void
+    onCancelResign: () => void
+    onOfferResign: (offer: ResignOffer, isRed: boolean) => RSOffered | undefined
+    onRejectResign: (resignState: RSOffered) => RSToOffer | undefined
+    onResetResign: () => void
+    onAcceptResign: (resignState: RSOffered) => void
+}
 
 export function resignEventHandlers(
-    setResignState: (resignState: ResignState | RSToOffer) => void
+    setResignState: (resignState: ResignState | RSToOffer) => void,
+    acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
 ): ResignEventHandlers {
     return {
         onCancelResign: doReset,
@@ -37,10 +40,7 @@ export function resignEventHandlers(
         onResign: (isRed: boolean) => {
             setResignState({ tag: 'RSToOffer', isRed })
         },
-        onAcceptResign: (
-            resignState: RSOffered,
-            acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
-        ) => {
+        onAcceptResign: (resignState: RSOffered) => {
             doReset()
             const offer = resignState.offer
             // resignState（=ResignをOfferされた側）がRedなら、Redの勝利

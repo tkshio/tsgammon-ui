@@ -8,15 +8,8 @@ import {
 
 import { unmountComponentAtNode } from 'react-dom'
 import { eog, EOGStatus } from 'tsgammon-core'
-import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
-import { toState } from 'tsgammon-core/dispatchers/BGState'
-import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { CubefulGame } from '../../../components/CubefulGame'
 import {
     redRSAutoOperator,
     whiteRSAutoOperator
@@ -30,12 +23,9 @@ import {
     ResignDialogProps,
     RSToOffer
 } from '../../../components/uiparts/ResignDialog'
-import {
-    addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator
-} from '../../../components/withRSAutoOperator'
-import { BoardOp } from '../CubefulGame.common'
-import { neverOffer, alwaysReject, alwaysAccept, alwaysOffer } from './Resign.common'
+
+import { wSG } from '../../../components/withRSAutoOperator'
+import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
@@ -51,14 +41,14 @@ beforeEach(() => {
 const handlers: ResignEventHandlers = resignEventHandlers(
     (resignState: ResignState | RSToOffer) => {
         state.resignState = resignState
+    },
+    () => {
+        //
     }
 )
 const props: ResignDialogProps = {
     isGammonSaved: false,
     resignState: state.resignState,
-    acceptResign: () => {
-        //
-    },
     ...handlers,
 }
 describe('ResignDialog', () => {
@@ -168,6 +158,7 @@ describe('ResignDialog', () => {
                 eogState.eogStatus = eogStatus
             }
         )
+        const rsHandlers = resignEventHandlers(doNothing, acceptResign)
         render(
             <ResignDialog
                 {...{
@@ -175,7 +166,7 @@ describe('ResignDialog', () => {
                     resignState: rsNone().doOfferResignWhite(
                         ResignOffer.Gammon
                     ),
-                    acceptResign,
+                    ...rsHandlers,
                 }}
             />
         )
@@ -249,24 +240,19 @@ describe('ResignDialog', () => {
             offerResponse: alwaysReject,
         })
 
-        const _handlers = handlersWithRSAutoOperator(
-            rs,
-            handlers,
-            doNothing,
-            {} as SGState
-        )
+        const rsHandlers = wSG(rs, {} as SGState, handlers).rsHandlers
         render(
             <ResignDialog
                 {...{
                     ...props,
                     resignState: { tag: 'RSToOffer', isRed: false },
-                    ..._handlers,
+                    ...rsHandlers,
                 }}
             />
         )
         const button = screen.getByRole('offer-single')
         expect(button).toBeDefined()
-        userEvent.click(button)
+        await userEvent.click(button)
         expect(state.resignState.tag === 'RSToOffer').toBeTruthy()
     })
 
@@ -275,115 +261,21 @@ describe('ResignDialog', () => {
             offerAction: neverOffer,
             offerResponse: alwaysAccept,
         })
+        const rsHandlers = wSG(rs, {} as SGState, handlers).rsHandlers
 
-        const _handlers = handlersWithRSAutoOperator(
-            rs,
-            handlers,
-            doNothing,
-            {} as SGState
-        )
         render(
             <ResignDialog
                 {...{
                     ...props,
                     resignState: { tag: 'RSToOffer', isRed: true },
-                    ..._handlers,
+                    ...rsHandlers,
                 }}
             />
         )
         const button = screen.getByRole('offer-single')
         expect(button).toBeDefined()
-        userEvent.click(button)
+        await userEvent.click(button)
         expect(state.resignState.tag === 'RSNone').toBeTruthy()
-    })
-
-    test('offers resign(red)', async () => {
-        const bgState = toState({
-            gameStatus: GameStatus.INPLAY_WHITE,
-            // prettier-ignore
-            absPos: [
-                0,
-                1,  0,  0, -2,  0,  0,   0, 0, 0, 0, 0, 0,
-                0,  0,  0,  0,  0,  0,   0, 0, 0, 0, 0, 0, 
-                0,
-            ],
-            dice1: 3,
-            dice2: 3,
-        })
-        const setCBState = (cbState: CBState) => {
-            bgState.cbState = cbState
-        }
-        const setSGState = (sgState: SGState) => {
-            bgState.sgState = sgState
-        }
-        const sgHandlersAddOn = addOnWithRSAutoOperator(
-            redRSAutoOperator({
-                offerAction: alwaysOffer(ResignOffer.Single),
-                offerResponse: alwaysAccept,
-            }),
-            handlers
-        )
-        const cbHandlers: BGEventHandlers = cubefulGameEventHandlers(
-            true,
-            bgState,
-            setSGState,
-            setCBState,
-            undefined,
-            sgHandlersAddOn
-        )
-        const cbProps = {
-            bgState,
-            matchState: matchStateForUnlimitedMatch(),
-            ...cbHandlers,
-        }
-        render(<CubefulGame {...cbProps} />)
-        BoardOp.clickRightDice()
-
-        expect(state.resignState.tag === 'RSOffered').toBeTruthy()
-    })
-    test('offers resign(white)', async () => {
-        const bgState = toState({
-            gameStatus: GameStatus.INPLAY_RED,
-            // prettier-ignore
-            absPos: [
-                0,
-                0,  0,  0,  0,  0,  0,   0, 0, 0, 0, 0, 0,
-                0,  0,  0,  0,  0,  0,   0, 0, 2, 0, 0, -1, 
-                0,
-            ],
-            dice1: 3,
-            dice2: 3,
-        })
-        const setCBState = (cbState: CBState) => {
-            bgState.cbState = cbState
-        }
-        const setSGState = (sgState: SGState) => {
-            bgState.sgState = sgState
-        }
-        const sgHandlersAddOn = addOnWithRSAutoOperator(
-            whiteRSAutoOperator({
-                offerAction: alwaysOffer(ResignOffer.Single),
-                offerResponse: alwaysAccept,
-            }),
-            handlers
-        )
-        const cbHandlers: BGEventHandlers = cubefulGameEventHandlers(
-            true,
-            bgState,
-            setSGState,
-            setCBState,
-            undefined,
-            sgHandlersAddOn
-        )
-        const cbProps = {
-            bgState,
-            matchState: matchStateForUnlimitedMatch(),
-            ...cbHandlers,
-        }
-        render(<CubefulGame {...cbProps} />)
-        BoardOp.clickLeftDice()
-
-        expect(state.resignState.tag === 'RSOffered').toBeTruthy()
     })
 })
 

@@ -9,10 +9,12 @@ import {
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { matchStateAddOn } from '../../components/useMatchState'
@@ -83,16 +85,20 @@ export function setupEventHandlers(
     )
     const handlers = cubefulGameEventHandlers(
         isCrawford,
-        defaultBGState(gameConf),
-        (next: SGState = state.bgState.sgState) => {
-            state.bgState.sgState = next
-        },
-        (next: CBState = state.bgState.cbState) => {
-            state.bgState.cbState = next
-        },
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
-        addOn
-    )
+        setCBStateListener(
+            defaultBGState(gameConf).cbState,
+            (next: CBState = state.bgState.cbState) => {
+                state.bgState.cbState = next
+            }
+        ),
+        setSGStateListener(
+            defaultBGState(gameConf).sgState,
+            (next: SGState = state.bgState.sgState) => {
+                state.bgState.sgState = next
+            }
+        )
+    ).addListeners(addOn)
 
     return {
         ...cpListeners,

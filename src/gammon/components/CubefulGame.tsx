@@ -1,21 +1,21 @@
 import { Fragment } from 'react'
-import { EOGStatus, standardConf } from 'tsgammon-core'
+import { standardConf } from 'tsgammon-core'
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
+import { ResignEventHandlers } from "./ResignEventHandlers"
+import { resignDialog } from './SingleGame'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
-import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
+import { RSToOffer } from './uiparts/ResignDialog'
 import { eogMatchState } from './useMatchState'
-import { ResignEventHandlers } from "./ResignEventHandlers"
 
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
@@ -60,7 +60,7 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        resignDialog(bgState, resignState, eventHandlers) ??
+        resignDialog( resignState, eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
             eogDialog: eogDialog(eventHandlers.onStartGame),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
@@ -85,27 +85,6 @@ export function CubefulGame(props: CubefulGameProps) {
     )
 }
 
-function resignDialog(
-    bgState: BGState,
-    resignState: ResignState | RSToOffer | undefined,
-    eventHandlers: Partial<
-        ResignEventHandlers & Pick<BGEventHandlers, 'onEndGame'>
-    >
-) {
-    const isGammonSaved = false
-    return resignState === undefined ||
-        resignState.tag === 'RSNone' ? undefined : (
-        <ResignDialog
-            {...{
-                isGammonSaved,
-                resignState,
-                acceptResign: (result: SGResult, eogStatus: EOGStatus) =>
-                    eventHandlers.onEndGame?.(bgState, result, eogStatus),
-                ...eventHandlers,
-            }}
-        />
-    )
-}
 
 function dialogForCubefulGame(
     bgState: BGState,

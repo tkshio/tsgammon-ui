@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
-import { CubeGameEventHandlerAddOn } from 'tsgammon-core/dispatchers/CubeGameEventHandlers'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     MatchState,
@@ -17,18 +17,19 @@ export function useMatchState(
 ): {
     matchState: MatchState
     initialMatchState: MatchStateInPlay
-    matchStateAddOn: CubeGameEventHandlerAddOn
+    matchStateAddOn: Partial<CubeGameListeners>
     resetMatchState: () => void
 } {
     const initialMatchState: MatchStateInPlay = {
         isEoG: false,
         matchLength,
         scoreBefore: matchScore,
-        score:matchScore,
+        score: matchScore,
         stakeConf,
         isCrawford: matchLength === 1,
     }
     const [matchState, setMatchState] = useState<MatchState>(initialMatchState)
+
     return {
         matchState,
         initialMatchState,
@@ -48,7 +49,7 @@ export function useMatchState(
 export function matchStateAddOn(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
-): CubeGameEventHandlerAddOn {
+): Partial<CubeGameListeners> {
     const onEndOfCubeGame = (cbEoG: CBEoG) => {
         setMatchState(eogMatchState(matchState, cbEoG))
     }
@@ -56,8 +57,8 @@ export function matchStateAddOn(
         setMatchState(nextMatchState(matchState))
     }
     return {
-        listeners: { onEndOfCubeGame },
-        eventHandlers: { onStartCubeGame },
+        onEndOfCubeGame,
+        onStartCubeGame,
     }
 }
 
@@ -68,7 +69,7 @@ export function nextMatchState(matchState: MatchState): MatchStateInPlay {
                   isEoG: false,
                   matchLength: matchState.matchLength,
                   scoreBefore: score(),
-                  score:score(),
+                  score: score(),
                   stakeConf: matchState.stakeConf,
                   isCrawford: matchState.matchLength === 1,
               }
@@ -76,7 +77,7 @@ export function nextMatchState(matchState: MatchState): MatchStateInPlay {
                   isEoG: false,
                   matchLength: matchState.matchLength,
                   scoreBefore: matchState.scoreAfter,
-                  score:matchState.scoreAfter,
+                  score: matchState.scoreAfter,
                   stakeConf: matchState.stakeConf,
                   isCrawford: matchState.isCrawfordNext,
               }

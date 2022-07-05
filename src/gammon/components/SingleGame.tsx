@@ -1,16 +1,13 @@
 import { Fragment } from 'react'
-import { EOGStatus, Score, score } from 'tsgammon-core'
+import { Score, score } from 'tsgammon-core'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignEventHandlers } from './ResignEventHandlers'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
-import { ResignEventHandlers } from "./ResignEventHandlers"
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer
@@ -36,7 +33,7 @@ export function SingleGame(props: SingleGameProps) {
 
     const sgDialog =
         dialog ??
-        resignDialog(sgState, resignState, eventHandlers) ??
+        resignDialog(resignState, eventHandlers) ??
         (sgState.tag === 'SGEoG' ? (
             <EOGDialog
                 stake={sgState.stake}
@@ -80,12 +77,10 @@ export function SingleGame(props: SingleGameProps) {
         </Fragment>
     )
 }
-function resignDialog(
-    sgState: SGState,
+
+export function resignDialog(
     resignState: ResignState | RSToOffer | undefined,
-    eventHandlers: Partial<
-        ResignEventHandlers & Pick<SingleGameEventHandlers, 'onEndGame'>
-    >
+    eventHandlers: Partial<ResignEventHandlers>
 ) {
     const isGammonSaved = false
     return resignState === undefined ||
@@ -94,8 +89,6 @@ function resignDialog(
             {...{
                 isGammonSaved,
                 resignState,
-                acceptResign: (result: SGResult, eogStatus: EOGStatus) =>
-                    eventHandlers.onEndGame?.(sgState, result, eogStatus),
                 ...eventHandlers,
             }}
         />

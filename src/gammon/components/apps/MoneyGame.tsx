@@ -1,16 +1,15 @@
-import { EOGStatus, GameConf, Score, score, standardConf } from 'tsgammon-core'
+import { GameConf, Score, score, standardConf } from 'tsgammon-core'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CubeGameListeners, setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { setSGStateListener, SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
@@ -22,12 +21,8 @@ import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
-import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
-import {
-    addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator,
-} from '../withRSAutoOperator'
+
 
 export type MoneyGameProps = {
     gameConf: GameConf
@@ -67,7 +62,6 @@ export function MoneyGame(props: MoneyGameProps) {
         matchLength,
         gameConf
     )
-    const defaultState = defaultBGState(gameConf)
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined, props)
     const rollListener = rollListeners({
         isRollHandlerEnabled,
@@ -75,36 +69,22 @@ export function MoneyGame(props: MoneyGameProps) {
         rollListener: { onRollRequest },
     })
 
-    const { resignState, resignEventHandlers } = useResignState()
     const handlers = cubefulGameEventHandlers(
         false,
-        defaultState,
-        setSGState,
-        setCBState,
         rollListener,
-        matchStateAddOn,
-        addOnWithRSAutoOperator(autoOperators.rs, resignEventHandlers),
-        { eventHandlers: {}, listeners: props }
-    )
+        setCBStateListener(defaultBGState(gameConf).cbState, setCBState),
+        setSGStateListener(defaultBGState(gameConf).sgState, setSGState)
+    ).addListeners(matchStateAddOn)
 
     useCBAutoOperator(cbState, sgState, autoOperators, handlers)
 
     const cbProps: CubefulGameProps = {
-        resignState,
         bgState: { sgState, cbState },
         cpState,
         ...listeners,
         matchState,
         ...handlers,
         ...cpListeners,
-        ...handlersWithRSAutoOperator(
-            autoOperators.rs,
-            resignEventHandlers,
-            (result: SGResult, eogStatus: EOGStatus) =>
-                handlers.onEndGame({ sgState, cbState }, result, eogStatus),
-            sgState,
-            cbState.cubeState
-        ),
     }
 
     return <CubefulGame {...cbProps} />

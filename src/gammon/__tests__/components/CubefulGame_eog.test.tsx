@@ -11,7 +11,7 @@ import {
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
 
-import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
+import { BoardOp, isRed, isWhite, setupEventHandlers } from './CubefulGame.common'
 
 let container: HTMLElement | null = null
 
@@ -61,7 +61,9 @@ describe('CubeGame(eog)', () => {
 
         BoardOp.clickRightDice()
         expect(bgState.sgState.tag).toEqual('SGEoG')
-        expect(isWhite(bgState.sgState)).toBeTruthy()
+        // SGEoGはredでもwhiteでもない状態
+        expect(isWhite(bgState.sgState)).toBeFalsy()
+        expect(isRed(bgState.sgState)).toBeFalsy()
         const expectedEoG = {
             isEndOfGame: true,
             isGammon: false,

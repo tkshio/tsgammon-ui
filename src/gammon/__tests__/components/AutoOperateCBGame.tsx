@@ -7,6 +7,6 @@ export function AutoOperateCBGame(
 ) {
     const { bgState, autoOperators, ...handlers } = props
     const { cbState, sgState } = bgState
-    useCBAutoOperator(cbState, sgState, autoOperators, handlers)
+    useCBAutoOperator(cbState, sgState, autoOperators ?? {}, handlers)
     return <CubefulGame {...props} />
 }

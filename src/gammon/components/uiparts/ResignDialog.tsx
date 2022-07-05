@@ -1,7 +1,5 @@
 import { Fragment } from 'react'
-import { EOGStatus } from 'tsgammon-core'
 import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { ResignEventHandlers } from '../ResignEventHandlers'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
@@ -11,7 +9,6 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved: boolean
     resignState: ResignState | RSToOffer
-    acceptResign: (result: SGResult, eogStatus: EOGStatus) => void
 } & Partial<ResignEventHandlers>
 
 export type RSToOffer = {
@@ -25,7 +22,7 @@ export function ResignDialog(props: ResignDialogProps) {
     const doNothing = () => {
         //
     }
-    const { isGammonSaved, resignState, acceptResign, ..._handlers } = props
+    const { isGammonSaved, resignState, ..._handlers } = props
     const resignEventHandlers: ResignEventHandlers = {
         onCancelResign: doNothing,
         onOfferResign: () => undefined,
@@ -117,9 +114,7 @@ export function ResignDialog(props: ResignDialogProps) {
                     role="accept-resign"
                     onClick={() =>
                         resignEventHandlers.onAcceptResign(
-                            resignState,
-                            acceptResign
-                        )
+                            resignState                        )
                     }
                 />
                 <Button

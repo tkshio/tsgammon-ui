@@ -1,17 +1,14 @@
-import { EOGStatus } from 'tsgammon-core'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import {
-    buildSGEventHandlers,
-    SGEventHandlerAddOn,
-} from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { singleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
@@ -21,13 +18,9 @@ import {
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
 import { OperationConfs } from '../SingleGameBoard'
-import { useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
-import {
-    addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator,
-} from '../withRSAutoOperator'
+
 import './main.css'
 
 export type UnlimitedSingleGameProps = {
@@ -68,32 +61,18 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     })
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
-    const { resignState, resignEventHandlers } = useResignState()
-    const resignStateAddOn = addOnWithRSAutoOperator(
-        autoOperators.rs,
-        resignEventHandlers
-    )
     const { handlers, matchRecord } = useRecordedCubeless(
         gameConf,
         setSGState,
-        rollListener,
-        resignStateAddOn
+        rollListener
     )
     useSGAutoOperator(sgState, autoOperators.sg, handlers)
 
     const recordedMatchProps: RecordedSingleGameProps = {
-        resignState,
         sgState,
         opConfs: sgConfs,
         matchRecord,
         ...handlers,
-        ...handlersWithRSAutoOperator(
-            autoOperators.rs,
-            resignEventHandlers,
-            (result: SGResult, eogStatus: EOGStatus) =>
-                handlers.onEndGame(sgState, result, eogStatus),
-            sgState
-        ),
     }
 
     return <RecordedSingleGame {...recordedMatchProps} />
@@ -102,18 +81,14 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 function useRecordedCubeless(
     gameConf: GameConf,
     setSGState: (sgState: SGState) => void,
-    rollListener: RollListener = rollListeners(),
-    ...addOns: SGEventHandlerAddOn[]
+    rollListener: RollListener = rollListeners()
 ) {
     const { matchRecord, matchRecorder, matchRecordAddOn } =
         useMatchRecorderForSingleGame(gameConf)
-    const { handlers } = buildSGEventHandlers(
-        defaultSGState(gameConf),
-        setSGState,
+    const handlers = singleGameEventHandlers(
         rollListener,
-        matchRecordAddOn,
-        ...addOns
-    )
+        setSGStateListener(defaultSGState(gameConf), setSGState)
+    ).addListeners(matchRecordAddOn)
     return {
         handlers: {
             ...handlers,

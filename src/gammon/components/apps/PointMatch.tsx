@@ -1,6 +1,7 @@
-import { EOGStatus, score, Score } from 'tsgammon-core'
+import { score, Score } from 'tsgammon-core'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     matchStateForPointMatch,
@@ -10,6 +11,7 @@ import {
     RollListener,
     rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -20,7 +22,6 @@ import {
     MatchRecordInPlay,
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
@@ -36,10 +37,7 @@ import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
-import {
-    addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator,
-} from '../withRSAutoOperator'
+import { w } from '../withRSAutoOperator'
 import './main.css'
 
 export type PointMatchProps = {
@@ -121,27 +119,26 @@ export function PointMatch(props: PointMatchProps) {
         setSGState(state.sgState)
     }
 
+    const _handlers = cubefulGameEventHandlers(
+        matchRecord.matchState.isCrawford,
+        rollListener,
+        setCBStateListener(defaultBGState(gameConf).cbState, setCBState),
+        setSGStateListener(defaultBGState(gameConf).sgState, setSGState)
+    )
+        .addListeners(matchKeyAddOn)
+        .addListeners(matchRecorderAddOn)
+
     // 降参機能
     const { resignState, resignEventHandlers: _resignEventHandlers } =
-        useResignState()
+        useResignState((result, eog) =>
+            _handlers.onEndGame({ cbState, sgState }, result, eog)
+        )
 
-    const resignStateAddOn = addOnWithRSAutoOperator(
+    const handlers = w(
         autoOperators.rs,
-        _resignEventHandlers,
-        cbState.cubeState
-    )
-
-    const handlers = cubefulGameEventHandlers(
-        matchRecord.matchState.isCrawford,
-        defaultBGState(gameConf),
-        setSGState,
-        setCBState,
-        rollListener,
-
-        matchKeyAddOn,
-        matchRecorderAddOn,
-        resignStateAddOn
-    )
+        { cbState, sgState },
+        _resignEventHandlers
+    ).concat(_handlers)
 
     useCBAutoOperatorWithRS(
         resignState,
@@ -151,22 +148,12 @@ export function PointMatch(props: PointMatchProps) {
         handlers
     )
 
-    const resignEventHandlers = handlersWithRSAutoOperator(
-        autoOperators.rs,
-        _resignEventHandlers,
-        (result: SGResult, eogStatus: EOGStatus) =>
-            handlers.onEndGame({ sgState, cbState }, result, eogStatus),
-        sgState,
-        cbState.cubeState
-    )
-
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,
         matchRecord,
         bgState: { sgState, cbState },
         opConfs,
         ...handlers,
-        ...resignEventHandlers,
         onResumeState,
     }
 

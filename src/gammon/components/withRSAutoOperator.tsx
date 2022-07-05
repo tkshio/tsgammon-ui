@@ -1,158 +1,181 @@
-import {
-    BoardState,
-    BoardStateNode,
-    cube,
-    CubeState,
-    EOGStatus,
-} from 'tsgammon-core'
+import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
+import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
-import { SGEventHandlerAddOn } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SingleGameEventHandlersExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import {
     SGInPlay,
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
 import { RSOperator } from './operators/RSOperator'
-import { ResignEventHandlers } from "./ResignEventHandlers"
+import { ResignEventHandlers } from './ResignEventHandlers'
 
-export function addOnWithRSAutoOperator(
-    rs: RSOperator | undefined,
-    handlers: ResignEventHandlers,
-    cubeState: CubeState = cube(1)
-): SGEventHandlerAddOn {
-    if (rs === undefined) {
-        return { listeners: {}, eventHandlers: {} }
-    }
-    const listeners = addAutoResignActions(rs, handlers, cubeState)
+function toBoardState(sgState: SGState) {
     return {
-        listeners,
-        eventHandlers: {},
+        boardState: sgState.boardState,
+        node: sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
     }
 }
-export function handlersWithRSAutoOperator(
+export function w(
     rs: RSOperator | undefined,
-    handlers: ResignEventHandlers,
-    acceptResign: (result: SGResult, eogStatus: EOGStatus) => void,
-    sgState: SGState,
-    cubeState: CubeState = cube(1)
-): ResignEventHandlers {
+    bgState: BGState,
+    handlers: Partial<ResignEventHandlers>
+): {
+    concat: (
+        prev: BGEventHandlersExtensible
+    ) => BGEventHandlersExtensible & Partial<ResignEventHandlers>
+    rsHandlers: Partial<ResignEventHandlers>
+} {
     if (rs === undefined) {
-        return handlers
+        return { concat: (a) => a, rsHandlers: handlers }
     }
-    return addAutoResignResponses(
+    const { listeners, rsHandlers } = ww(
         rs,
         handlers,
-        acceptResign,
-        sgState,
-        cubeState
+        bgState.sgState,
+        bgState.cbState
     )
-}
-
-function addAutoResignActions(
-    rs: RSOperator,
-    handlers: ResignEventHandlers,
-    cubeState: CubeState
-) {
     return {
-        onAwaitRoll: (sgToRoll: SGToRoll) =>
-            doOfferOperation(
-                rs,
-                sgToRoll.isRed,
-                undefined,
-                sgToRoll,
-                cubeState
-            ),
-        onStartCheckerPlay: (sgInPlay: SGInPlay) =>
-            doOfferOperation(
-                rs,
-                sgInPlay.isRed,
-                undefined,
-                sgInPlay,
-                cubeState
-            ),
+        concat: (prev: BGEventHandlersExtensible) => ({
+            ...prev?.addListeners(listeners),
+            ...rsHandlers,
+        }),
+        rsHandlers,
     }
-    function doOfferOperation(
+}
+export function wSG(
+    rs: RSOperator | undefined,
+    sgState: SGState,
+    handlers: Partial<ResignEventHandlers>
+): {
+    concat: (
+        prev: SingleGameEventHandlersExtensible
+    ) => SingleGameEventHandlersExtensible & Partial<ResignEventHandlers>
+    rsHandlers: Partial<ResignEventHandlers>
+} {
+    if (rs === undefined) {
+        return { concat: (a) => a, rsHandlers: handlers }
+    }
+    const { listeners, rsHandlers } = ww(rs, handlers, sgState)
+    return {
+        concat: (prev: SingleGameEventHandlersExtensible) => ({
+            ...prev.addListeners(listeners),
+            ...rsHandlers,
+        }),
+        rsHandlers,
+    }
+}
+function ww(
+    rs: RSOperator,
+    handlers: Partial<ResignEventHandlers>,
+    sgState: SGState,
+    cbState?: CBState
+): {
+    listeners: Partial<SingleGameListeners>
+    rsHandlers: Partial<ResignEventHandlers>
+} {
+    const cubeState = cbState?.cubeState ?? cube(1)
+    return {
+        listeners: {
+            onAwaitRoll: (sgToRoll: SGToRoll) =>
+                doOfferOperation(
+                    rs,
+                    sgToRoll.isRed,
+                    undefined,
+                    sgToRoll,
+                    cubeState
+                ),
+            onStartCheckerPlay: (sgInPlay: SGInPlay) =>
+                doOfferOperation(
+                    rs,
+                    sgInPlay.isRed,
+                    undefined,
+                    sgInPlay,
+                    cubeState
+                ),
+        },
+        rsHandlers: {
+            ...handlers,
+            onOfferResign,
+            onRejectResign,
+        },
+    }
+
+    function onOfferResign(offer: ResignOffer, isRed: boolean) {
+        const offered = handlers.onOfferResign?.(offer, isRed)
+        if (offered) {
+            const { boardState, node } = toBoardState(sgState)
+            ;(async () => {
+                const action = await rs[
+                    offered.isRed
+                        ? 'operateRedResignResponse'
+                        : 'operateWhiteResignResponse'
+                ]
+
+                action(
+                    offered.offer,
+                    () => {
+                        handlers.onAcceptResign?.(offered)
+                    },
+                    () => {
+                        onRejectResign(offered)
+                    },
+                    cubeState,
+                    boardState,
+                    node
+                )
+            })()
+        }
+        return undefined
+    }
+
+    function onRejectResign(resignState: RSOffered) {
+        const rejected = handlers.onRejectResign?.(resignState)
+        if (rejected) {
+            const { boardState, node } = toBoardState(sgState)
+            ;(async () => {
+                const action = await rs[
+                    rejected.isRed
+                        ? 'operateRedOfferAction'
+                        : 'operateWhiteOfferAction'
+                ]
+
+                action(
+                    (offer: ResignOffer) => {
+                        onOfferResign(offer, rejected.isRed)
+                    },
+                    rejected.lastOffer,
+                    cubeState,
+                    boardState,
+                    node
+                )
+            })()
+            return rejected
+        }
+        return undefined
+    }
+
+    async function doOfferOperation(
         rs: RSOperator,
         isRed: boolean,
         lastOffer: ResignOffer | undefined,
         sgState: { boardState: BoardState; node?: BoardStateNode },
         cubeState: CubeState
     ) {
-        rs[isRed ? 'operateRedOfferAction' : 'operateWhiteOfferAction'](
-            (offer: ResignOffer) => handlers.onOfferResign(offer, isRed),
+        const action = await rs[
+            isRed ? 'operateRedOfferAction' : 'operateWhiteOfferAction'
+        ]
+
+        action(
+            (offer: ResignOffer) => onOfferResign(offer, isRed),
             lastOffer,
             cubeState,
             sgState.boardState,
             sgState.node
         )
-    }
-}
-
-function addAutoResignResponses(
-    rs: RSOperator,
-    handlers: ResignEventHandlers,
-    acceptResign: (result: SGResult, eogStatus: EOGStatus) => void,
-    sgState: SGState,
-    cubeState: CubeState
-) {
-    const onOfferResign = (offer: ResignOffer, isRed: boolean) => {
-        const offered = handlers.onOfferResign(offer, isRed)
-        if (offered) {
-            const { boardState, node } = toBoardState(sgState)
-            return rs[
-                offered.isRed
-                    ? 'operateRedResignResponse'
-                    : 'operateWhiteResignResponse'
-            ](
-                offered.offer,
-                () => {
-                    handlers.onAcceptResign(offered, acceptResign)
-                },
-                () => {
-                    onRejectResign(offered)
-                },
-                cubeState,
-                boardState,
-                node
-            )
-                ? undefined // rsOperatorが対処したなら、それ以上は何もしない
-                : offered // 実際のところ、何か値を返しても特に使途はない
-        }
-        return undefined
-    }
-    const onRejectResign = (resignState: RSOffered) => {
-        const rejected = handlers.onRejectResign(resignState)
-        if (rejected) {
-            const { boardState, node } = toBoardState(sgState)
-            rs[
-                rejected.isRed
-                    ? 'operateRedOfferAction'
-                    : 'operateWhiteOfferAction'
-            ](
-                (offer: ResignOffer) => {
-                    onOfferResign(offer, rejected.isRed)
-                },
-                rejected.lastOffer,
-                cubeState,
-                boardState,
-                node
-            )
-            return rejected
-        }
-    }
-    return {
-        ...handlers,
-        onOfferResign,
-        onRejectResign,
-    }
-
-    function toBoardState(sgState: SGState) {
-        return {
-            boardState: sgState.boardState,
-
-            node:
-                sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
-        }
     }
 }

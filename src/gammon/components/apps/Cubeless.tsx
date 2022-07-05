@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { buildSGEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import {
+    setSGStateListener,
+    SingleGameListeners,
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { singleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { GameConf } from 'tsgammon-core/GameConf'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { Score, score } from 'tsgammon-core/Score'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
@@ -23,10 +25,7 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
-import {
-    addOnWithRSAutoOperator,
-    handlersWithRSAutoOperator
-} from '../withRSAutoOperator'
+import { wSG } from '../withRSAutoOperator'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -44,7 +43,6 @@ export type CubelessProps = {
 
 export function Cubeless(props: CubelessProps) {
     const {
-        gameConf = standardConf,
         sgConfs,
         autoOperators = {},
         isRollHandlerEnabled = false,
@@ -63,15 +61,19 @@ export function Cubeless(props: CubelessProps) {
         rollListener: { onRollRequest },
     })
 
-    const { resignState, resignEventHandlers } = useResignState()
-
-    const { handlers } = buildSGEventHandlers(
-        defaultSGState(gameConf),
-        setSGState,
+    const _handlers = singleGameEventHandlers(
         rollListener,
-        { eventHandlers: {}, listeners },
-        { eventHandlers: {}, listeners: matchScoreListener },
-        addOnWithRSAutoOperator(autoOperators.rs, resignEventHandlers)
+        setSGStateListener(initialSGState, setSGState)
+    )
+        .addListeners(listeners)
+        .addListeners(matchScoreListener)
+
+    const { resignState, resignEventHandlers } = useResignState(
+        (result: SGResult, eog: EOGStatus) =>
+            _handlers.onEndGame(sgState, result, eog)
+    )
+    const handlers = wSG(autoOperators.rs, sgState, resignEventHandlers).concat(
+        _handlers
     )
     useSGAutoOperator(sgState, autoOperators.sg, handlers)
 
@@ -84,13 +86,6 @@ export function Cubeless(props: CubelessProps) {
         opConfs: sgConfs,
         matchScore,
         ...handlers,
-        ...handlersWithRSAutoOperator(
-            autoOperators.rs,
-            resignEventHandlers,
-            (result: SGResult, eogStatus: EOGStatus) =>
-                handlers.onEndGame(sgState, result, eogStatus),
-            sgState
-        ),
         ...cpListeners,
     }
 

@@ -1,8 +1,6 @@
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import { CubeGameEventHandlers } from 'tsgammon-core/dispatchers/CubeGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { EventHandlerAddOn } from 'tsgammon-core/dispatchers/EventHandlerBuilder'
 import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameConf } from 'tsgammon-core/GameConf'
@@ -10,7 +8,7 @@ import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import {
     MatchRecorder,
     matchRecorderAsCBAddOn,
-    matchRecorderAsSGAddOn
+    matchRecorderAsSGAddOn,
 } from 'tsgammon-core/records/MatchRecorder'
 import { PlyRecordEoG, PlyRecordInPlay } from 'tsgammon-core/records/PlyRecord'
 import { useMatchRecorder } from './useMatchRecorder'
@@ -24,20 +22,17 @@ export function useMatchRecorderForCubeGame(
     matchRecord: MatchRecord<BGState>
     matchRecorder: MatchRecorder<BGState>
     resetMatchRecord: (index: number) => void
-    matchRecorderAddOn: EventHandlerAddOn<
-        CubeGameEventHandlers & SingleGameEventHandlers,
-        CubeGameListeners & SingleGameEventHandlers
-    >
+    matchRecorderAddOn: Partial<CubeGameListeners & SingleGameEventHandlers>
 } {
     const [matchRecord, matchRecorder] =
         useMatchRecorder<BGState>(initialMatchRecord)
 
-    const { eventHandlers: cbH, listeners } = matchRecorderAsCBAddOn(
+    const cbL = matchRecorderAsCBAddOn(
         gameConf,
         sgState,
         matchRecorder
     )
-    const { eventHandlers: sbH } = matchRecorderAsSGAddOn(
+    const sbL = matchRecorderAsSGAddOn(
         bgMatchRecorderToSG(cbState, matchRecorder)
     )
     const resetMatchRecord = (index: number) => {
@@ -48,13 +43,7 @@ export function useMatchRecorderForCubeGame(
         matchRecord,
         matchRecorder,
         resetMatchRecord,
-        matchRecorderAddOn: {
-            eventHandlers: {
-                ...cbH,
-                ...sbH,
-            },
-            listeners,
-        },
+        matchRecorderAddOn: { ...cbL, ...sbL },
     }
 }
 
@@ -73,8 +62,8 @@ function bgMatchRecorderToSG(
             matchRecorder.resetCurGame()
         },
         resumeTo: (index: number) => {
-            const record =  matchRecorder.resumeTo(index)
-            return {...record, state:record.state.sgState}
+            const record = matchRecorder.resumeTo(index)
+            return { ...record, state: record.state.sgState }
         },
     }
 }
