@@ -158,8 +158,7 @@ describe('ResignDialog', () => {
         const rs = bothRSAutoOperator(
             {
                 offerAction: alwaysOffer(ResignOffer.Single),
-                offerResponse: (offer: ResignOffer, doAccept: () => void) =>
-                    alwaysAccept(offer, doAccept),
+                offerResponse: alwaysAccept,
             },
             {
                 offerAction: alwaysOffer(ResignOffer.Single),
