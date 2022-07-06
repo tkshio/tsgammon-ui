@@ -1,6 +1,7 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
-import { score } from 'tsgammon-core'
+import { CubeState, score } from 'tsgammon-core'
+import { ResignOffer } from 'tsgammon-core/dispatchers/ResignState'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
@@ -8,6 +9,7 @@ import {
     redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 import {
+    bothRSAutoOperator,
     redRSAutoOperator
 } from '../../gammon/components/operators/RSAutoOperators'
 export default {
@@ -66,4 +68,39 @@ endOfMatch.args = {
         absPos: minimalPieces,
     },
     autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() , rs:redRSAutoOperator()},
+}
+
+export const endWithAutoResign = Template.bind({})
+endWithAutoResign.args = {
+    matchLength: 3,
+    matchScore: score({ redScore: 1, whiteScore: 2 }),
+    isCrawford: true,
+    board: {
+        gameStatus: GameStatus.TOROLL_WHITE,
+        absPos: minimalPieces,
+    },
+    autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator() , rs:bothRSAutoOperator(
+        {
+            offerAction:alwaysOffer(ResignOffer.Single),
+            offerResponse:alwaysAccept
+        },
+        {
+            offerAction:alwaysOffer(ResignOffer.Single),
+            offerResponse:alwaysAccept
+        }
+    )},
+}
+
+function alwaysAccept(_: ResignOffer, doAccept: () => void) {
+    doAccept()
+    return true
+}
+function alwaysOffer(resignOffer: ResignOffer) {
+    return (
+        doOffer: (offer: ResignOffer) => void,
+        _: ResignOffer | undefined,
+        __: CubeState
+    ) => {
+        doOffer(resignOffer)
+    }
 }
