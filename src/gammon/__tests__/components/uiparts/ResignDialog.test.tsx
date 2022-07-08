@@ -1,30 +1,28 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { unmountComponentAtNode } from 'react-dom'
+import { eog, EOGStatus } from 'tsgammon-core'
+import {
+    ResignEventHandlers,
+    resignEventHandlers,
+    RSToOffer,
+} from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import {
     ResignOffer,
     ResignState,
-    rsNone
+    rsNone,
 } from 'tsgammon-core/dispatchers/ResignState'
-
-import { unmountComponentAtNode } from 'react-dom'
-import { eog, EOGStatus } from 'tsgammon-core'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import {
     redRSAutoOperator,
-    whiteRSAutoOperator
+    whiteRSAutoOperator,
 } from '../../../components/operators/RSAutoOperators'
-import {
-    resignEventHandlers,
-    ResignEventHandlers
-} from '../../../components/ResignEventHandlers'
 import {
     ResignDialog,
     ResignDialogProps,
-    RSToOffer
 } from '../../../components/uiparts/ResignDialog'
-
-import { wSG } from '../../../components/withRSAutoOperator'
+import { operateSGWithRS } from '../../../components/withRSAutoOperator'
 import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
 
 let container: HTMLElement | null = null
@@ -240,13 +238,17 @@ describe('ResignDialog', () => {
             offerResponse: alwaysReject,
         })
 
-        const rsHandlers = wSG(rs, {} as SGState, handlers).rsHandlers
+        const { resignEventHandlers } = operateSGWithRS(
+            rs,
+            {} as SGState,
+            handlers
+        )
         render(
             <ResignDialog
                 {...{
                     ...props,
                     resignState: { tag: 'RSToOffer', isRed: false },
-                    ...rsHandlers,
+                    ...resignEventHandlers,
                 }}
             />
         )
@@ -261,14 +263,18 @@ describe('ResignDialog', () => {
             offerAction: neverOffer,
             offerResponse: alwaysAccept,
         })
-        const rsHandlers = wSG(rs, {} as SGState, handlers).rsHandlers
+        const { resignEventHandlers } = operateSGWithRS(
+            rs,
+            {} as SGState,
+            handlers
+        )
 
         render(
             <ResignDialog
                 {...{
                     ...props,
                     resignState: { tag: 'RSToOffer', isRed: true },
-                    ...rsHandlers,
+                    ...resignEventHandlers,
                 }}
             />
         )

@@ -1,17 +1,15 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { ResignEventHandlers } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { SingleGameEventHandlersExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import {
     SGInPlay,
     SGState,
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { RSOperator } from './operators/RSOperator'
-import { ResignEventHandlers } from './ResignEventHandlers'
 
 function toBoardState(sgState: SGState) {
     return {
@@ -19,63 +17,61 @@ function toBoardState(sgState: SGState) {
         node: sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
     }
 }
-export function w(
-    rs: RSOperator | undefined,
+export function operateWithRS(
     bgState: BGState,
-    handlers: Partial<ResignEventHandlers>
-): {
-    concat: (
-        prev: BGEventHandlersExtensible
-    ) => BGEventHandlersExtensible & Partial<ResignEventHandlers>
+    rs: RSOperator | undefined,
     rsHandlers: Partial<ResignEventHandlers>
+): {
+    sgListeners: Partial<SingleGameListeners>
+    resignEventHandlers: Partial<ResignEventHandlers>
 } {
     if (rs === undefined) {
-        return { concat: (a) => a, rsHandlers: handlers }
+        return {
+            sgListeners: {},
+            resignEventHandlers: rsHandlers,
+        }
     }
-    const { listeners, rsHandlers } = ww(
+    const { listeners, resignEventHandlers } = setRSOperations(
         rs,
-        handlers,
+        rsHandlers,
         bgState.sgState,
         bgState.cbState
     )
     return {
-        concat: (prev: BGEventHandlersExtensible) => ({
-            ...prev?.addListeners(listeners),
-            ...rsHandlers,
-        }),
-        rsHandlers,
+        sgListeners: listeners,
+        resignEventHandlers,
     }
 }
-export function wSG(
+
+export function operateSGWithRS(
     rs: RSOperator | undefined,
     sgState: SGState,
-    handlers: Partial<ResignEventHandlers>
-): {
-    concat: (
-        prev: SingleGameEventHandlersExtensible
-    ) => SingleGameEventHandlersExtensible & Partial<ResignEventHandlers>
     rsHandlers: Partial<ResignEventHandlers>
+): {
+    sgListeners: Partial<SingleGameListeners>
+    resignEventHandlers: Partial<ResignEventHandlers>
 } {
     if (rs === undefined) {
-        return { concat: (a) => a, rsHandlers: handlers }
+        return { sgListeners: {}, resignEventHandlers: rsHandlers }
     }
-    const { listeners, rsHandlers } = ww(rs, handlers, sgState)
-    return {
-        concat: (prev: SingleGameEventHandlersExtensible) => ({
-            ...prev.addListeners(listeners),
-            ...rsHandlers,
-        }),
+    const { listeners, resignEventHandlers } = setRSOperations(
+        rs,
         rsHandlers,
+        sgState
+    )
+    return {
+        sgListeners: listeners,
+        resignEventHandlers,
     }
 }
-function ww(
+function setRSOperations(
     rs: RSOperator,
     handlers: Partial<ResignEventHandlers>,
     sgState: SGState,
     cbState?: CBState
 ): {
     listeners: Partial<SingleGameListeners>
-    rsHandlers: Partial<ResignEventHandlers>
+    resignEventHandlers: Partial<ResignEventHandlers>
 } {
     const cubeState = cbState?.cubeState ?? cube(1)
     return {
@@ -97,7 +93,7 @@ function ww(
                     cubeState
                 ),
         },
-        rsHandlers: {
+        resignEventHandlers: {
             ...handlers,
             onOfferResign,
             onRejectResign,

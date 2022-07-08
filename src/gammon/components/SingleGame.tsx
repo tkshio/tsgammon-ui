@@ -1,13 +1,13 @@
 import { Fragment } from 'react'
 import { Score, score } from 'tsgammon-core'
+import { RSToOffer, ResignEventHandlers } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { ResignEventHandlers } from './ResignEventHandlers'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
-import { ResignDialog, RSToOffer } from './uiparts/ResignDialog'
+import { ResignDialog } from './uiparts/ResignDialog'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer

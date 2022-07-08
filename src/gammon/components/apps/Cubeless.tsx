@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { eogEventHandlersSG } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
     rollListeners,
@@ -25,7 +26,7 @@ import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
 import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
-import { wSG } from '../withRSAutoOperator'
+import { operateSGWithRS } from '../withRSAutoOperator'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -68,13 +69,17 @@ export function Cubeless(props: CubelessProps) {
         .addListeners(listeners)
         .addListeners(matchScoreListener)
 
-    const { resignState, resignEventHandlers } = useResignState(
+    const eogHandler = eogEventHandlersSG([listeners])
+    const { resignState, resignEventHandlers:_resignEventHandlers } = useResignState(
         (result: SGResult, eog: EOGStatus) =>
-            _handlers.onEndGame(sgState, result, eog)
+            eogHandler.onEndOfCubeGame(sgState, result, eog)
     )
-    const handlers = wSG(autoOperators.rs, sgState, resignEventHandlers).concat(
-        _handlers
+    const {sgListeners, resignEventHandlers} = operateSGWithRS(
+        autoOperators.rs,
+        sgState,
+        _resignEventHandlers
     )
+    const handlers =_handlers.addListeners(sgListeners)
     useSGAutoOperator(sgState, autoOperators.sg, handlers)
 
     const [cpState, cpListeners] = useCheckerPlayListeners()
@@ -86,6 +91,7 @@ export function Cubeless(props: CubelessProps) {
         opConfs: sgConfs,
         matchScore,
         ...handlers,
+        ...resignEventHandlers,
         ...cpListeners,
     }
 
