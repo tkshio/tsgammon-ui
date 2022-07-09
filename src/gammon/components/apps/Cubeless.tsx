@@ -10,8 +10,12 @@ import {
     setSGStateListener,
     SingleGameListeners,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { singleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
-import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
+import {
+    singleGameEventHandlers,
+} from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import {
+    SGEoG,
+} from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -24,9 +28,9 @@ import { SingleGame, SingleGameProps } from '../SingleGame'
 import { OperationConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
-import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 import { operateSGWithRS } from '../withRSAutoOperator'
+import { operateWithSG } from './operateWithSG'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -70,17 +74,19 @@ export function Cubeless(props: CubelessProps) {
         .addListeners(matchScoreListener)
 
     const eogHandler = eogEventHandlersSG([listeners])
-    const { resignState, resignEventHandlers:_resignEventHandlers } = useResignState(
-        (result: SGResult, eog: EOGStatus) =>
+    const { resignState, resignEventHandlers: _resignEventHandlers } =
+        useResignState((result: SGResult, eog: EOGStatus) =>
             eogHandler.onEndOfCubeGame(sgState, result, eog)
-    )
-    const {sgListeners, resignEventHandlers} = operateSGWithRS(
+        )
+    const { sgListeners, resignEventHandlers } = operateSGWithRS(
         autoOperators.rs,
         sgState,
         _resignEventHandlers
     )
-    const handlers =_handlers.addListeners(sgListeners)
-    useSGAutoOperator(sgState, autoOperators.sg, handlers)
+    const handlers = operateWithSG(
+        autoOperators.sg,
+        _handlers.addListeners(sgListeners)
+    )
 
     const [cpState, cpListeners] = useCheckerPlayListeners()
 
@@ -97,7 +103,6 @@ export function Cubeless(props: CubelessProps) {
 
     return <SingleGame {...sgProps} />
 }
-
 export function useMatchScore(): {
     matchScore: Score
     matchScoreListener: Pick<SingleGameListeners, 'onEndOfGame'>

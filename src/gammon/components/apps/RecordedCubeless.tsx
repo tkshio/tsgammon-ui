@@ -18,10 +18,10 @@ import {
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
 import { OperationConfs } from '../SingleGameBoard'
-import { useSGAutoOperator } from '../useSGAutoOperator'
 import { useSingleGameState } from '../useSingleGameState'
 
 import './main.css'
+import { operateWithSG } from './operateWithSG'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
@@ -61,12 +61,12 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     })
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
-    const { handlers, matchRecord } = useRecordedCubeless(
+    const { handlers:_handlers, matchRecord } = useRecordedCubeless(
         gameConf,
         setSGState,
         rollListener
     )
-    useSGAutoOperator(sgState, autoOperators.sg, handlers)
+    const handlers = operateWithSG( autoOperators.sg, _handlers)
 
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
