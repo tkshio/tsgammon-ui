@@ -1,10 +1,10 @@
 import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { RSToOffer } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
+import { RSToOffer } from './RSDialogHandlers'
 import { useCBAutoOperator } from './useCBAutoOperator'
 
 export function useCBAutoOperatorWithRS(
