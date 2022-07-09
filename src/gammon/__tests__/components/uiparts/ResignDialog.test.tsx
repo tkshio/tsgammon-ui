@@ -3,11 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { eog, EOGStatus } from 'tsgammon-core'
 import {
-    ResignEventHandlers,
-    resignEventHandlers,
-    RSToOffer,
-} from 'tsgammon-core/dispatchers/ResignEventHandlers'
-import {
     ResignOffer,
     ResignState,
     rsNone,
@@ -22,6 +17,11 @@ import {
     ResignDialog,
     ResignDialogProps,
 } from '../../../components/uiparts/ResignDialog'
+import {
+    rsDialogHandlers,
+    RSDialogHandlers,
+    RSToOffer
+} from "../../../components/RSDialogHandlers"
 import { operateSGWithRS } from '../../../components/withRSAutoOperator'
 import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
 
@@ -36,7 +36,7 @@ beforeEach(() => {
     state.resignState = rsNone()
 })
 
-const handlers: ResignEventHandlers = resignEventHandlers(
+const handlers: RSDialogHandlers = rsDialogHandlers(
     (resignState: ResignState | RSToOffer) => {
         state.resignState = resignState
     },
@@ -156,7 +156,7 @@ describe('ResignDialog', () => {
                 eogState.eogStatus = eogStatus
             }
         )
-        const rsHandlers = resignEventHandlers(doNothing, acceptResign)
+        const rsHandlers = rsDialogHandlers(doNothing, acceptResign)
         render(
             <ResignDialog
                 {...{

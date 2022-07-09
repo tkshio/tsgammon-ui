@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
-import { ResignEventHandlers, RSToOffer } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
+import { RSDialogHandlers, RSToOffer } from "../RSDialogHandlers"
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
@@ -9,23 +9,11 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved: boolean
     resignState: ResignState | RSToOffer
-} & Partial<ResignEventHandlers>
+} & Partial<RSDialogHandlers>
 
 export function ResignDialog(props: ResignDialogProps) {
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
-    const doNothing = () => {
-        //
-    }
-    const { isGammonSaved, resignState, ..._handlers } = props
-    const resignEventHandlers: ResignEventHandlers = {
-        onCancelResign: doNothing,
-        onOfferResign: () => undefined,
-        onRejectResign: () => undefined,
-        onResetResign: doNothing,
-        onAcceptResign: doNothing,
-        onResign: doNothing,
-        ..._handlers,
-    }
+    const { isGammonSaved, resignState, ...resignEventHandlers } = props
 
     function format(offer: ResignOffer): string {
         switch (offer) {
@@ -107,15 +95,14 @@ export function ResignDialog(props: ResignDialogProps) {
                     id="acceptResign"
                     role="accept-resign"
                     onClick={() =>
-                        resignEventHandlers.onAcceptResign(
-                            resignState                        )
+                        resignEventHandlers.onAcceptResign?.(resignState)
                     }
                 />
                 <Button
                     id="rejectResign"
                     role="reject-resign"
                     onClick={() =>
-                        resignEventHandlers.onRejectResign(resignState)
+                        resignEventHandlers.onRejectResign?.(resignState)
                     }
                 />
             </Buttons>
@@ -131,7 +118,10 @@ export function ResignDialog(props: ResignDialogProps) {
             <Button
                 {...attrs}
                 onClick={() => {
-                    resignEventHandlers.onOfferResign(offer, resignState.isRed)
+                    resignEventHandlers.onOfferResign?.(
+                        offer,
+                        resignState.isRed
+                    )
                 }}
             />
         )

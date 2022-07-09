@@ -8,11 +8,6 @@ import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { eogEventHandlers } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
 import {
-    ResignEventHandlers,
-    resignEventHandlers,
-    RSToOffer
-} from 'tsgammon-core/dispatchers/ResignEventHandlers'
-import {
     ResignOffer,
     ResignState,
     rsNone
@@ -27,6 +22,7 @@ import {
     redRSAutoOperator,
     whiteRSAutoOperator
 } from '../../../components/operators/RSAutoOperators'
+import { RSDialogHandlers, rsDialogHandlers, RSToOffer } from "../../../components/RSDialogHandlers"
 import { operateWithRS } from '../../../components/withRSAutoOperator'
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
@@ -42,7 +38,7 @@ beforeEach(() => {
     state.resignState = rsNone()
 })
 
-const handlers: ResignEventHandlers = resignEventHandlers(
+const handlers: RSDialogHandlers = rsDialogHandlers(
     (resignState: ResignState | RSToOffer) => {
         state.resignState = resignState
     },
@@ -187,7 +183,7 @@ describe('ResignDialog', () => {
             ...listeners
         )
         const eogHandler = eogEventHandlers(listeners)
-        const handlers = resignEventHandlers(
+        const handlers = rsDialogHandlers(
             (resignState: ResignState | RSToOffer) => {
                 state.resignState = resignState
             },

@@ -4,7 +4,6 @@ import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
-import { RSToOffer, ResignEventHandlers } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { score } from 'tsgammon-core/Score'
@@ -15,13 +14,14 @@ import { EOGDialog } from './uiparts/EOGDialog'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { eogMatchState } from './useMatchState'
+import { RSDialogHandlers, RSToOffer } from "./RSDialogHandlers"
 
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
     showPositionID?: boolean
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>> &
-    Partial<ResignEventHandlers>
+    Partial<RSDialogHandlers>
 
 export function CubefulGame(props: CubefulGameProps) {
     const defaultMatchState: MatchState = {

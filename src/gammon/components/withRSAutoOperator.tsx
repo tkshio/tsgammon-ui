@@ -1,7 +1,6 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { ResignEventHandlers } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
@@ -10,6 +9,7 @@ import {
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { RSOperator } from './operators/RSOperator'
+import { RSDialogHandlers, RSToOffer } from './RSDialogHandlers'
 
 function toBoardState(sgState: SGState) {
     return {
@@ -20,10 +20,10 @@ function toBoardState(sgState: SGState) {
 export function operateWithRS(
     bgState: BGState,
     rs: RSOperator | undefined,
-    rsHandlers: Partial<ResignEventHandlers>
+    rsHandlers: Partial<RSDialogHandlers>
 ): {
     sgListeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<ResignEventHandlers>
+    resignEventHandlers: Partial<RSDialogHandlers>
 } {
     if (rs === undefined) {
         return {
@@ -46,10 +46,10 @@ export function operateWithRS(
 export function operateSGWithRS(
     rs: RSOperator | undefined,
     sgState: SGState,
-    rsHandlers: Partial<ResignEventHandlers>
+    rsHandlers: RSDialogHandlers
 ): {
     sgListeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<ResignEventHandlers>
+    resignEventHandlers: Partial<RSDialogHandlers>
 } {
     if (rs === undefined) {
         return { sgListeners: {}, resignEventHandlers: rsHandlers }
@@ -66,12 +66,12 @@ export function operateSGWithRS(
 }
 function setRSOperations(
     rs: RSOperator,
-    handlers: Partial<ResignEventHandlers>,
+    handlers: Partial<RSDialogHandlers>,
     sgState: SGState,
     cbState?: CBState
 ): {
     listeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<ResignEventHandlers>
+    resignEventHandlers: Partial<RSDialogHandlers>
 } {
     const cubeState = cbState?.cubeState ?? cube(1)
     return {
@@ -100,7 +100,10 @@ function setRSOperations(
         },
     }
 
-    function onOfferResign(offer: ResignOffer, isRed: boolean) {
+    function onOfferResign(
+        offer: ResignOffer,
+        isRed: boolean
+    ): RSOffered | undefined {
         const offered = handlers.onOfferResign?.(offer, isRed)
         if (offered) {
             const { boardState, node } = toBoardState(sgState)
@@ -124,11 +127,11 @@ function setRSOperations(
                     node
                 )
             })()
+            return offered
         }
-        return undefined
     }
 
-    function onRejectResign(resignState: RSOffered) {
+    function onRejectResign(resignState: RSOffered): RSToOffer | undefined {
         const rejected = handlers.onRejectResign?.(resignState)
         if (rejected) {
             const { boardState, node } = toBoardState(sgState)
@@ -151,7 +154,6 @@ function setRSOperations(
             })()
             return rejected
         }
-        return undefined
     }
 
     async function doOfferOperation(
