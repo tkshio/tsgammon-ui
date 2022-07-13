@@ -46,7 +46,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
 
     // キューブでのダブル
     const onClickCube = () => {
-        if (cbState.tag === 'CBAction') {
+        if (cbState.tag === 'CBAction' && sgState.tag === 'SGToRoll') {
             onDouble?.({ cbState, sgState })
         }
     }

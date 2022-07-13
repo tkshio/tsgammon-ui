@@ -4,7 +4,6 @@ import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
-import { useSGAutoOperator } from './useSGAutoOperator'
 import { useDelayedTrigger } from './utils/useDelayedTrigger'
 
 
@@ -14,6 +13,7 @@ export function useCBAutoOperator(
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
     handlers: Partial<BGEventHandlers>
 ) {
+    /*
     const { cb, sg } = autoOperators
     useSGAutoOperator(
         sgState,
@@ -70,4 +70,5 @@ export function useCBAutoOperator(
         return false
     }, [cb, cbState, sgState, handlers])
     useDelayedTrigger(doCubeActions, 10)
+*/
 }

@@ -34,13 +34,13 @@ import {
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { OperationConfs } from '../SingleGameBoard'
-import { useCBAutoOperatorWithRS } from '../useCBAutoOperatorWithRS'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchKey } from '../useMatchKey'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
 import { operateWithRS } from '../withRSAutoOperator'
 import './main.css'
+import { operateForBGRS } from './operateWithCB'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -147,21 +147,29 @@ export function PointMatch(props: PointMatchProps) {
         _resignEventHandlers
     )
     const bgEventHandlers = _bgEventHandlers.addListeners(sgListeners)
+
     // ゲーム進行の自動処理
+    const bgEventHandlersWithAutoOp = operateForBGRS(
+        resignState,
+        autoOperators,
+        bgEventHandlers
+    )
+
+    /*
     useCBAutoOperatorWithRS(
         resignState,
         cbState,
         sgState,
         autoOperators,
         bgEventHandlers
-    )
+    )*/
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,
         matchRecord,
         bgState: { sgState, cbState },
         opConfs,
-        ...bgEventHandlers,
+        ...bgEventHandlersWithAutoOp,
         ...resignEventHandlers,
         onResumeState,
     }
