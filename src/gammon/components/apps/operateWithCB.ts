@@ -5,6 +5,7 @@ import {
     CBAction,
     CBInPlay,
     CBResponse,
+    CBToRoll,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGInPlay, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -52,12 +53,18 @@ export function operateForBG(
                     cbState.cubeState,
                     sgState.boardState,
                     () => {
-                        autoHandler.onDouble?.(bgState)
+                        autoHandler.onDouble(bgState)
                     },
                     () => {
-                        autoHandler.onRoll?.(bgState)
+                        autoHandler.onRoll(bgState)
                     }
                 )
+            },
+            onSkipCubeAction: (bgState:{
+                cbState:CBToRoll,sgState:SGToRoll
+            })=>{
+                // ダイスロール自体が非同期的に実行されるので、同期的に操作する
+                autoHandler.onRoll(bgState)
             },
             onDouble: async (bgState: {
                 cbState: CBResponse
