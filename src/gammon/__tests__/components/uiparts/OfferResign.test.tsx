@@ -182,7 +182,7 @@ describe('ResignDialog', () => {
             undefined,
             ...listeners
         )
-        const eogHandler = eogEventHandlers(listeners)
+        const eogHandler = eogEventHandlers(...listeners)
         const handlers = rsDialogHandlers(
             (resignState: ResignState | RSToOffer) => {
                 state.resignState = resignState
