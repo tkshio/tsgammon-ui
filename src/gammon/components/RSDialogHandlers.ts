@@ -1,13 +1,18 @@
 import { EOGStatus } from 'tsgammon-core'
 import {
-    RSNONE,
     resignEventHandlers,
+    RSNONE,
 } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import {
     ResignOffer,
     ResignState,
     RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
+import {
+    concat0,
+    concat1,
+    concat2,
+} from 'tsgammon-core/dispatchers/utils/concat'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 
 export type RSToOffer = {
@@ -15,21 +20,29 @@ export type RSToOffer = {
     isRed: boolean
     lastOffer?: ResignOffer
 }
+export type RSDialogListener = {
+    offerResign: (resignState: RSOffered) => void
+    acceptResign: (result: SGResult, eog: EOGStatus) => void
+    rejectResign: (resignState: RSToOffer) => void
+    startResign: (resignState: RSToOffer) => void
+    resetResignState: () => void
+}
 
-export type RSDialogHandlers = {
-    onOfferResign: (offer: ResignOffer, isRed: boolean) => RSOffered | undefined
-    onRejectResign: (resignState: RSOffered) => RSToOffer | undefined
+export type RSDialogHandler = {
+    onOfferResign: (offer: ResignOffer, isRed: boolean) => void
+    onRejectResign: (resignState: RSOffered) => void
     onAcceptResign: (resignState: RSOffered) => void
     onResign: (isRed: boolean) => void
     onCancelResign: () => void
     onResetResign: () => void
+    withListener: (listener: Partial<RSDialogListener>) => RSDialogHandler
 }
 
-export function rsDialogHandlers(
+export function rsDialogHandler(
     setResignState: (resignState: ResignState | RSToOffer) => void,
     acceptResign: (result: SGResult, eog: EOGStatus) => void
-): RSDialogHandlers {
-    const rsEventHandlers = resignEventHandlers({
+): RSDialogHandler {
+    const rsListeners = {
         offerResign: (resignState: RSOffered) => {
             setResignState(resignState)
         },
@@ -37,35 +50,61 @@ export function rsDialogHandlers(
             acceptResign(result, eog)
             setResignState(RSNONE)
         },
+        rejectResign: (resignState: RSToOffer) => {
+            setResignState(resignState)
+        },
+        startResign: (resignState: RSToOffer) => {
+            setResignState(resignState)
+        },
+        resetResignState: () => {
+            setResignState(RSNONE)
+        },
+    }
+    return _rsDialogHandler(rsListeners)
+}
+
+function _rsDialogHandler(
+    rsListener: Partial<RSDialogListener>
+): RSDialogHandler {
+    const rsEventHandler = resignEventHandlers({
+        ...rsListener,
         rejectResign: (resignState: RSOffered) => {
-            setResignState({
+            rsListener.rejectResign?.({
                 tag: 'RSToOffer',
-                isRed: resignState.isRed,
+                isRed: !resignState.isRed,
                 lastOffer: resignState.offer,
             })
         },
     })
     return {
-        ...rsEventHandlers,
-        onRejectResign: (resignState: RSOffered) => {
-            rsEventHandlers.onRejectResign(resignState)
-            return {
-                tag: 'RSToOffer',
-                isRed: resignState.isRed,
-                lastOffer: resignState.offer,
-            }
-        },
+        ...rsEventHandler,
         onResign: (isRed: boolean) => {
-            setResignState({
+            rsListener.startResign?.({
                 tag: 'RSToOffer',
                 isRed: isRed,
             })
         },
         onCancelResign: () => {
-            setResignState(RSNONE)
+            rsListener.resetResignState?.()
         },
         onResetResign: () => {
-            setResignState(RSNONE)
+            rsListener.resetResignState?.()
         },
+        withListener: (listener: Partial<RSDialogListener>) => {
+            return _rsDialogHandler(concatRSListeners(rsListener, listener))
+        },
+    }
+}
+
+function concatRSListeners(
+    rs1: Partial<RSDialogListener>,
+    rs2: Partial<RSDialogListener>
+): Partial<RSDialogListener> {
+    return {
+        offerResign: concat1(rs1.offerResign, rs2.offerResign),
+        acceptResign: concat2(rs1.acceptResign, rs2.acceptResign),
+        rejectResign: concat1(rs1.rejectResign, rs2.rejectResign),
+        startResign: concat1(rs1.startResign, rs2.startResign),
+        resetResignState: concat0(rs1.resetResignState, rs2.resetResignState),
     }
 }

@@ -141,28 +141,20 @@ export function PointMatch(props: PointMatchProps) {
     )
 
     // 降参機能の自動処理
-    const { sgListeners, resignEventHandlers } = operateWithRS(
-        { cbState, sgState },
-        autoOperators.rs,
-        _resignEventHandlers
-    )
-    const bgEventHandlers = _bgEventHandlers.addListeners(sgListeners)
+    const { bgEventHandler, resignEventHandler: resignEventHandlers } =
+        operateWithRS(
+            { cbState, sgState },
+            autoOperators.rs,
+            _bgEventHandlers,
+            _resignEventHandlers
+        )
 
     // ゲーム進行の自動処理
     const bgEventHandlersWithAutoOp = operateForBGRS(
         resignState,
         autoOperators,
-        bgEventHandlers
+        bgEventHandler
     )
-
-    /*
-    useCBAutoOperatorWithRS(
-        resignState,
-        cbState,
-        sgState,
-        autoOperators,
-        bgEventHandlers
-    )*/
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,

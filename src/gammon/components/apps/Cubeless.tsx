@@ -78,7 +78,7 @@ export function Cubeless(props: CubelessProps) {
         useResignState((result: SGResult, eog: EOGStatus) =>
             eogHandler.onEndOfCubeGame(sgState, result, eog)
         )
-    const { sgListeners, resignEventHandlers } = operateSGWithRS(
+    const { sgListener: sgListeners, resignEventHandler } = operateSGWithRS(
         autoOperators.rs,
         sgState,
         _resignEventHandlers
@@ -97,7 +97,7 @@ export function Cubeless(props: CubelessProps) {
         opConfs: sgConfs,
         matchScore,
         ...handlers,
-        ...resignEventHandlers,
+        ...resignEventHandler,
         ...cpListeners,
     }
 

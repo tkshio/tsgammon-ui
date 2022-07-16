@@ -1,5 +1,6 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
@@ -9,103 +10,84 @@ import {
     SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { RSOperator } from './operators/RSOperator'
-import { RSDialogHandlers, RSToOffer } from './RSDialogHandlers'
+import { RSDialogHandler, RSToOffer } from './RSDialogHandlers'
 
-function toBoardState(sgState: SGState) {
-    return {
-        boardState: sgState.boardState,
-        node: sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
-    }
-}
 export function operateWithRS(
     bgState: BGState,
     rs: RSOperator | undefined,
-    rsHandlers: Partial<RSDialogHandlers>
+    bgEventHandler: BGEventHandlersExtensible,
+    resignEventHandler: RSDialogHandler
 ): {
-    sgListeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<RSDialogHandlers>
+    bgEventHandler: BGEventHandlersExtensible
+    resignEventHandler: RSDialogHandler
 } {
     if (rs === undefined) {
         return {
-            sgListeners: {},
-            resignEventHandlers: rsHandlers,
+            bgEventHandler,
+            resignEventHandler,
         }
     }
-    const { listeners, resignEventHandlers } = setRSOperations(
-        rs,
-        rsHandlers,
-        bgState.sgState,
-        bgState.cbState
-    )
+
+    const { sgListener, resignEventHandler: _resignEventHandler } =
+        setRSOperations(
+            rs,
+            resignEventHandler,
+            bgState.sgState,
+            bgState.cbState
+        )
+
     return {
-        sgListeners: listeners,
-        resignEventHandlers,
+        bgEventHandler: bgEventHandler.addListeners(sgListener),
+        resignEventHandler: _resignEventHandler,
     }
 }
 
 export function operateSGWithRS(
     rs: RSOperator | undefined,
     sgState: SGState,
-    rsHandlers: RSDialogHandlers
+    resignEventHandler: RSDialogHandler
 ): {
-    sgListeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<RSDialogHandlers>
+    sgListener: Partial<SingleGameListeners>
+    resignEventHandler: Partial<RSDialogHandler>
 } {
     if (rs === undefined) {
-        return { sgListeners: {}, resignEventHandlers: rsHandlers }
+        return { sgListener: {}, resignEventHandler }
     }
-    const { listeners, resignEventHandlers } = setRSOperations(
-        rs,
-        rsHandlers,
-        sgState
-    )
-    return {
-        sgListeners: listeners,
-        resignEventHandlers,
-    }
+    return setRSOperations(rs, resignEventHandler, sgState)
 }
+
 function setRSOperations(
     rs: RSOperator,
-    handlers: Partial<RSDialogHandlers>,
+    handlers: RSDialogHandler,
     sgState: SGState,
     cbState?: CBState
 ): {
-    listeners: Partial<SingleGameListeners>
-    resignEventHandlers: Partial<RSDialogHandlers>
+    sgListener: Partial<SingleGameListeners>
+    resignEventHandler: RSDialogHandler
 } {
     const cubeState = cbState?.cubeState ?? cube(1)
-    return {
-        listeners: {
-            onAwaitRoll: (sgToRoll: SGToRoll) =>
-                doOfferOperation(
-                    rs,
-                    sgToRoll.isRed,
-                    undefined,
-                    sgToRoll,
-                    cubeState
-                ),
-            onStartCheckerPlay: (sgInPlay: SGInPlay) =>
-                doOfferOperation(
-                    rs,
-                    sgInPlay.isRed,
-                    undefined,
-                    sgInPlay,
-                    cubeState
-                ),
-        },
-        resignEventHandlers: {
-            ...handlers,
-            onOfferResign,
-            onRejectResign,
-        },
-    }
+    const autoHandler = handlers.withListener({
+        rejectResign: (rejected: RSToOffer) => {
+            const { boardState, node } = toBoardState(sgState)
+            ;(async () => {
+                const action = await rs[
+                    rejected.isRed
+                        ? 'operateRedOfferAction'
+                        : 'operateWhiteOfferAction'
+                ]
 
-    function onOfferResign(
-        offer: ResignOffer,
-        isRed: boolean
-    ): RSOffered | undefined {
-        const offered = handlers.onOfferResign?.(offer, isRed)
-        if (offered) {
+                action(
+                    (offer: ResignOffer) => {
+                        autoHandler.onOfferResign(offer, rejected.isRed)
+                    },
+                    rejected.lastOffer,
+                    cubeState,
+                    boardState,
+                    node
+                )
+            })()
+        },
+        offerResign: (offered: RSOffered) => {
             const { boardState, node } = toBoardState(sgState)
             ;(async () => {
                 const action = await rs[
@@ -120,59 +102,52 @@ function setRSOperations(
                         handlers.onAcceptResign?.(offered)
                     },
                     () => {
-                        onRejectResign(offered)
+                        autoHandler.onRejectResign(offered)
                     },
                     cubeState,
                     boardState,
                     node
                 )
             })()
-            return offered
+        },
+    })
+    const sgListeners = {
+        onAwaitRoll: (sgToRoll: SGToRoll) =>
+            doOfferOperation(autoHandler, rs, sgToRoll, cubeState),
+        onStartCheckerPlay: (sgInPlay: SGInPlay) =>
+            doOfferOperation(autoHandler, rs, sgInPlay, cubeState),
+    }
+
+    return {
+        sgListener: sgListeners,
+        resignEventHandler: autoHandler,
+    }
+
+    function toBoardState(sgState: SGState) {
+        return {
+            boardState: sgState.boardState,
+            node:
+                sgState.tag === 'SGInPlay' ? sgState.boardStateNode : undefined,
         }
     }
+}
 
-    function onRejectResign(resignState: RSOffered): RSToOffer | undefined {
-        const rejected = handlers.onRejectResign?.(resignState)
-        if (rejected) {
-            const { boardState, node } = toBoardState(sgState)
-            ;(async () => {
-                const action = await rs[
-                    rejected.isRed
-                        ? 'operateRedOfferAction'
-                        : 'operateWhiteOfferAction'
-                ]
+async function doOfferOperation(
+    handler: RSDialogHandler,
+    rs: RSOperator,
+    sgState: { boardState: BoardState; node?: BoardStateNode; isRed: boolean },
+    cubeState: CubeState
+) {
+    const isRed = sgState.isRed
+    const action = await rs[
+        isRed ? 'operateRedOfferAction' : 'operateWhiteOfferAction'
+    ]
 
-                action(
-                    (offer: ResignOffer) => {
-                        onOfferResign(offer, rejected.isRed)
-                    },
-                    rejected.lastOffer,
-                    cubeState,
-                    boardState,
-                    node
-                )
-            })()
-            return rejected
-        }
-    }
-
-    async function doOfferOperation(
-        rs: RSOperator,
-        isRed: boolean,
-        lastOffer: ResignOffer | undefined,
-        sgState: { boardState: BoardState; node?: BoardStateNode },
-        cubeState: CubeState
-    ) {
-        const action = await rs[
-            isRed ? 'operateRedOfferAction' : 'operateWhiteOfferAction'
-        ]
-
-        action(
-            (offer: ResignOffer) => onOfferResign(offer, isRed),
-            lastOffer,
-            cubeState,
-            sgState.boardState,
-            sgState.node
-        )
-    }
+    action(
+        (offer: ResignOffer) => handler.onOfferResign(offer, isRed),
+        undefined,
+        cubeState,
+        sgState.boardState,
+        sgState.node
+    )
 }

@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { RSDialogHandlers, RSToOffer } from "../RSDialogHandlers"
+import { RSDialogHandler, RSToOffer } from "../RSDialogHandlers"
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
@@ -9,7 +9,7 @@ import './resignDialog.css'
 export type ResignDialogProps = {
     isGammonSaved: boolean
     resignState: ResignState | RSToOffer
-} & Partial<RSDialogHandlers>
+} & Partial<RSDialogHandler>
 
 export function ResignDialog(props: ResignDialogProps) {
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)

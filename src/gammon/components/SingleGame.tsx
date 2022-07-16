@@ -7,13 +7,13 @@ import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog } from './uiparts/ResignDialog'
-import { RSDialogHandlers, RSToOffer } from "./RSDialogHandlers"
+import { RSDialogHandler, RSToOffer } from "./RSDialogHandlers"
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer
     matchScore?: Score
     showPositionID?: boolean
-} & Partial<RSDialogHandlers>
+} & Partial<RSDialogHandler>
 
 export function SingleGame(props: SingleGameProps) {
     const {
@@ -80,7 +80,7 @@ export function SingleGame(props: SingleGameProps) {
 
 export function resignDialog(
     resignState: ResignState | RSToOffer | undefined,
-    eventHandlers: Partial<RSDialogHandlers>
+    eventHandlers: Partial<RSDialogHandler>
 ) {
     const isGammonSaved = false
     return resignState === undefined ||

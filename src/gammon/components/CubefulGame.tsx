@@ -14,14 +14,14 @@ import { EOGDialog } from './uiparts/EOGDialog'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { eogMatchState } from './useMatchState'
-import { RSDialogHandlers, RSToOffer } from "./RSDialogHandlers"
+import { RSDialogHandler, RSToOffer } from "./RSDialogHandlers"
 
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
     showPositionID?: boolean
 } & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>> &
-    Partial<RSDialogHandlers>
+    Partial<RSDialogHandler>
 
 export function CubefulGame(props: CubefulGameProps) {
     const defaultMatchState: MatchState = {
