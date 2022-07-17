@@ -5,7 +5,7 @@ import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { resignDialog } from './SingleGame'
@@ -90,12 +90,12 @@ function dialogForCubefulGame(
         eogDialog: (matchState: MatchStateEoG) => JSX.Element
         cubeResponseDialog: (bgState: {
             cbState: CBResponse
-            sgState: SGState
+            sgState: SGToRoll
         }) => JSX.Element
     }
 ): JSX.Element {
     const { cbState, sgState } = bgState
-    const isResponse = cbState.tag === 'CBResponse'
+    const isResponse = cbState.tag === 'CBResponse' && sgState.tag === 'SGToRoll'
     const isEoG = cbState.tag === 'CBEoG' && matchState.isEoG
     return (
         <Fragment>
@@ -124,8 +124,8 @@ function eogDialog(
 }
 function cubeResponseDialog(
     eventHandlers: Partial<BGEventHandlers>
-): (bgState: { cbState: CBResponse; sgState: SGState }) => JSX.Element {
-    return (bgState: { cbState: CBResponse; sgState: SGState }) => (
+): (bgState: { cbState: CBResponse; sgState: SGToRoll }) => JSX.Element {
+    return (bgState: { cbState: CBResponse; sgState: SGToRoll }) => (
         <CubeResponseDialog
             {...{
                 onTake: () => {
