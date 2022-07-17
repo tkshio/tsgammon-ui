@@ -107,10 +107,10 @@ export function Board(props: BoardProps) {
         )
     }
 
-    function renderCube(cube: CubeProps | undefined) {
+    function renderCube(cube: CubeProps | undefined, label: string) {
         if (cube) {
             return (
-                <div onClick={onClickCube}>
+                <div onClick={onClickCube} data-testid={`cube-${label}`}>
                     <Cube {...cube} />
                 </div>
             )
@@ -129,7 +129,7 @@ export function Board(props: BoardProps) {
                             <Point count={-board.redBornOff()} />
                         </div>
                         <div className={'cube-space'}>
-                            {renderCube(centerCube)}
+                            {renderCube(centerCube, 'center')}
                         </div>
                         <div className={'goal lower'}>
                             <Point count={board.whiteBornOff()} />
@@ -177,11 +177,11 @@ export function Board(props: BoardProps) {
                         </div>
                         <div className={'bar'}>
                             <div className={'upper'}>
-                                {renderCube(redCube)}
+                                {renderCube(redCube, 'red')}
                                 {renderColumn(0)}
                             </div>
                             <div className={'lower'}>
-                                {renderCube(whiteCube)}
+                                {renderCube(whiteCube, 'white')}
                                 {renderColumn(25)}
                             </div>
                         </div>

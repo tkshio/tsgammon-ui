@@ -1,4 +1,3 @@
-import { useCallback } from 'react'
 import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
@@ -27,23 +26,14 @@ import {
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 
-import { useDelayedTrigger } from './utils/useDelayedTrigger'
-
-export type OperationConfs = {
-    autoRoll?: boolean
-}
-
 export type SingleGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState
     cube?: CubeState
-    opConfs?: OperationConfs
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
-    const { sgState, opConfs = {} } = props
-    const { autoRoll = false } = opConfs
-    useAutoRoll(sgState, autoRoll, props.onRoll)
+    const { sgState } = props
 
     const board =
         sgState.tag === 'SGInPlay'
@@ -105,20 +95,6 @@ function layoutDices(sgState: SGOpening | SGToRoll | SGEoG): DiceLayout {
         case 'SGEoG':
             return selectDiceLayout(sgState)(sgState.dices)
     }
-}
-
-function useAutoRoll(
-    sgState: SGState,
-    autoRoll: boolean,
-    onRoll?: (sgState: SGToRoll) => void
-) {
-    const doRoll = useCallback(() => {
-        if (sgState.tag === 'SGToRoll' && autoRoll) {
-            onRoll?.(sgState)
-        }
-        return false
-    }, [sgState, autoRoll, onRoll])
-    useDelayedTrigger(doRoll, 10)
 }
 
 // InPlay時は、ダイスはチェッカープレイに応じて変わるので、
