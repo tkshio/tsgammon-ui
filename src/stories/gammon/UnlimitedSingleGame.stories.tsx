@@ -22,13 +22,11 @@ initialBoard.args = {}
 
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
-    sgConfs: {},
     autoOperators: { sg: redSGAutoOperator() },
 }
 
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
-    sgConfs: {},
     autoOperators: { sg: bothSGAutoOperator() },
 }
 
@@ -43,5 +41,4 @@ playDoublet.args = {
             0, /* bar*/ 0, 3, 0, -2, -2, -2, -1,
         ],
     },
-    sgConfs: {},
 }

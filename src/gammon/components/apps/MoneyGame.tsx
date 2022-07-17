@@ -16,12 +16,11 @@ import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
-import { OperationConfs } from '../SingleGameBoard'
-import { useCBAutoOperator } from '../useCBAutoOperator'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useCubeGameState } from '../useCubeGameState'
 import { useMatchState } from '../useMatchState'
 import { useSingleGameState } from '../useSingleGameState'
+import { operateForBG } from './operateWithCB'
 
 
 export type MoneyGameProps = {
@@ -29,7 +28,6 @@ export type MoneyGameProps = {
     matchScore?: Score
     setup?: GameSetup
     autoOperators?: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator }
-    opConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
 } & Partial<
@@ -69,15 +67,14 @@ export function MoneyGame(props: MoneyGameProps) {
         rollListener: { onRollRequest },
     })
 
-    const handlers = cubefulGameEventHandlers(
+    const _handlers = cubefulGameEventHandlers(
         false,
         rollListener,
         setCBStateListener(defaultBGState(gameConf).cbState, setCBState),
         setSGStateListener(defaultBGState(gameConf).sgState, setSGState)
     ).addListeners(matchStateAddOn)
 
-    useCBAutoOperator(cbState, sgState, autoOperators, handlers)
-
+    const handlers = operateForBG(autoOperators,_handlers)
     const cbProps: CubefulGameProps = {
         bgState: { sgState, cbState },
         cpState,

@@ -37,12 +37,10 @@ const engine: GammonEngine = simpleEvalEngine(
 export const cpuPlaysRed = Template.bind({})
 cpuPlaysRed.args = {
     autoOperators: {sg:redSGAutoOperator(engine)},
-    sgConfs: {},
 }
 export const cpuPlaysBoth = Template.bind({})
 cpuPlaysBoth.args = {
     autoOperators: {sg:bothSGAutoOperator(engine)},
-    sgConfs: {},
 }
 
 export const doubletInOpening = Template.bind({})
@@ -53,7 +51,6 @@ doubletInOpening.args = {
             throw Error()
         },
     },
-    sgConfs: {},
 }
 
 function doublet(): DiceRoll {
@@ -80,7 +77,6 @@ asymmetryc.args = {
     ],
     gameStatus: GameStatus.OPENING,
     diceSource: presetDiceSource(6, 2),
-    sgConfs: {},
 }
 
 export const blocked = Template.bind({})
@@ -93,5 +89,4 @@ blocked.args = {
     dice2: 2,
     gameStatus: GameStatus.INPLAY_WHITE,
     diceSource: presetDiceSource(6, 2),
-    sgConfs: {},
 }

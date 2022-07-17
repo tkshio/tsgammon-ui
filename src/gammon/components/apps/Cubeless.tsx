@@ -25,7 +25,6 @@ import { BoardEventHandlers } from '../boards/Board'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { SingleGame, SingleGameProps } from '../SingleGame'
-import { OperationConfs } from '../SingleGameBoard'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
@@ -35,7 +34,6 @@ import { operateWithSG } from './operateWithSG'
 export type CubelessProps = {
     gameConf?: GameConf
     autoOperators?: { sg?: SGOperator; rs?: RSOperator }
-    sgConfs?: OperationConfs
     isRollHandlerEnabled?: boolean
     diceSource: DiceSource
 } & GameSetup &
@@ -48,7 +46,6 @@ export type CubelessProps = {
 
 export function Cubeless(props: CubelessProps) {
     const {
-        sgConfs,
         autoOperators = {},
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
@@ -94,7 +91,6 @@ export function Cubeless(props: CubelessProps) {
         resignState,
         sgState,
         cpState,
-        opConfs: sgConfs,
         matchScore,
         ...handlers,
         ...resignEventHandler,

@@ -17,7 +17,6 @@ import {
     RecordedSingleGameProps,
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
-import { OperationConfs } from '../SingleGameBoard'
 import { useSingleGameState } from '../useSingleGameState'
 
 import './main.css'
@@ -26,7 +25,6 @@ import { operateWithSG } from './operateWithSG'
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
     state?: GameSetup
-    sgConfs?: OperationConfs
     autoOperators?: { sg?: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
@@ -44,7 +42,6 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const {
         gameConf = standardConf,
         state,
-        sgConfs = {},
         autoOperators = {},
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
@@ -70,7 +67,6 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
 
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
-        opConfs: sgConfs,
         matchRecord,
         ...handlers,
     }
