@@ -58,7 +58,8 @@ describe('CubeGameBoard', () => {
             autoOperators: setRedAutoOp(engine),
         }
         render(<AutoOperateCBGame {...next} />)
-        act(() => {
+        
+        act( () => {
             jest.advanceTimersByTime(10)
         })
         expect(bgState.cbState.tag).toEqual('CBResponse')

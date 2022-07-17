@@ -18,8 +18,8 @@ import {
     ResignDialogProps,
 } from '../../../components/uiparts/ResignDialog'
 import {
-    rsDialogHandlers,
-    RSDialogHandlers,
+    rsDialogHandler,
+    RSDialogHandler,
     RSToOffer
 } from "../../../components/RSDialogHandlers"
 import { operateSGWithRS } from '../../../components/withRSAutoOperator'
@@ -36,7 +36,7 @@ beforeEach(() => {
     state.resignState = rsNone()
 })
 
-const handlers: RSDialogHandlers = rsDialogHandlers(
+const handlers: RSDialogHandler = rsDialogHandler(
     (resignState: ResignState | RSToOffer) => {
         state.resignState = resignState
     },
@@ -156,7 +156,7 @@ describe('ResignDialog', () => {
                 eogState.eogStatus = eogStatus
             }
         )
-        const rsHandlers = rsDialogHandlers(doNothing, acceptResign)
+        const rsHandlers = rsDialogHandler(doNothing, acceptResign)
         render(
             <ResignDialog
                 {...{
@@ -238,7 +238,7 @@ describe('ResignDialog', () => {
             offerResponse: alwaysReject,
         })
 
-        const { resignEventHandlers } = operateSGWithRS(
+        const { resignEventHandler: resignEventHandlers } = operateSGWithRS(
             rs,
             {} as SGState,
             handlers
@@ -263,7 +263,7 @@ describe('ResignDialog', () => {
             offerAction: neverOffer,
             offerResponse: alwaysAccept,
         })
-        const { resignEventHandlers } = operateSGWithRS(
+        const { resignEventHandler: resignEventHandlers } = operateSGWithRS(
             rs,
             {} as SGState,
             handlers

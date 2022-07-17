@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { toCBState, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -25,7 +25,7 @@ const bgState = {
 const state = {
     matchState: matchStateForUnlimitedMatch(),
     cpState: undefined,
-    bgState
+    bgState,
 }
 const diceSource = presetDiceSource(1, 3)
 describe('CubeGame', () => {
@@ -42,7 +42,7 @@ describe('CubeGame', () => {
         // 初期画面とオープニングロール
         const dices = screen.getAllByTestId(/^dice/)
         expect(dices.length).toBe(2)
-        BoardOp.clickRightDice()
+        await act(() => BoardOp.clickRightDice())
         expect(bgState.sgState.tag).toEqual('SGInPlay')
         expect(bgState.cbState.tag).toEqual('CBInPlay')
         expect(isWhite(bgState.sgState)).toBeTruthy()
@@ -73,7 +73,7 @@ describe('CubeGame', () => {
             ...setupEventHandlers(state, diceSource),
         }
         render(<CubefulGame {...next} />)
-        BoardOp.clickRightDice()
+        await BoardOp.clickRightDice()
         expect(bgState.sgState.tag).toEqual('SGToRoll')
         expect(bgState.cbState.tag).toEqual('CBAction')
         expect(isRed(bgState.sgState)).toBeTruthy()

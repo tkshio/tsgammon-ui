@@ -22,7 +22,11 @@ import {
     redRSAutoOperator,
     whiteRSAutoOperator
 } from '../../../components/operators/RSAutoOperators'
-import { RSDialogHandlers, rsDialogHandlers, RSToOffer } from "../../../components/RSDialogHandlers"
+import {
+    RSDialogHandler,
+    rsDialogHandler,
+    RSToOffer
+} from '../../../components/RSDialogHandlers'
 import { operateWithRS } from '../../../components/withRSAutoOperator'
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
@@ -38,7 +42,7 @@ beforeEach(() => {
     state.resignState = rsNone()
 })
 
-const handlers: RSDialogHandlers = rsDialogHandlers(
+const handlers: RSDialogHandler = rsDialogHandler(
     (resignState: ResignState | RSToOffer) => {
         state.resignState = resignState
     },
@@ -78,16 +82,16 @@ describe('ResignDialog', () => {
             setCBStateListener(bgState.cbState, setCBState),
             setSGStateListener(bgState.sgState, setSGState)
         )
-        const { sgListeners, resignEventHandlers } = operateWithRS(
-            bgState,
-            rs,
-            handlers
-        )
+        const {
+            bgEventHandler,
+            resignEventHandler,
+        } = operateWithRS(bgState, rs, bgHandlers, handlers)
+
         const cbProps = {
             bgState,
             matchState: matchStateForUnlimitedMatch(),
-            ...bgHandlers.addListeners(sgListeners),
-            ...resignEventHandlers,
+            ...bgEventHandler,
+            ...resignEventHandler,
         }
         render(<CubefulGame {...cbProps} />)
         await BoardOp.clickRightDice()
@@ -124,16 +128,17 @@ describe('ResignDialog', () => {
             setCBStateListener(bgState.cbState, setCBState),
             setSGStateListener(bgState.sgState, setSGState)
         )
-        const { sgListeners, resignEventHandlers } = operateWithRS(
-            bgState,
-            rs,
-            handlers
-        )
+        const {
+            bgEventHandler,
+            resignEventHandler,
+        } = operateWithRS(bgState, rs, bgHandlers, handlers)
+        
+
         const cbProps = {
             bgState,
             matchState: matchStateForUnlimitedMatch(),
-            ...bgHandlers.addListeners(sgListeners),
-            ...resignEventHandlers,
+            ...bgEventHandler,
+            ...resignEventHandler,
         }
         render(<CubefulGame {...cbProps} />)
         await BoardOp.clickLeftDice()
@@ -183,7 +188,7 @@ describe('ResignDialog', () => {
             ...listeners
         )
         const eogHandler = eogEventHandlers(...listeners)
-        const handlers = rsDialogHandlers(
+        const handlers = rsDialogHandler(
             (resignState: ResignState | RSToOffer) => {
                 state.resignState = resignState
             },
@@ -191,16 +196,15 @@ describe('ResignDialog', () => {
                 eogHandler.onEndOfCubeGame(bgState.cbState, result, eog)
             }
         )
-        const { sgListeners, resignEventHandlers: rsHandlers } = operateWithRS(
-            bgState,
-            rs,
-            handlers
-        )
+        const {
+            bgEventHandler,
+            resignEventHandler
+        } = operateWithRS(bgState, rs, _bgHandlers, handlers)
         const cbProps = {
             bgState,
             matchState: matchStateForUnlimitedMatch(),
-            ..._bgHandlers.addListeners(sgListeners),
-            ...rsHandlers,
+            ...bgEventHandler,
+            ...resignEventHandler,
         }
         render(<CubefulGame {...cbProps} />)
 

@@ -1,14 +1,13 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
-import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import {
     CheckerPlayListeners,
     setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { BGEventHandlersExtensible, cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
@@ -24,11 +23,11 @@ export const BoardOp = {
         const point = screen.getByTestId(new RegExp(`^point-${pos}`))
         userEvent.click(point)
     },
-    clickRightDice: () => {
+    clickRightDice: async () => {
         const rightDice = screen.getByTestId(/^dice-right/)
         userEvent.click(rightDice)
     },
-    clickLeftDice: () => {
+    clickLeftDice: async () => {
         const rightDice = screen.getByTestId(/^dice-left/)
         userEvent.click(rightDice)
     },
@@ -68,7 +67,7 @@ export function setupEventHandlers(
     isCrawford = false,
     gameConf: GameConf = standardConf
 ): CheckerPlayListeners &
-    BGEventHandlers & {
+    BGEventHandlersExtensible & {
         diceSource: DiceSource
     } {
     const addOn = matchStateAddOn(
