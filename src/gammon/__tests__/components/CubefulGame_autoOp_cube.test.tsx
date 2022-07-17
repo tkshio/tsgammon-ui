@@ -1,20 +1,22 @@
 import { act, render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
+import {
+    matchStateForUnlimitedMatch
+} from 'tsgammon-core/dispatchers/MatchState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import {
     GammonEngine,
-    simpleEvalEngine,
+    simpleEvalEngine
 } from 'tsgammon-core/engines/GammonEngine'
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { AutoOperateCBGame } from './AutoOperateCBGame'
-import { setupEventHandlers } from './CubefulGame.common'
+import { BoardOp, isWhite, setupEventHandlers } from './CubefulGame.common'
 import { setRedAutoOp, setWhiteAutoOp } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null
@@ -25,55 +27,73 @@ beforeEach(() => {
 
     jest.useFakeTimers()
 })
-const gameState: GameSetup = {
-    gameStatus: GameStatus.CUBEACTION_RED,
-    // prettier-ignore
-    absPos:[-1,
-        0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0,  0, 0, 0, 4, 5, 5,
-        0
-    ],
-}
-const bgState = {
-    sgState: toSGState(gameState),
-    cbState: toCBState(gameState),
-}
-const state = {
-    matchState: matchStateForUnlimitedMatch(),
-    cpState: undefined,
-    bgState,
-}
-const engine: GammonEngine = simpleEvalEngine((board) => {
-    const ev = evaluate(board)
-    return ev.e
-})
 
-const props = { ...setupEventHandlers(state, presetDiceSource(1, 3)), ...state }
+function setup(gameSetup?: GameSetup) {
+    const bgState = {
+        sgState: toSGState(gameSetup),
+        cbState: toCBState(gameSetup),
+    }
+    const matchState = matchStateForUnlimitedMatch()
+    const state = {
+        matchState,
+        cpState: undefined,
+        bgState,
+    }
+    const diceSource = presetDiceSource(3, 1)
+    const props = { ...setupEventHandlers(state, diceSource), ...state }
+    return { props, bgState, matchState }
+}
 
+const engineAlwaysPass: GammonEngine = {
+    ...simpleEvalEngine((board) => {
+        const ev = evaluate(board)
+        return ev.e
+    }),
+    cubeResponse: (_, __) => {
+        return {isTake:false}
+    },
+}
 describe('CubeGameBoard', () => {
     test('lets redAutoPlayer do cubeAction', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.INPLAY_WHITE,
+            // prettier-ignore
+            absPos:[1,
+            -2, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+             0
+        ],
+            dice1: 1,
+            dice2: 1,
+        })
         const next = {
             ...props,
-            ...state,
-            autoOperators: setRedAutoOp(engine),
+            autoOperators: setRedAutoOp(engineAlwaysPass),
         }
         render(<AutoOperateCBGame {...next} />)
-        
-        act( () => {
-            jest.advanceTimersByTime(10)
-        })
+
+        await act(BoardOp.clickRightDice)
+        expect(isWhite(bgState.cbState)).toBeTruthy()
         expect(bgState.cbState.tag).toEqual('CBResponse')
         expect(bgState.sgState.tag).toEqual('SGToRoll')
     })
     test('lets whiteAutoPlayer do pass', async () => {
+        const { props, bgState } = setup({
+            gameStatus: GameStatus.CUBEACTION_RED,
+            // prettier-ignore
+            absPos:[1,
+            -2, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+             0
+        ],
+        })
         const next = {
             ...props,
-            ...state,
-            autoOperators: setWhiteAutoOp(engine),
+            autoOperators: setWhiteAutoOp(engineAlwaysPass),
         }
         render(<AutoOperateCBGame {...next} />)
-        act(() => {
-            jest.advanceTimersByTime(10)
+        await act(async () => {
+            await BoardOp.clickCube()
         })
         expect(bgState.cbState.tag).toEqual('CBEoG')
         expect(bgState.sgState.tag).toEqual('SGToRoll')

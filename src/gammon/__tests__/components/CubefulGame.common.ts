@@ -31,6 +31,10 @@ export const BoardOp = {
         const rightDice = screen.getByTestId(/^dice-left/)
         userEvent.click(rightDice)
     },
+    clickCube:async()=>{
+        const cube = screen.getByTestId(/^cube/)
+        userEvent.click(cube)
+    }
 }
 
 export function isRed(state: SGState | CBState): boolean {
