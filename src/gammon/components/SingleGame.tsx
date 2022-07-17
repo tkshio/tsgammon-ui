@@ -20,7 +20,6 @@ export function SingleGame(props: SingleGameProps) {
         resignState,
         cpState,
         sgState,
-        opConfs = {},
         matchScore = score(),
         showPositionID = true,
         dialog,
@@ -56,7 +55,6 @@ export function SingleGame(props: SingleGameProps) {
     const singleGameProps: SingleGameBoardProps = {
         sgState,
         cpState,
-        opConfs: opConfs,
         dialog: sgDialog,
         lowerButton: resignButton,
         ...eventHandlers,

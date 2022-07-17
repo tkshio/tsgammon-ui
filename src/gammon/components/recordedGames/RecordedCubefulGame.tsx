@@ -18,7 +18,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         resignState,
         bgState: curBGState,
         matchRecord,
-        opConfs,
         onResumeState = () => {
             //
         },
@@ -47,7 +46,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
               ...minimalProps,
               ...eventHandlers,
               matchState,
-              opConfs,
           }
         : {
               ...minimalProps,

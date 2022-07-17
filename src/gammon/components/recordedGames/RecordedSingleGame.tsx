@@ -14,7 +14,6 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
         resignState,
         sgState: curSGState,
-        opConfs,
         matchRecord,
         onResumeState = () => {
             //
@@ -37,7 +36,6 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         resignState,
         sgState,
         cpState,
-        opConfs,
         matchScore:matchRecord.matchState.score,
         ...cpListeners,
     }

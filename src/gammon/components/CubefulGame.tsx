@@ -39,7 +39,6 @@ export function CubefulGame(props: CubefulGameProps) {
         matchState = props.bgState.cbState.tag === 'CBEoG'
             ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
-        opConfs,
         dialog,
         upperButton,
         lowerButton,
@@ -68,7 +67,6 @@ export function CubefulGame(props: CubefulGameProps) {
     const cbProps: CubefulGameBoardProps = {
         bgState,
         cpState,
-        opConfs,
         dialog: cbDialog,
         upperButton,
         lowerButton: resignButton,
