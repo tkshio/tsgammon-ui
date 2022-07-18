@@ -4,17 +4,17 @@ import {
     SGInPlay,
     SGToRoll
 } from 'tsgammon-core/dispatchers/SingleGameState';
-import { SGOperator } from '../operators/SGOperator';
+import { SGOperator } from './operators/SGOperator';
 
 export function operateWithSG(
     sg: SGOperator | undefined,
-    handlers: SingleGameEventHandlerExtensible
+    handler: SingleGameEventHandlerExtensible
 ): SingleGameEventHandler {
     if (sg === undefined) {
-        return handlers;
+        return handler;
     }
     const autoHandler = {
-        ...handlers.addListeners({
+        ...handler.addListeners({
             onAwaitRoll: (nextState: SGToRoll, _: SGInPlay) => {
                 const operation = sg[nextState.isRed
                     ? 'operateRollRed'

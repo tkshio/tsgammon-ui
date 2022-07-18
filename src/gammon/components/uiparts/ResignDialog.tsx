@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { ResignOffer, ResignState } from 'tsgammon-core/dispatchers/ResignState'
-import { RSDialogHandler, RSToOffer } from "../RSDialogHandlers"
+import { RSDialogHandler, RSToOffer } from "../RSDialogHandler"
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'

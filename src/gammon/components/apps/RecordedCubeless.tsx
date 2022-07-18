@@ -1,10 +1,10 @@
+import { buildSGEventHandler } from 'tsgammon-core/dispatchers/buildSGEventHandler'
 import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import {buildSGEventHandler } from 'tsgammon-core/dispatchers/buildSGEventHandler'
 
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -14,13 +14,13 @@ import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedSingleGame,
-    RecordedSingleGameProps,
+    RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
 import { useSingleGameState } from '../useSingleGameState'
 
+import { operateWithSG } from '../operateWithSG'
 import './main.css'
-import { operateWithSG } from './operateWithSG'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf

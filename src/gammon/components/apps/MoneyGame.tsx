@@ -22,7 +22,7 @@ import { SGOperator } from '../operators/SGOperator'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useMatchState } from '../useMatchState'
-import { operateForBG } from './operateWithCB'
+import { operateWithBG } from '../operateWithBG'
 
 export type MoneyGameProps = {
     gameConf: GameConf
@@ -74,7 +74,7 @@ export function MoneyGame(props: MoneyGameProps) {
         matchStateAddOn
     )
 
-    const handlers = operateForBG(autoOperators, _handlers)
+    const handlers = operateWithBG(autoOperators, _handlers)
     const cbProps: CubefulGameProps = {
         bgState,
         cpState,

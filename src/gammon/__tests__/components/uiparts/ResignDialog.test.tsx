@@ -20,10 +20,11 @@ import {
 import {
     rsDialogHandler,
     RSDialogHandler,
-    RSToOffer
-} from "../../../components/RSDialogHandlers"
-import { operateSGWithRS } from '../../../components/withRSAutoOperator'
+    RSToOffer,
+} from '../../../components/RSDialogHandler'
+import { operateWithSGandRS } from '../../../components/operateWithRS'
 import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
+import { SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
@@ -238,10 +239,11 @@ describe('ResignDialog', () => {
             offerResponse: alwaysReject,
         })
 
-        const { resignEventHandler: resignEventHandlers } = operateSGWithRS(
-            rs,
+        const { rsDialogHandler: resignEventHandlers } = operateWithSGandRS(
+            { rs },
             {} as SGState,
-            handlers
+            handlers,
+            { addListeners: () => ({}) } as SingleGameEventHandlerExtensible
         )
         render(
             <ResignDialog
@@ -263,10 +265,11 @@ describe('ResignDialog', () => {
             offerAction: neverOffer,
             offerResponse: alwaysAccept,
         })
-        const { resignEventHandler: resignEventHandlers } = operateSGWithRS(
-            rs,
+        const { rsDialogHandler: resignEventHandlers } = operateWithSGandRS(
+            { rs },
             {} as SGState,
-            handlers
+            handlers,
+            { addListeners: () => ({}) } as SingleGameEventHandlerExtensible
         )
 
         render(

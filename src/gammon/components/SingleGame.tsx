@@ -7,7 +7,7 @@ import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog } from './uiparts/ResignDialog'
-import { RSDialogHandler, RSToOffer } from "./RSDialogHandlers"
+import { RSDialogHandler, RSToOffer } from "./RSDialogHandler"
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer

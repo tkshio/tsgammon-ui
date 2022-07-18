@@ -7,11 +7,11 @@ import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     matchStateForPointMatch,
-    matchStateForUnlimitedMatch,
+    matchStateForUnlimitedMatch
 } from 'tsgammon-core/dispatchers/MatchState'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
@@ -20,25 +20,24 @@ import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay,
+    MatchRecordInPlay
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { operateWithBGandRS } from '../operateWithRS'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useBGState } from '../useBGState'
 import { useMatchKey } from '../useMatchKey'
 import { useResignState } from '../useResignState'
-import { operateWithRS } from '../withRSAutoOperator'
 import './main.css'
-import { operateForBGRS } from './operateWithCB'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -121,10 +120,10 @@ export function PointMatch(props: PointMatchProps) {
     ]
 
     // 降参機能
-    const { resignState, resignEventHandlers: _resignEventHandlers } =
-        useResignState((result: SGResult, eog: EOGStatus) =>
+    const { resignState, rsDialogHandler: rsHandler } = useResignState(
+        (result: SGResult, eog: EOGStatus) =>
             eogEventHandler(...listeners).onEndOfCubeGame(bgState, result, eog)
-        )
+    )
 
     // キューブありのゲームの進行管理
     const _bgEventHandlers = buildBGEventHandler(
@@ -133,28 +132,21 @@ export function PointMatch(props: PointMatchProps) {
         ...listeners
     )
 
-    // 降参機能の自動処理
-    const { bgEventHandler, resignEventHandler: resignEventHandlers } =
-        operateWithRS(
-            bgState,
-            autoOperators.rs,
-            _bgEventHandlers,
-            _resignEventHandlers
-        )
-
     // ゲーム進行の自動処理
-    const bgEventHandlersWithAutoOp = operateForBGRS(
+    const { bgEventHandler, rsDialogHandler } = operateWithBGandRS(
         resignState,
+        bgState,
         autoOperators,
-        bgEventHandler
+        _bgEventHandlers,
+        rsHandler
     )
 
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,
         matchRecord,
         bgState,
-        ...bgEventHandlersWithAutoOp,
-        ...resignEventHandlers,
+        ...bgEventHandler,
+        ...rsDialogHandler,
         onResumeState,
     }
 

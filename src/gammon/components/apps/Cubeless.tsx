@@ -28,8 +28,7 @@ import { SingleGame, SingleGameProps } from '../SingleGame'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
-import { operateSGWithRS } from '../withRSAutoOperator'
-import { operateWithSG } from './operateWithSG'
+import { operateWithSGandRS } from '../operateWithRS'
 
 export type CubelessProps = {
     gameConf?: GameConf
@@ -71,18 +70,15 @@ export function Cubeless(props: CubelessProps) {
         .addListeners(matchScoreListener)
 
     const eogHandler = eogEventHandlersSG([listeners])
-    const { resignState, resignEventHandlers: _resignEventHandlers } =
+    const { resignState, rsDialogHandler:rsHandler } =
         useResignState((result: SGResult, eog: EOGStatus) =>
             eogHandler.onEndOfGame(sgState, result, eog)
         )
-    const { sgListener: sgListeners, resignEventHandler } = operateSGWithRS(
-        autoOperators.rs,
+    const { sgHandler, rsDialogHandler } = operateWithSGandRS(
+        autoOperators,
         sgState,
-        _resignEventHandlers
-    )
-    const handlers = operateWithSG(
-        autoOperators.sg,
-        _handlers.addListeners(sgListeners)
+        rsHandler,
+        _handlers
     )
 
     const [cpState, cpListeners] = useCheckerPlayListeners()
@@ -92,8 +88,8 @@ export function Cubeless(props: CubelessProps) {
         sgState,
         cpState,
         matchScore,
-        ...handlers,
-        ...resignEventHandler,
+        ...sgHandler,
+        ...rsDialogHandler,
         ...cpListeners,
     }
 

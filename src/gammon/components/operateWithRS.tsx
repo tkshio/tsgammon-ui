@@ -1,73 +1,119 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
+import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { CBInPlay, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignEventHandler } from 'tsgammon-core/dispatchers/ResignEventHandlers'
+import {
+    ResignOffer,
+    ResignState,
+    RSOffered,
+} from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
-    SGInPlay,
-    SGState,
-} from 'tsgammon-core/dispatchers/SingleGameState'
+    SingleGameEventHandler,
+    SingleGameEventHandlerExtensible,
+} from 'tsgammon-core/dispatchers/SingleGameEventHandler'
+import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { operateWithBG } from './operateWithBG'
+import { operateWithSG } from './operateWithSG'
+import { CBOperator } from './operators/CBOperator'
 import { RSOperator } from './operators/RSOperator'
-import { RSDialogHandler, RSToOffer } from './RSDialogHandlers'
+import { SGOperator } from './operators/SGOperator'
+import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
+
+export function operateWithBGandRS(
+    resignState: ResignState | RSToOffer,
+    bgState: BGState,
+    autoOperators: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator },
+    bgHandler: BGEventHandlersExtensible,
+    rsHandler: RSDialogHandler
+): { bgEventHandler: BGEventHandler; rsDialogHandler: ResignEventHandler } {
+    const { bgListener, rsDialogHandler } = operateWithRS(
+        bgState,
+        autoOperators.rs,
+        rsHandler
+    )
+
+    // 降参のシーケンスに入っている時は、BG側では何もしない
+    if (resignState.tag !== 'RSNone') {
+        return {
+            bgEventHandler: bgHandler.addListeners(bgListener),
+            rsDialogHandler,
+        }
+    }
+
+    return {
+        bgEventHandler: operateWithBG(autoOperators, bgHandler.addListeners(bgListener)),
+        rsDialogHandler,
+    }
+}
 
 export function operateWithRS(
     bgState: BGState,
     rs: RSOperator | undefined,
-    bgEventHandler: BGEventHandlersExtensible,
-    resignEventHandler: RSDialogHandler
+    rsDialogHandler: RSDialogHandler
 ): {
-    bgEventHandler: BGEventHandlersExtensible
-    resignEventHandler: RSDialogHandler
+    bgListener: Partial<BGListener>
+    rsDialogHandler: RSDialogHandler
 } {
     if (rs === undefined) {
         return {
-            bgEventHandler,
-            resignEventHandler,
+            bgListener: {},
+            rsDialogHandler,
         }
     }
 
-    const { bgListener, resignEventHandler: _resignEventHandler } =
-        setRSOperations(
-            rs,
-            resignEventHandler,
-            bgState.sgState,
-            bgState.cbState
-        )
+    const { bgListener, rsDialogHandler: _resignEventHandler } =
+        setRSOperations(rs, rsDialogHandler, bgState.sgState, bgState.cbState)
 
     return {
-        bgEventHandler: bgEventHandler.addListeners(bgListener),
-        resignEventHandler: _resignEventHandler,
+        bgListener,
+        rsDialogHandler: _resignEventHandler,
     }
 }
 
-export function operateSGWithRS(
-    rs: RSOperator | undefined,
+export function operateWithSGandRS(
+    autoOperators: { rs?: RSOperator; sg?: SGOperator },
     sgState: SGState,
-    resignEventHandler: RSDialogHandler
+    rsHandler: RSDialogHandler,
+    sgHandler: SingleGameEventHandlerExtensible
 ): {
-    sgListener: Partial<SingleGameListener>
-    resignEventHandler: Partial<RSDialogHandler>
+    sgHandler: SingleGameEventHandler
+    rsDialogHandler: Partial<RSDialogHandler>
 } {
+    const { sg, rs } = autoOperators
     if (rs === undefined) {
-        return { sgListener: {}, resignEventHandler }
+        return {
+            sgHandler,
+            rsDialogHandler: rsHandler,
+        }
     }
-    return setRSOperations(rs, resignEventHandler, sgState)
+    const { sgListener, rsDialogHandler } = setRSOperations(
+        rs,
+        rsHandler,
+        sgState
+    )
+
+    return {
+        sgHandler: operateWithSG(sg, sgHandler.addListeners(sgListener)),
+        rsDialogHandler,
+    }
 }
 
 function setRSOperations(
     rs: RSOperator,
-    handlers: RSDialogHandler,
+    handler: RSDialogHandler,
     sgState: SGState,
     cbState?: CBState
 ): {
     bgListener: Partial<BGListener>
     sgListener: Partial<SingleGameListener>
-    resignEventHandler: RSDialogHandler
+    rsDialogHandler: RSDialogHandler
 } {
     const cubeState = cbState?.cubeState ?? cube(1)
-    const autoHandler = handlers.withListener({
+    const rsDialogHandler = handler.withListener({
         rejectResign: (rejected: RSToOffer) => {
             const { boardState, node } = toBoardState(sgState)
             ;(async () => {
@@ -81,7 +127,7 @@ function setRSOperations(
 
                 action(
                     (offer: ResignOffer) => {
-                        autoHandler.onOfferResign(offer, rejected.isRed)
+                        rsDialogHandler.onOfferResign(offer, rejected.isRed)
                     },
                     rejected.lastOffer,
                     cubeState,
@@ -104,10 +150,10 @@ function setRSOperations(
                 action(
                     offered.offer,
                     () => {
-                        handlers.onAcceptResign?.(offered)
+                        handler.onAcceptResign?.(offered)
                     },
                     () => {
-                        autoHandler.onRejectResign(offered)
+                        rsDialogHandler.onRejectResign(offered)
                     },
                     cubeState,
                     boardState,
@@ -118,7 +164,7 @@ function setRSOperations(
     })
     const sgListener = {
         onStartCheckerPlay: (sgInPlay: SGInPlay) =>
-            doOfferOperation(autoHandler, rs, sgInPlay, cubeState),
+            doOfferOperation(rsDialogHandler, rs, sgInPlay, cubeState),
     }
     const bgListener = {
         onAwaitCheckerPlay: (bgState: {
@@ -126,7 +172,7 @@ function setRSOperations(
             sgState: SGInPlay
         }) => {
             doOfferOperation(
-                autoHandler,
+                rsDialogHandler,
                 rs,
                 bgState.sgState,
                 bgState.cbState.cubeState
@@ -137,7 +183,7 @@ function setRSOperations(
     return {
         bgListener,
         sgListener,
-        resignEventHandler: autoHandler,
+        rsDialogHandler: rsDialogHandler,
     }
 
     function toBoardState(sgState: SGState) {

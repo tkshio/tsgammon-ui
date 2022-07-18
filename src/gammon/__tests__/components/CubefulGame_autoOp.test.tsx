@@ -13,7 +13,7 @@ import {
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { operateForBG } from '../../components/apps/operateWithCB'
+import { operateWithBG } from '../../components/operateWithBG'
 import { CubefulGame } from '../../components/CubefulGame'
 import { AutoOperateCBGame } from './AutoOperateCBGame'
 import {
@@ -96,7 +96,7 @@ describe('CubeGameBoard(with autoOp)', () => {
         const onRoll = jest.fn()
         const next = {
             ...props,
-            ...operateForBG(
+            ...operateWithBG(
                 autoOperators,
                 props.addListeners({
                     onAwaitCheckerPlay: (_: {

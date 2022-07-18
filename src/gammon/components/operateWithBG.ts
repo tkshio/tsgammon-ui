@@ -5,27 +5,14 @@ import {
     CBAction,
     CBInPlay,
     CBResponse,
-    CBToRoll,
+    CBToRoll
 } from 'tsgammon-core/dispatchers/CubeGameState'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGInPlay, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
-import { CBOperator } from '../operators/CBOperator'
-import { SGOperator } from '../operators/SGOperator'
-import { RSToOffer } from '../RSDialogHandlers'
+import { CBOperator } from './operators/CBOperator'
+import { SGOperator } from './operators/SGOperator'
 
-export function operateForBGRS(
-    resignState: ResignState | RSToOffer,
-    autoOperators: { cb?: CBOperator; sg?: SGOperator },
-    bgHandlers: BGEventHandlersExtensible
-): BGEventHandler {
-    // 降参のシーケンスに入っている時は、BG側では何もしない
-    if (resignState.tag !== 'RSNone') {
-        return bgHandlers
-    }
-    return operateForBG(autoOperators, bgHandlers)
-}
 
-export function operateForBG(
+export function operateWithBG(
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
     bgHandlers: BGEventHandlersExtensible
 ): BGEventHandler {
@@ -34,8 +21,7 @@ export function operateForBG(
         return bgHandlers
     }
     const autoHandler = {
-        ...bgHandlers
-        .addListeners({
+        ...bgHandlers.addListeners({
             onStartCubeAction: async (bgState: {
                 cbState: CBAction
                 sgState: SGToRoll
@@ -60,9 +46,10 @@ export function operateForBG(
                     }
                 )
             },
-            onSkipCubeAction: (bgState:{
-                cbState:CBToRoll,sgState:SGToRoll
-            })=>{
+            onSkipCubeAction: (bgState: {
+                cbState: CBToRoll
+                sgState: SGToRoll
+            }) => {
                 // ダイスロール自体が非同期的に実行されるので、同期的に操作する
                 autoHandler.onRoll(bgState)
             },
