@@ -112,6 +112,7 @@ export function PointMatch(props: PointMatchProps) {
     const onResumeState = (index: number) => {
         const { state } = matchRecorder.resumeTo(index)
         setBGState(state)
+        // ここでautoOperationも実行しないといけないが、手を変更できたほうが便利だろう
     }
     const listeners: Partial<BGListener>[] = [
         setBGStateListener(defaultBGState(gameConf), setBGState),
