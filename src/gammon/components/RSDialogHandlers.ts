@@ -1,8 +1,8 @@
 import { EOGStatus } from 'tsgammon-core'
 import {
-    resignEventHandlers,
     RSNONE,
 } from 'tsgammon-core/dispatchers/ResignEventHandlers'
+import {buildRSEventHandler} from 'tsgammon-core/dispatchers/buildRSEventHandler'
 import {
     ResignOffer,
     ResignState,
@@ -66,7 +66,7 @@ export function rsDialogHandler(
 function _rsDialogHandler(
     rsListener: Partial<RSDialogListener>
 ): RSDialogHandler {
-    const rsEventHandler = resignEventHandlers({
+    const rsEventHandler = buildRSEventHandler({
         ...rsListener,
         rejectResign: (resignState: RSOffered) => {
             rsListener.rejectResign?.({

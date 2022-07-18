@@ -1,5 +1,5 @@
 import { BoardStateNode } from 'tsgammon-core';
-import { SingleGameEventHandlers, SingleGameEventHandlersExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandlers';
+import { SingleGameEventHandler, SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler';
 import {
     SGInPlay,
     SGToRoll
@@ -8,8 +8,8 @@ import { SGOperator } from '../operators/SGOperator';
 
 export function operateWithSG(
     sg: SGOperator | undefined,
-    handlers: SingleGameEventHandlersExtensible
-): SingleGameEventHandlers {
+    handlers: SingleGameEventHandlerExtensible
+): SingleGameEventHandler {
     if (sg === undefined) {
         return handlers;
     }

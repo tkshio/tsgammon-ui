@@ -1,13 +1,13 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
+import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
+import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
+import { CBInPlay, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignOffer, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
-import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
     SGInPlay,
     SGState,
-    SGToRoll,
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { RSOperator } from './operators/RSOperator'
 import { RSDialogHandler, RSToOffer } from './RSDialogHandlers'
@@ -28,7 +28,7 @@ export function operateWithRS(
         }
     }
 
-    const { sgListener, resignEventHandler: _resignEventHandler } =
+    const { bgListener, resignEventHandler: _resignEventHandler } =
         setRSOperations(
             rs,
             resignEventHandler,
@@ -37,7 +37,7 @@ export function operateWithRS(
         )
 
     return {
-        bgEventHandler: bgEventHandler.addListeners(sgListener),
+        bgEventHandler: bgEventHandler.addListeners(bgListener),
         resignEventHandler: _resignEventHandler,
     }
 }
@@ -47,7 +47,7 @@ export function operateSGWithRS(
     sgState: SGState,
     resignEventHandler: RSDialogHandler
 ): {
-    sgListener: Partial<SingleGameListeners>
+    sgListener: Partial<SingleGameListener>
     resignEventHandler: Partial<RSDialogHandler>
 } {
     if (rs === undefined) {
@@ -62,7 +62,8 @@ function setRSOperations(
     sgState: SGState,
     cbState?: CBState
 ): {
-    sgListener: Partial<SingleGameListeners>
+    bgListener: Partial<BGListener>
+    sgListener: Partial<SingleGameListener>
     resignEventHandler: RSDialogHandler
 } {
     const cubeState = cbState?.cubeState ?? cube(1)
@@ -70,11 +71,13 @@ function setRSOperations(
         rejectResign: (rejected: RSToOffer) => {
             const { boardState, node } = toBoardState(sgState)
             ;(async () => {
-                const action = await rs[
-                    rejected.isRed
-                        ? 'operateRedOfferAction'
-                        : 'operateWhiteOfferAction'
-                ]
+                const action = await Promise.resolve(
+                    rs[
+                        rejected.isRed
+                            ? 'operateRedOfferAction'
+                            : 'operateWhiteOfferAction'
+                    ]
+                )
 
                 action(
                     (offer: ResignOffer) => {
@@ -90,11 +93,13 @@ function setRSOperations(
         offerResign: (offered: RSOffered) => {
             const { boardState, node } = toBoardState(sgState)
             ;(async () => {
-                const action = await rs[
-                    offered.isRed
-                        ? 'operateRedResignResponse'
-                        : 'operateWhiteResignResponse'
-                ]
+                const action = await Promise.resolve(
+                    rs[
+                        offered.isRed
+                            ? 'operateRedResignResponse'
+                            : 'operateWhiteResignResponse'
+                    ]
+                )
 
                 action(
                     offered.offer,
@@ -111,15 +116,27 @@ function setRSOperations(
             })()
         },
     })
-    const sgListeners = {
-        onAwaitRoll: (sgToRoll: SGToRoll) =>
-            doOfferOperation(autoHandler, rs, sgToRoll, cubeState),
+    const sgListener = {
         onStartCheckerPlay: (sgInPlay: SGInPlay) =>
             doOfferOperation(autoHandler, rs, sgInPlay, cubeState),
     }
+    const bgListener = {
+        onAwaitCheckerPlay: (bgState: {
+            cbState: CBInPlay
+            sgState: SGInPlay
+        }) => {
+            doOfferOperation(
+                autoHandler,
+                rs,
+                bgState.sgState,
+                bgState.cbState.cubeState
+            )
+        },
+    }
 
     return {
-        sgListener: sgListeners,
+        bgListener,
+        sgListener,
         resignEventHandler: autoHandler,
     }
 

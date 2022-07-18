@@ -6,7 +6,7 @@ import {
     CheckerPlayState,
     CheckerPlayStateCommitted,
 } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { SingleGameEventHandler } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
 import {
     SGEoG,
     SGInPlay,
@@ -31,7 +31,7 @@ export type SingleGameBoardProps = {
     cpState?: CheckerPlayState
     cube?: CubeState
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
-    Partial<SingleGameEventHandlers & CheckerPlayListeners & BoardEventHandlers>
+    Partial<SingleGameEventHandler & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
     const { sgState } = props
 

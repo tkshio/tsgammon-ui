@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { standardConf } from 'tsgammon-core'
-import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
@@ -20,7 +20,7 @@ export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
     showPositionID?: boolean
-} & Partial<Pick<BGEventHandlers, 'onTake' | 'onPass'>> &
+} & Partial<Pick<BGEventHandler, 'onTake' | 'onPass'>> &
     Partial<RSDialogHandler>
 
 export function CubefulGame(props: CubefulGameProps) {
@@ -123,7 +123,7 @@ function eogDialog(
     }
 }
 function cubeResponseDialog(
-    eventHandlers: Partial<BGEventHandlers>
+    eventHandlers: Partial<BGEventHandler>
 ): (bgState: { cbState: CBResponse; sgState: SGToRoll }) => JSX.Element {
     return (bgState: { cbState: CBResponse; sgState: SGToRoll }) => (
         <CubeResponseDialog

@@ -1,19 +1,18 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
-import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandlers'
+import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import {
     CheckerPlayListeners,
     setCPStateListener
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { BGEventHandlersExtensible, cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { BGEventHandlersExtensible, buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { matchStateAddOn } from '../../components/useMatchState'
@@ -86,21 +85,16 @@ export function setupEventHandlers(
             state.cpState = next
         }
     )
-    const handlers = cubefulGameEventHandlers(
+    const handlers = buildBGEventHandler(
         isCrawford,
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
         setBGStateListener(
-            defaultBGState(gameConf).cbState,
-            (next: CBState = state.bgState.cbState) => {
-                state.bgState.cbState = next
+            defaultBGState(gameConf),
+            (next: BGState = state.bgState) => {
+                state.bgState.cbState = next.cbState
+                state.bgState.sgState = next.sgState
             }
         ),
-        setSGStateListener(
-            defaultBGState(gameConf).sgState,
-            (next: SGState = state.bgState.sgState) => {
-                state.bgState.sgState = next
-            }
-        )
     ).addListeners(addOn)
 
     return {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
-import { BGListeners } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     MatchState,
@@ -18,7 +18,7 @@ export function useMatchState(
 ): {
     matchState: MatchState
     initialMatchState: MatchStateInPlay
-    matchStateAddOn: Partial<BGListeners>
+    matchStateAddOn: Partial<BGListener>
     resetMatchState: () => void
 } {
     const initialMatchState: MatchStateInPlay = {
@@ -50,7 +50,7 @@ export function useMatchState(
 export function matchStateAddOn(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
-): Partial<BGListeners> {
+): Partial<BGListener> {
     const onEndOfCubeGame = (bgState:{cbState: CBEoG, sgState:SGState}) => {
         setMatchState(eogMatchState(matchState, bgState.cbState))
     }

@@ -1,24 +1,19 @@
 import {
-    BGEventHandlers,
-    asSGEventHandlers,
-} from 'tsgammon-core/dispatchers/BGEventHandlers'
+    BGEventHandler,
+    asSGEventHandler,
+} from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
 import { BoardEventHandlers, BoardProps } from './boards/Board'
-import {
-    SingleGameBoard,
-    SingleGameBoardProps,
-} from './SingleGameBoard'
+import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 
 export type CubefulGameBoardProps = {
     bgState: BGState
     cpState?: CheckerPlayState
-
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<
-        Omit<BGEventHandlers, 'onTake' | 'onPass'> &
+        Omit<BGEventHandler, 'onTake' | 'onPass'> &
             CheckerPlayListeners &
             BoardEventHandlers
     >
@@ -40,10 +35,7 @@ export function CubefulGameBoard(props: CubefulGameBoardProps) {
             onDouble?.({ cbState, sgState })
         }
     }
-    const sgHandlers: SingleGameEventHandlers = asSGEventHandlers(
-        cbState,
-        handlers
-    )
+    const sgHandlers = asSGEventHandler(cbState, handlers)
 
     const sgProps: SingleGameBoardProps = {
         sgState,

@@ -1,6 +1,6 @@
 import { BoardStateNode } from 'tsgammon-core'
-import { BGEventHandlers } from 'tsgammon-core/dispatchers/BGEventHandlers'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
+import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
+import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import {
     CBAction,
     CBInPlay,
@@ -17,7 +17,7 @@ export function operateForBGRS(
     resignState: ResignState | RSToOffer,
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
     bgHandlers: BGEventHandlersExtensible
-): BGEventHandlers {
+): BGEventHandler {
     // 降参のシーケンスに入っている時は、BG側では何もしない
     if (resignState.tag !== 'RSNone') {
         return bgHandlers
@@ -28,14 +28,14 @@ export function operateForBGRS(
 export function operateForBG(
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
     bgHandlers: BGEventHandlersExtensible
-): BGEventHandlers {
+): BGEventHandler {
     const { cb, sg } = autoOperators
     if (cb === undefined || sg === undefined) {
         return bgHandlers
     }
     const autoHandler = {
         ...bgHandlers
-        .addBGListeners({
+        .addListeners({
             onStartCubeAction: async (bgState: {
                 cbState: CBAction
                 sgState: SGToRoll

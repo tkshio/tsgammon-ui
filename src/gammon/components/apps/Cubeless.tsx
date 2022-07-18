@@ -8,11 +8,11 @@ import {
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
     setSGStateListener,
-    SingleGameListeners,
+    SingleGameListener,
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import {
-    singleGameEventHandlers,
-} from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+    buildSGEventHandler,
+} from 'tsgammon-core/dispatchers/buildSGEventHandler'
 import {
     SGEoG,
 } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -38,7 +38,7 @@ export type CubelessProps = {
     diceSource: DiceSource
 } & GameSetup &
     Partial<
-        SingleGameListeners &
+        SingleGameListener &
             RollListener &
             CheckerPlayListeners &
             BoardEventHandlers
@@ -63,7 +63,7 @@ export function Cubeless(props: CubelessProps) {
         rollListener: { onRollRequest },
     })
 
-    const _handlers = singleGameEventHandlers(
+    const _handlers = buildSGEventHandler(
         rollListener,
         setSGStateListener(initialSGState, setSGState)
     )
@@ -73,7 +73,7 @@ export function Cubeless(props: CubelessProps) {
     const eogHandler = eogEventHandlersSG([listeners])
     const { resignState, resignEventHandlers: _resignEventHandlers } =
         useResignState((result: SGResult, eog: EOGStatus) =>
-            eogHandler.onEndOfCubeGame(sgState, result, eog)
+            eogHandler.onEndOfGame(sgState, result, eog)
         )
     const { sgListener: sgListeners, resignEventHandler } = operateSGWithRS(
         autoOperators.rs,
@@ -101,7 +101,7 @@ export function Cubeless(props: CubelessProps) {
 }
 export function useMatchScore(): {
     matchScore: Score
-    matchScoreListener: Pick<SingleGameListeners, 'onEndOfGame'>
+    matchScoreListener: Pick<SingleGameListener, 'onEndOfGame'>
 } {
     const [matchScore, setMatchScore] = useState(score())
     const onEndOfGame = (sgEoG: SGEoG) => {
