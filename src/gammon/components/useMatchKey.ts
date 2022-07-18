@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
-import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { BGListeners } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 
 export function useMatchKey(): {
-    matchKeyAddOn: Partial<CubeGameListeners>
+    matchKeyAddOn: Partial<BGListeners>
     matchKey: number
 } {
     const [matchKey, setMatchKey] = useState(0)
     return {
         matchKey,
         matchKeyAddOn: {
-            onEndOfCubeGame: (_: CBEoG) => {
+            onEndOfCubeGame: (_: BGState) => {
                 setMatchKey((mid) => mid + 1)
             },
         },

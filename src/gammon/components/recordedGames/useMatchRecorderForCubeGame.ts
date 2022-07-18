@@ -1,7 +1,7 @@
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { BGListeners } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { SingleGameEventHandlers } from 'tsgammon-core/dispatchers/SingleGameEventHandlers'
+import { SingleGameListeners } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
@@ -22,16 +22,12 @@ export function useMatchRecorderForCubeGame(
     matchRecord: MatchRecord<BGState>
     matchRecorder: MatchRecorder<BGState>
     resetMatchRecord: (index: number) => void
-    matchRecorderAddOn: Partial<CubeGameListeners & SingleGameEventHandlers>
+    matchRecorderAddOn: Partial<BGListeners & SingleGameListeners>
 } {
     const [matchRecord, matchRecorder] =
         useMatchRecorder<BGState>(initialMatchRecord)
 
-    const cbL = matchRecorderAsCBAddOn(
-        gameConf,
-        sgState,
-        matchRecorder
-    )
+    const cbL = matchRecorderAsCBAddOn(gameConf, sgState, matchRecorder)
     const sbL = matchRecorderAsSGAddOn(
         bgMatchRecorderToSG(cbState, matchRecorder)
     )

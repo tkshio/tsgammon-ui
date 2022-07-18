@@ -1,18 +1,24 @@
 import { EOGStatus, score, Score } from 'tsgammon-core'
+import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
-import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import {
+    BGListeners,
+    cubefulGameEventHandlers
+} from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandlers } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     matchStateForPointMatch,
-    matchStateForUnlimitedMatch,
+    matchStateForUnlimitedMatch
 } from 'tsgammon-core/dispatchers/MatchState'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import {
+    setSGStateListener,
+    SingleGameListeners
+} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -20,7 +26,7 @@ import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay,
+    MatchRecordInPlay
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -30,7 +36,7 @@ import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useCubeGameState } from '../useCubeGameState'
@@ -117,8 +123,8 @@ export function PointMatch(props: PointMatchProps) {
         setCBState(state.cbState)
         setSGState(state.sgState)
     }
-    const listeners = [
-        setCBStateListener(defaultBGState(gameConf).cbState, setCBState),
+    const listeners: Partial<SingleGameListeners & BGListeners>[] = [
+        setBGStateListener(defaultBGState(gameConf).cbState, setCBState),
         setSGStateListener(defaultBGState(gameConf).sgState, setSGState),
         matchKeyAddOn,
         matchRecorderAddOn,
@@ -127,7 +133,11 @@ export function PointMatch(props: PointMatchProps) {
     // 降参機能
     const { resignState, resignEventHandlers: _resignEventHandlers } =
         useResignState((result: SGResult, eog: EOGStatus) =>
-            eogEventHandlers(...listeners).onEndOfCubeGame(cbState, result, eog)
+            eogEventHandlers(...listeners).onEndOfCubeGame(
+                { cbState, sgState },
+                result,
+                eog
+            )
         )
 
     // キューブありのゲームの進行管理

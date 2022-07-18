@@ -1,8 +1,9 @@
 import { GameConf, Score, score, standardConf } from 'tsgammon-core'
+import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { CubeGameListeners, setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
@@ -70,7 +71,7 @@ export function MoneyGame(props: MoneyGameProps) {
     const _handlers = cubefulGameEventHandlers(
         false,
         rollListener,
-        setCBStateListener(defaultBGState(gameConf).cbState, setCBState),
+        setBGStateListener(defaultBGState(gameConf).cbState, setCBState),
         setSGStateListener(defaultBGState(gameConf).sgState, setSGState)
     ).addListeners(matchStateAddOn)
 

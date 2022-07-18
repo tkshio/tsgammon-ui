@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
-import { CubeGameListeners } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
+import { BGListeners } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     MatchState,
@@ -8,6 +8,7 @@ import {
     matchStateEoG,
     MatchStateInPlay,
 } from 'tsgammon-core/dispatchers/MatchState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 
 export function useMatchState(
@@ -17,7 +18,7 @@ export function useMatchState(
 ): {
     matchState: MatchState
     initialMatchState: MatchStateInPlay
-    matchStateAddOn: Partial<CubeGameListeners>
+    matchStateAddOn: Partial<BGListeners>
     resetMatchState: () => void
 } {
     const initialMatchState: MatchStateInPlay = {
@@ -49,9 +50,9 @@ export function useMatchState(
 export function matchStateAddOn(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
-): Partial<CubeGameListeners> {
-    const onEndOfCubeGame = (cbEoG: CBEoG) => {
-        setMatchState(eogMatchState(matchState, cbEoG))
+): Partial<BGListeners> {
+    const onEndOfCubeGame = (bgState:{cbState: CBEoG, sgState:SGState}) => {
+        setMatchState(eogMatchState(matchState, bgState.cbState))
     }
     const onStartCubeGame = () => {
         setMatchState(nextMatchState(matchState))

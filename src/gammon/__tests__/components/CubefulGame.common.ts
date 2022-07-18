@@ -1,14 +1,14 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
+import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandlers'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import {
     CheckerPlayListeners,
-    setCPStateListener,
+    setCPStateListener
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { BGEventHandlersExtensible, cubefulGameEventHandlers } from 'tsgammon-core/dispatchers/cubefulGameEventHandlers'
-import { setCBStateListener } from 'tsgammon-core/dispatchers/CubeGameDispatcher'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
@@ -89,7 +89,7 @@ export function setupEventHandlers(
     const handlers = cubefulGameEventHandlers(
         isCrawford,
         rollListeners({ isRollHandlerEnabled: false, diceSource }),
-        setCBStateListener(
+        setBGStateListener(
             defaultBGState(gameConf).cbState,
             (next: CBState = state.bgState.cbState) => {
                 state.bgState.cbState = next

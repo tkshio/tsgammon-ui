@@ -2,15 +2,14 @@ import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { standardConf } from 'tsgammon-core'
-import {
-    CBInPlay
-} from 'tsgammon-core/dispatchers/CubeGameState'
+import { CBInPlay } from 'tsgammon-core/dispatchers/CubeGameState'
 import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
+import { SGInPlay } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState
+    toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
@@ -21,12 +20,12 @@ import {
     BoardOp,
     isRed,
     isWhite,
-    setupEventHandlers
+    setupEventHandlers,
 } from './CubefulGame.common'
 import {
     noDoubleEngine,
     setRedAutoOp,
-    setWhiteAutoOp
+    setWhiteAutoOp,
 } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null
@@ -100,7 +99,10 @@ describe('CubeGameBoard(with autoOp)', () => {
             ...operateForBG(
                 autoOperators,
                 props.addListeners({
-                    onAwaitCheckerPlay: (_: CBInPlay) => {
+                    onAwaitCheckerPlay: (_: {
+                        cbState: CBInPlay
+                        sgState: SGInPlay
+                    }) => {
                         onRoll()
                     },
                 })
