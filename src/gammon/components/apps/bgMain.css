@@ -1,0 +1,11 @@
+#startBGMatch{
+    background: darkslategray;
+    color: white;
+    width: 120pt;
+    justify-content: center;
+    margin-top:25pt;
+}
+
+#startBGMatch:after {
+    content: 'StartGame';
+}
