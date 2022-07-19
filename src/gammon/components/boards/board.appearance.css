@@ -29,7 +29,7 @@
 /* 座標表記 */
 .posIndex {
     color: white;
-    font-size: calc(var(--pieceSize) * 0.5);
+    font-size: calc(var(--pieceSize) * 0.4);
 }
 
 /* 配色・サイズパラメーター */
