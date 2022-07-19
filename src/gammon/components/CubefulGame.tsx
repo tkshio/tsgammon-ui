@@ -3,23 +3,25 @@ import { standardConf } from 'tsgammon-core'
 import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
-import { MatchState, MatchStateEoG } from 'tsgammon-core/MatchState'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
 import { SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+import { toGameState } from 'tsgammon-core/dispatchers/utils/toGameState'
+import { MatchState, MatchStateEoG } from 'tsgammon-core/MatchState'
 import { score } from 'tsgammon-core/Score'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
+import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
 import { resignDialog } from './SingleGame'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
+import { MatchID } from './uiparts/MatchID'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { eogMatchState } from './useMatchState'
-import { RSDialogHandler, RSToOffer } from "./RSDialogHandler"
 
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
-    showPositionID?: boolean
+    showPositionIDs?: boolean
 } & Partial<Pick<BGEventHandler, 'onTake' | 'onPass'>> &
     Partial<RSDialogHandler>
 
@@ -33,7 +35,7 @@ export function CubefulGame(props: CubefulGameProps) {
         isCrawford: false,
     }
     const {
-        resignState,
+        resignState = RSNONE,
         bgState,
         cpState,
         matchState = props.bgState.cbState.tag === 'CBEoG'
@@ -42,15 +44,17 @@ export function CubefulGame(props: CubefulGameProps) {
         dialog,
         upperButton,
         lowerButton,
-        showPositionID: showPositionID = true,
+        showPositionIDs = true,
         onResign,
         ...eventHandlers
     } = props
     const { sgState } = bgState
 
     const resignButton =
+        // 指定されたボタンがあれば、resignButtonは表示しない
         lowerButton ?? //
-        resignState?.tag === 'RSNone' ? (
+        // 降参可能な時（まだ降参のオファーを始めておらず、どちらかの手番の時）
+        resignState.tag === 'RSNone' ? (
             sgState.tag !== 'SGOpening' && sgState.tag !== 'SGEoG' ? (
                 <ResignButton onClick={() => onResign?.(sgState.isRed)} />
             ) : undefined
@@ -58,7 +62,7 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        resignDialog( resignState, eventHandlers) ??
+        resignDialog(resignState, eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
             eogDialog: eogDialog(eventHandlers.onStartGame),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
@@ -72,16 +76,24 @@ export function CubefulGame(props: CubefulGameProps) {
         lowerButton: resignButton,
         ...eventHandlers,
     }
+    const gameState = toGameState(
+        bgState,
+        resignState === undefined || resignState.tag === 'RSToOffer'
+            ? RSNONE
+            : resignState
+    )
     return (
         <Fragment>
-            {showPositionID && (
-                <PositionID points={sgState.boardState.points} />
+            {showPositionIDs && (
+                <Fragment>
+                    <MatchID matchState={matchState} gameState={gameState} />
+                    <PositionID points={sgState.boardState.points} />
+                </Fragment>
             )}
             <CubefulGameBoard {...cbProps} />
         </Fragment>
     )
 }
-
 
 function dialogForCubefulGame(
     bgState: BGState,
@@ -95,7 +107,8 @@ function dialogForCubefulGame(
     }
 ): JSX.Element {
     const { cbState, sgState } = bgState
-    const isResponse = cbState.tag === 'CBResponse' && sgState.tag === 'SGToRoll'
+    const isResponse =
+        cbState.tag === 'CBResponse' && sgState.tag === 'SGToRoll'
     const isEoG = cbState.tag === 'CBEoG' && matchState.isEoG
     return (
         <Fragment>

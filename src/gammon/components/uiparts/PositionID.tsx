@@ -1,5 +1,6 @@
 import { toPositionIDFromArray } from 'tsgammon-core/utils/toPositionID'
 import './positionID.css'
+
 type PositionIDProps = { points: number[]}
 
 export function PositionID(props: PositionIDProps) {

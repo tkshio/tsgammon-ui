@@ -1,4 +1,4 @@
-div#positionID {
+div#positionID, div#matchID {
     font-weight: bold;
     text-align: right;
 }
