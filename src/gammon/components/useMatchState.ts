@@ -7,7 +7,7 @@ import {
     MatchStateEoG,
     matchStateEoG,
     MatchStateInPlay,
-} from 'tsgammon-core/dispatchers/MatchState'
+} from 'tsgammon-core/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 

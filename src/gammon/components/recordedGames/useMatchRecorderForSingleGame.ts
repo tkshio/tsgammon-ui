@@ -1,5 +1,5 @@
 import { GameConf } from 'tsgammon-core'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { matchRecordInPlay } from 'tsgammon-core/records/MatchRecord'
 import { matchRecorderAsSGAddOn } from "tsgammon-core/records/MatchRecorder"
