@@ -2,16 +2,16 @@ import { useState } from 'react'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 
-export function useMatchKey(): {
-    matchKeyAddOn: Partial<BGListener>
-    matchKey: number
+export function useGameKey(): {
+    gameKeyAddOn: Partial<BGListener>
+    gameKey: number
 } {
-    const [matchKey, setMatchKey] = useState(0)
+    const [gameKey, setGameKey] = useState(0)
     return {
-        matchKey,
-        matchKeyAddOn: {
+        gameKey,
+        gameKeyAddOn: {
             onEndOfBGGame: (_: BGState) => {
-                setMatchKey((mid) => mid + 1)
+                setGameKey((mid) => mid + 1)
             },
         },
     }

@@ -1,3 +1,10 @@
+#main {
+    display: flex;
+    flex-flow: row;
+
+    font-family: sans-serif;
+}
+
 #recordsPane {
     margin: 5px;
 }
