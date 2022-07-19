@@ -22,6 +22,7 @@ export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
     showPositionIDs?: boolean
+    onEndOfMatch?: () => void
 } & Partial<Pick<BGEventHandler, 'onTake' | 'onPass'>> &
     Partial<RSDialogHandler>
 
@@ -64,7 +65,7 @@ export function CubefulGame(props: CubefulGameProps) {
         dialog ??
         resignDialog(resignState, eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
-            eogDialog: eogDialog(eventHandlers.onStartGame),
+            eogDialog: eogDialog(eventHandlers),
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 
@@ -118,9 +119,10 @@ function dialogForCubefulGame(
     )
 }
 
-function eogDialog(
-    onStartCubeGame?: () => void
-): (matchState: MatchStateEoG) => JSX.Element {
+function eogDialog(handler: {
+    onStartGame?: () => void
+    onEndOfMatch?: () => void
+}): (matchState: MatchStateEoG) => JSX.Element {
     return (matchState: MatchStateEoG) => {
         return (
             <EOGDialog
@@ -128,7 +130,11 @@ function eogDialog(
                     ...matchState,
                     score: matchState.scoreAfter,
                     onClick: () => {
-                        onStartCubeGame?.()
+                        if (matchState.isEoM) {
+                            handler.onEndOfMatch?.()
+                        } else {
+                            handler.onStartGame?.()
+                        }
                     },
                 }}
             />

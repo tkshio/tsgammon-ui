@@ -36,9 +36,8 @@ import {
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useBGState } from '../useBGState'
-import { useMatchKey } from '../useMatchKey'
+import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
-import './main.css'
 
 export type PointMatchProps = {
     gameConf?: GameConf
@@ -49,6 +48,7 @@ export type PointMatchProps = {
     autoOperators?: { cb: CBOperator; sg: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
+    onEndOfMatch?: () => void
 } & Partial<RollListener>
 
 /**
@@ -71,6 +71,9 @@ export function PointMatch(props: PointMatchProps) {
         onRollRequest = () => {
             //
         },
+        onEndOfMatch = () => {
+            //
+        },
     } = props
 
     const rollListener = rollListeners({
@@ -83,8 +86,8 @@ export function PointMatch(props: PointMatchProps) {
     const initialBGState = toState(props.board)
     // 状態管理
     const { bgState, setBGState } = useBGState(initialBGState)
-    // マッチにユニークなKeyを採番する
-    const { matchKey, matchKeyAddOn } = useMatchKey()
+    // 1ゲームごとにユニークなKeyを採番する
+    const { gameKey, gameKeyAddOn } = useGameKey()
 
     // マッチポイントの管理
     const initialMatchState =
@@ -116,7 +119,7 @@ export function PointMatch(props: PointMatchProps) {
     }
     const listeners: Partial<BGListener>[] = [
         setBGStateListener(defaultBGState(gameConf), setBGState),
-        matchKeyAddOn,
+        gameKeyAddOn,
         matchRecorderAddOn,
     ]
 
@@ -157,9 +160,10 @@ export function PointMatch(props: PointMatchProps) {
         ...bgEventHandler,
         ...rsDialogHandler,
         onResumeState,
+        onEndOfMatch,
     }
 
-    return <RecordedCubefulGame key={matchKey} {...recordedMatchProps} />
+    return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />
 }
 
 // 初期状態がEoGの場合、Listenerに代わってMatchRecordにEoGを記録する

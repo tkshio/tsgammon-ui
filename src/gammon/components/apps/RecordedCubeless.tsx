@@ -20,8 +20,6 @@ import {
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
 import { useSingleGameState } from '../useSingleGameState'
 
-import './main.css'
-
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
     state?: GameSetup
