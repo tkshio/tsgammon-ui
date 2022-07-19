@@ -66,6 +66,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         ...cubeGameProps.bgState,
         cpState,
         score: cubeGameProps.matchState.score,
+        matchLength: cubeGameProps.matchState.matchLength
     }
 
     return (
