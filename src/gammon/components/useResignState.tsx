@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
-import { RSNONE } from 'tsgammon-core/dispatchers/ResignEventHandlers'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { RSToOffer, RSDialogHandler, rsDialogHandler } from './RSDialogHandler'
 

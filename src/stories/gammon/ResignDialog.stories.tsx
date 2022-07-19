@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
-import { ResignOffer } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 import { Board } from '../../gammon/components/boards/Board'
 import {
     ResignDialog,

@@ -1,7 +1,7 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { CubeState, score } from 'tsgammon-core'
-import { ResignOffer } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {

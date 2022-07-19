@@ -1,11 +1,9 @@
 import { EOGStatus } from 'tsgammon-core'
-import {
-    RSNONE,
-} from 'tsgammon-core/dispatchers/ResignEventHandlers'
+
 import {buildRSEventHandler} from 'tsgammon-core/dispatchers/buildRSEventHandler'
 import {
-    ResignOffer,
     ResignState,
+    RSNONE,
     RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
 import {
@@ -14,6 +12,7 @@ import {
     concat2,
 } from 'tsgammon-core/dispatchers/utils/concat'
 import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 export type RSToOffer = {
     tag: 'RSToOffer'

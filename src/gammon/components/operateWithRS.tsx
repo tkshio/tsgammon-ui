@@ -6,7 +6,6 @@ import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEven
 import { CBInPlay, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignEventHandler } from 'tsgammon-core/dispatchers/ResignEventHandlers'
 import {
-    ResignOffer,
     ResignState,
     RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
@@ -22,6 +21,7 @@ import { CBOperator } from './operators/CBOperator'
 import { RSOperator } from './operators/RSOperator'
 import { SGOperator } from './operators/SGOperator'
 import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 export function operateWithBGandRS(
     resignState: ResignState | RSToOffer,
