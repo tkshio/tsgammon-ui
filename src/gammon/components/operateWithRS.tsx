@@ -10,7 +10,7 @@ import {
     ResignState,
     RSOffered,
 } from 'tsgammon-core/dispatchers/ResignState'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import {
     SingleGameEventHandler,
     SingleGameEventHandlerExtensible,
@@ -163,7 +163,7 @@ function setRSOperations(
         },
     })
     const sgListener = {
-        onStartCheckerPlay: (sgInPlay: SGInPlay) =>
+        onCheckerPlayStarted: (sgInPlay: SGInPlay) =>
             doOfferOperation(rsDialogHandler, rs, sgInPlay, cubeState),
     }
     const bgListener = {

@@ -122,7 +122,7 @@ export function PointMatch(props: PointMatchProps) {
     // 降参機能
     const { resignState, rsDialogHandler: rsHandler } = useResignState(
         (result: SGResult, eog: EOGStatus) =>
-            eogEventHandler(...listeners).onEndOfCubeGame(bgState, result, eog)
+            eogEventHandler(...listeners).onEndOfBGGame(bgState, result, eog)
     )
 
     // キューブありのゲームの進行管理

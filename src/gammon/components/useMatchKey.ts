@@ -10,7 +10,7 @@ export function useMatchKey(): {
     return {
         matchKey,
         matchKeyAddOn: {
-            onEndOfCubeGame: (_: BGState) => {
+            onEndOfBGGame: (_: BGState) => {
                 setMatchKey((mid) => mid + 1)
             },
         },

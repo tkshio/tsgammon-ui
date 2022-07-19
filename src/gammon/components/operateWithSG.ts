@@ -24,7 +24,7 @@ export function operateWithSG(
                 })
                 );
             },
-            onStartCheckerPlay: async (nextState: SGInPlay) => {
+            onCheckerPlayStarted: async (nextState: SGInPlay) => {
                 const operation = await sg[nextState.isRed
                     ? 'operateCheckerPlayRed'
                     : 'operateCheckerPlayWhite'];
@@ -33,7 +33,7 @@ export function operateWithSG(
                 };
                 return operation(doCheckerPlay, nextState.boardStateNode);
             },
-            onStartOpeningCheckerPlay: async (nextState: SGInPlay) => {
+            onOpeningCheckerPlayStarted: async (nextState: SGInPlay) => {
                 const operation = await sg[nextState.isRed
                     ? 'operateCheckerPlayRed'
                     : 'operateCheckerPlayWhite'];

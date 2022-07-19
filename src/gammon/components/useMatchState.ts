@@ -51,15 +51,15 @@ export function matchStateAddOn(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
 ): Partial<BGListener> {
-    const onEndOfCubeGame = (bgState:{cbState: CBEoG, sgState:SGState}) => {
+    const onEndOfBGGame = (bgState:{cbState: CBEoG, sgState:SGState}) => {
         setMatchState(eogMatchState(matchState, bgState.cbState))
     }
-    const onStartCubeGame = () => {
+    const onBGGameStarted = () => {
         setMatchState(nextMatchState(matchState))
     }
     return {
-        onEndOfCubeGame,
-        onStartCubeGame,
+        onEndOfBGGame,
+        onBGGameStarted,
     }
 }
 

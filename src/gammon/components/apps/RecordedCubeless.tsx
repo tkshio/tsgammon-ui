@@ -10,6 +10,7 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { operateWithSG } from '../operateWithSG'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
@@ -19,7 +20,6 @@ import {
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
 import { useSingleGameState } from '../useSingleGameState'
 
-import { operateWithSG } from '../operateWithSG'
 import './main.css'
 
 export type UnlimitedSingleGameProps = {

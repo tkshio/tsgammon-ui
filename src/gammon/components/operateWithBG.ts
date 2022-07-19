@@ -22,7 +22,7 @@ export function operateWithBG(
     }
     const autoHandler = {
         ...bgHandlers.addListeners({
-            onStartCubeAction: async (bgState: {
+            onCubeActionStarted: async (bgState: {
                 cbState: CBAction
                 sgState: SGToRoll
             }) => {
@@ -46,14 +46,14 @@ export function operateWithBG(
                     }
                 )
             },
-            onSkipCubeAction: (bgState: {
+            onCubeActionSkipped: (bgState: {
                 cbState: CBToRoll
                 sgState: SGToRoll
             }) => {
                 // ダイスロール自体が非同期的に実行されるので、同期的に操作する
                 autoHandler.onRoll(bgState)
             },
-            onDouble: async (bgState: {
+            onDoubled: async (bgState: {
                 cbState: CBResponse
                 sgState: SGToRoll
             }) => {

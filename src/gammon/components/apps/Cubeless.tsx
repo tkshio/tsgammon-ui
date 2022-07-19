@@ -1,20 +1,20 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
+import {
+    buildSGEventHandler
+} from 'tsgammon-core/dispatchers/buildSGEventHandler'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { eogEventHandlersSG } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import {
-    setSGStateListener,
-    SingleGameListener,
+    setSGStateListener
 } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import {
-    buildSGEventHandler,
-} from 'tsgammon-core/dispatchers/buildSGEventHandler'
-import {
-    SGEoG,
+    SGEoG
 } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf } from 'tsgammon-core/GameConf'
@@ -22,13 +22,13 @@ import { SGResult } from 'tsgammon-core/records/SGResult'
 import { Score, score } from 'tsgammon-core/Score'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
+import { operateWithSGandRS } from '../operateWithRS'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useResignState } from '../useResignState'
 import { useSingleGameState } from '../useSingleGameState'
-import { operateWithSGandRS } from '../operateWithRS'
 
 export type CubelessProps = {
     gameConf?: GameConf
