@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { matchStateLastGame } from 'tsgammon-core/dispatchers/MatchState'
+import { matchStateLastGame } from 'tsgammon-core/MatchState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { PlyInfo } from '../uiparts/PlyInfo'

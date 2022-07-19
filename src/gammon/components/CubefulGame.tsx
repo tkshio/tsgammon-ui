@@ -3,7 +3,7 @@ import { standardConf } from 'tsgammon-core'
 import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
-import { MatchState, MatchStateEoG } from 'tsgammon-core/dispatchers/MatchState'
+import { MatchState, MatchStateEoG } from 'tsgammon-core/MatchState'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { score } from 'tsgammon-core/Score'
@@ -42,7 +42,7 @@ export function CubefulGame(props: CubefulGameProps) {
         dialog,
         upperButton,
         lowerButton,
-        showPositionID = true,
+        showPositionID: showPositionID = true,
         onResign,
         ...eventHandlers
     } = props
