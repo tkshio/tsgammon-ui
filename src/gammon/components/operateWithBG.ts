@@ -5,12 +5,11 @@ import {
     CBAction,
     CBInPlay,
     CBResponse,
-    CBToRoll
+    CBToRoll,
 } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGInPlay, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
-
 
 export function operateWithBG(
     autoOperators: { cb?: CBOperator; sg?: SGOperator },
@@ -42,7 +41,7 @@ export function operateWithBG(
                         autoHandler.onDouble(bgState)
                     },
                     () => {
-                        autoHandler.onRoll(bgState)
+                        setTimeout(() => autoHandler.onRoll(bgState))
                     }
                 )
             },
@@ -50,8 +49,7 @@ export function operateWithBG(
                 cbState: CBToRoll
                 sgState: SGToRoll
             }) => {
-                // ダイスロール自体が非同期的に実行されるので、同期的に操作する
-                autoHandler.onRoll(bgState)
+                setTimeout(() => autoHandler.onRoll(bgState))
             },
             onDoubled: async (bgState: {
                 cbState: CBResponse
