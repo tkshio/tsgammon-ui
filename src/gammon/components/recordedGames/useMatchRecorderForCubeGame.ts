@@ -4,13 +4,12 @@ import { GameConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import {
     MatchRecorder,
-    matchRecorderAsCBAddOn
+    matchRecorderForBG,
 } from 'tsgammon-core/records/MatchRecorder'
 import { useMatchRecorder } from './useMatchRecorder'
 
 export function useMatchRecorderForCubeGame(
     gameConf: GameConf,
-    bgState: BGState,
     initialMatchRecord: MatchRecord<BGState>
 ): {
     matchRecord: MatchRecord<BGState>
@@ -18,11 +17,10 @@ export function useMatchRecorderForCubeGame(
     resetMatchRecord: (index: number) => void
     matchRecorderAddOn: Partial<BGListener>
 } {
-    const {sgState} = bgState
     const [matchRecord, matchRecorder] =
         useMatchRecorder<BGState>(initialMatchRecord)
 
-    const matchRecorderAddOn = matchRecorderAsCBAddOn(gameConf, sgState, matchRecorder)
+    const matchRecorderAddOn = matchRecorderForBG(gameConf, matchRecorder)
     const resetMatchRecord = (index: number) => {
         matchRecorder.resumeTo(index)
     }
@@ -31,6 +29,6 @@ export function useMatchRecorderForCubeGame(
         matchRecord,
         matchRecorder,
         resetMatchRecord,
-        matchRecorderAddOn
+        matchRecorderAddOn,
     }
 }

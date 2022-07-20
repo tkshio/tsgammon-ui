@@ -103,7 +103,6 @@ export function PointMatch(props: PointMatchProps) {
     const { matchRecord, matchRecorder, matchRecorderAddOn } =
         useMatchRecorderForCubeGame(
             gameConf,
-            bgState,
             setEoG(
                 initialBGState,
                 gameConf,
