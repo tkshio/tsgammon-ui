@@ -49,6 +49,7 @@ export type PointMatchProps = {
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
     onEndOfMatch?: () => void
+    dialog?: JSX.Element
 } & Partial<RollListener>
 
 /**
@@ -74,6 +75,7 @@ export function PointMatch(props: PointMatchProps) {
         onEndOfMatch = () => {
             //
         },
+        dialog
     } = props
 
     const rollListener = rollListeners({
@@ -160,6 +162,7 @@ export function PointMatch(props: PointMatchProps) {
         ...rsDialogHandler,
         onResumeState,
         onEndOfMatch,
+        dialog
     }
 
     return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />
