@@ -1,21 +1,15 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
-import {
-    buildSGEventHandler
-} from 'tsgammon-core/dispatchers/buildSGEventHandler'
+import { buildSGEventHandler } from 'tsgammon-core/dispatchers/buildSGEventHandler'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { eogEventHandlersSG } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import {
-    setSGStateListener
-} from 'tsgammon-core/dispatchers/SingleGameDispatcher'
+import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
-import {
-    SGEoG
-} from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -51,29 +45,32 @@ export function Cubeless(props: CubelessProps) {
         onRollRequest = () => {
             //
         },
-        ...listeners
+        ..._listeners
     } = props
     const initialSGState = toSGState(props)
     const { matchScore, matchScoreListener } = useMatchScore()
     const { sgState, setSGState } = useSingleGameState(initialSGState)
+    
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
         rollListener: { onRollRequest },
     })
-
+    const listeners: Partial<SingleGameListener>[] = [
+        setSGStateListener(initialSGState, setSGState),
+        matchScoreListener,
+        _listeners
+    ]
     const _handlers = buildSGEventHandler(
         rollListener,
-        setSGStateListener(initialSGState, setSGState)
+        ...listeners
     )
-        .addListeners(listeners)
-        .addListeners(matchScoreListener)
 
-    const eogHandler = eogEventHandlersSG([listeners])
-    const { resignState, rsDialogHandler:rsHandler } =
-        useResignState((result: SGResult, eog: EOGStatus) =>
-            eogHandler.onEndOfGame(sgState, result, eog)
-        )
+    const { resignState, rsDialogHandler: rsHandler } = useResignState(
+        (result: SGResult, eog: EOGStatus) =>
+        eogEventHandlersSG(...listeners).onEndOfGame(sgState, result, eog)
+    )
+
     const { sgHandler, rsDialogHandler } = operateWithSGandRS(
         autoOperators,
         sgState,
