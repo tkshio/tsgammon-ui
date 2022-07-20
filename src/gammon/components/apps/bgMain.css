@@ -1,11 +1,44 @@
-#startBGMatch{
+#startBGMatch {
     background: darkslategray;
     color: white;
-    width: 120pt;
+    width: 120px;
     justify-content: center;
-    margin-top:25pt;
+    margin-top: 25px;
 }
 
 #startBGMatch:after {
     content: 'StartGame';
+}
+#termDialog {
+    justify-content: space-evenly;
+}
+#termDialog > .csscaption:before {
+    content: 'Terminate current match?';
+}
+#term {
+    background: darkred;
+    color: white;
+    width: 15%;
+    justify-content: center;
+    margin-top: 25px;
+    padding: 5px 10px;
+}
+#term:after {
+    content: 'Terminate';
+}
+
+#execTerm:after {
+    content: 'Terminate';
+}
+
+#cancelTerm:after {
+    content: 'Cancel';
+}
+#execTerm {
+    background: lightgray;
+}
+
+#cancelTerm {
+    color:white;
+    background: darkslategray;
 }
