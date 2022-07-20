@@ -4,6 +4,19 @@ import { PointMatch, PointMatchProps } from './PointMatch'
 import './bgMain.css'
 import { Dialog } from '../uiparts/Dialog'
 import { Buttons } from '../uiparts/Buttons'
+import {
+    bothCBAutoOperator,
+    bothSGAutoOperator,
+    redCBAutoOperator,
+    redSGAutoOperator,
+    whiteCBAutoOperator,
+    whiteSGAutoOperator,
+} from '../operators/autoOperators'
+import {
+    bothRSAutoOperator,
+    redRSAutoOperator,
+    whiteRSAutoOperator,
+} from '../operators/RSAutoOperators'
 
 export type BGMainProps = {
     //
@@ -11,12 +24,16 @@ export type BGMainProps = {
 type MatchChoice = 'Unlimited' | '1pt' | '3pt' | '5pt'
 const matchChoice: MatchChoice[] = ['Unlimited', '1pt', '3pt', '5pt']
 const defaultChoice: MatchChoice = '3pt'
-type BGMainConfState = {
+
+type BGMainState = BGMainConfState | BGMainPlayState
+type BGMainConfState = _BGMainState & {
     tag: 'CONF'
     selected: MatchChoice
 }
-type BGMainState = BGMainConfState | BGMainPlayState
-type BGMainPlayState = {
+type _BGMainState = {
+    autoOp: { red: boolean; white: boolean }
+}
+type BGMainPlayState = _BGMainState & {
     tag: 'PLAY'
     selected: MatchChoice
     isTerminating: boolean
@@ -25,37 +42,45 @@ export function BGMain(props: BGMainProps) {
     const [matchKey, setMatchKey] = useState(0)
     const [state, setState] = useState<BGMainState>({
         tag: 'CONF',
+        autoOp: { red: true, white: false },
         selected: defaultChoice,
     })
 
     if (state.tag === 'CONF') {
         return (
-            <form>
-                {matchChoice.map((value: MatchChoice) =>
-                    confItem(state, value)
-                )}
+            <Fragment>
+                <h2>Configuration</h2>
+                <h3>Match Point</h3>
+                {matchPointConf(state)}
+                <p />
+                <h3>CPU plays</h3>
+                {autoOpConf(state)}
+                <hr/>
                 <Button
                     id="startBGMatch"
                     onClick={() => {
                         setState({
+                            ...state,
                             tag: 'PLAY',
                             selected: state.selected,
                             isTerminating: false,
                         })
                     }}
                 />
-            </form>
+            </Fragment>
         )
     } else {
         const pointMatchProps: PointMatchProps = {
-            onEndOfMatch,
+            onEndOfMatch: () => onEndOfMatch(state),
             matchLength: toMatchPoint(state),
+            autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
         }
 
         return (
             <Fragment>
                 <PointMatch {...pointMatchProps} key={matchKey} />
+                {autoOpConf(state)}
                 {!state.isTerminating && (
                     <Button
                         id="term"
@@ -67,9 +92,66 @@ export function BGMain(props: BGMainProps) {
             </Fragment>
         )
     }
-    function onEndOfMatch() {
+    function autoOp(state: BGMainState) {
+        const conf = state.autoOp
+        if (conf.red && conf.white) {
+            return {
+                cb: bothCBAutoOperator(),
+                sg: bothSGAutoOperator(),
+                rs: bothRSAutoOperator(),
+            }
+        }
+        if (conf.red) {
+            return {
+                cb: redCBAutoOperator(),
+                sg: redSGAutoOperator(),
+                rs: redRSAutoOperator(),
+            }
+        }
+        if (conf.white) {
+            return {
+                cb: whiteCBAutoOperator(),
+                sg: whiteSGAutoOperator(),
+                rs: whiteRSAutoOperator(),
+            }
+        }
+        return undefined
+    }
+
+    function autoOpConf(state: BGMainState) {
+        return (
+            <Fragment>
+                {checkBox('red')}
+                {checkBox('white')}
+            </Fragment>
+        )
+        function checkBox(id: 'red' | 'white') {
+            return (
+                <Fragment>
+                    {' '}
+                    <input
+                        type="checkbox"
+                        id={id}
+                        value={id}
+                        checked={state.autoOp[id]}
+                        onChange={() =>
+                            onChange({
+                                ...state.autoOp,
+                                [id]: !state.autoOp[id],
+                            })
+                        }
+                    />
+                    <label htmlFor={id}>{id}</label>
+                </Fragment>
+            )
+        }
+        function onChange(autoOp: { red: boolean; white: boolean }) {
+            setState({ ...state, autoOp })
+        }
+    }
+    function onEndOfMatch(state: BGMainState) {
         setMatchKey((prev) => prev + 1)
-        setState({ tag: 'CONF', selected: state.selected })
+        setState({ ...state, tag: 'CONF', selected: state.selected })
     }
     function toMatchPoint(state: BGMainState) {
         switch (state.selected) {
@@ -83,30 +165,44 @@ export function BGMain(props: BGMainProps) {
                 return 0
         }
     }
-    function confItem(conf: BGMainConfState, value: MatchChoice) {
+
+    function matchPointConf(state: BGMainConfState) {
         return (
             <Fragment>
-                <input
-                    type="radio"
-                    name="gameConf"
-                    id={value}
-                    value={value}
-                    checked={conf.selected === value}
-                    onChange={() => {
-                        setState({ tag: 'CONF', selected: value })
-                    }}
-                />
-                <label htmlFor="Unlimited">{value}</label>
+                {matchChoice.map((value: MatchChoice) =>
+                    confItem(state, value)
+                )}
             </Fragment>
         )
+        function confItem(conf: BGMainConfState, value: MatchChoice) {
+            return (
+                <Fragment>
+                    <input
+                        type="radio"
+                        name="gameConf"
+                        id={value}
+                        value={value}
+                        checked={conf.selected === value}
+                        onChange={() => {
+                            setState({ ...conf, tag: 'CONF', selected: value })
+                        }}
+                    />
+                    <label htmlFor={value}>{value}</label>
+                </Fragment>
+            )
+        }
     }
+
     function terminateDialog(curState: BGMainPlayState) {
         return (
             <Dialog id={'termDialog'}>
                 <Fragment>
                     <div className="csscaption" />{' '}
                     <Buttons>
-                        <Button id="execTerm" onClick={onEndOfMatch} />
+                        <Button
+                            id="execTerm"
+                            onClick={() => onEndOfMatch(curState)}
+                        />
                         <Button
                             id="cancelTerm"
                             onClick={() => {
