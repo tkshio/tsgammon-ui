@@ -22,7 +22,7 @@ import { RevertButton } from './uiparts/RevertButton'
 export type CheckerPlayBoardProps = {
     cpState: CheckerPlayState
     diceLayout: (dices: Dice[]) => DiceLayout
-    cube?: CubeProps
+    cubeProps?: CubeProps
     dialog?: JSX.Element
     upperButton?: JSX.Element
     lowerButton?: JSX.Element
@@ -35,7 +35,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
 
     const dispatcher: CheckerPlayDispatcher = checkerPlayDispatcher(cpListeners)
 
-    const { cube, diceLayout, onClickCube, dialog, upperButton, lowerButton } =
+    const { cubeProps, diceLayout, onClickCube, dialog, upperButton, lowerButton } =
         props
     const { onClickDice, onClickPoint } = decorateBEHandlers(
         { onClickDice: doClickDice, onClickPoint: doClickPoint },
@@ -49,7 +49,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
             cpState.revertDicesFlag,
             diceLayout
         ),
-        ...layoutCube(cube),
+        ...layoutCube(cubeProps),
 
         onClickDice,
         onClickPoint,
