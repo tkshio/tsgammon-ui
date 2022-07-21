@@ -17,6 +17,7 @@ import {
     redRSAutoOperator,
     whiteRSAutoOperator,
 } from '../operators/RSAutoOperators'
+import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 
 export type BGMainProps = {
     //
@@ -26,12 +27,14 @@ const matchChoice: MatchChoice[] = ['Unlimited', '1pt', '3pt', '5pt']
 const defaultChoice: MatchChoice = '3pt'
 
 type BGMainState = BGMainConfState | BGMainPlayState
+type _BGMainState = {
+    autoOp: { red: boolean; white: boolean }
+    playersConf: PlayersConf
+}
+
 type BGMainConfState = _BGMainState & {
     tag: 'CONF'
     selected: MatchChoice
-}
-type _BGMainState = {
-    autoOp: { red: boolean; white: boolean }
 }
 type BGMainPlayState = _BGMainState & {
     tag: 'PLAY'
@@ -39,10 +42,13 @@ type BGMainPlayState = _BGMainState & {
     isTerminating: boolean
 }
 export function BGMain(props: BGMainProps) {
+    const labels = {red:'Red', white:'White'}
+
     const [matchKey, setMatchKey] = useState(0)
     const [state, setState] = useState<BGMainState>({
         tag: 'CONF',
         autoOp: { red: true, white: false },
+        playersConf: defaultPlayersConf,
         selected: defaultChoice,
     })
 
@@ -53,9 +59,11 @@ export function BGMain(props: BGMainProps) {
                 <h3>Match Point</h3>
                 {matchPointConf(state)}
                 <p />
+                <h3>Players name</h3>
+                {playersConf(state)}
                 <h3>CPU plays</h3>
                 {autoOpConf(state)}
-                <hr/>
+                <hr />
                 <Button
                     id="startBGMatch"
                     onClick={() => {
@@ -73,7 +81,7 @@ export function BGMain(props: BGMainProps) {
         const pointMatchProps: PointMatchProps = {
             onEndOfMatch: () => onEndOfMatch(state),
             matchLength: toMatchPoint(state),
-            playersConf:{red:{name:'Red'}, white:{name:'White'}},
+            playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
         }
@@ -142,7 +150,7 @@ export function BGMain(props: BGMainProps) {
                             })
                         }
                     />
-                    <label htmlFor={id}>{id}</label>
+                    <label htmlFor={id}>{labels[id]}</label>
                 </Fragment>
             )
         }
@@ -217,5 +225,23 @@ export function BGMain(props: BGMainProps) {
                 </Fragment>
             </Dialog>
         )
+    }
+    function playersConf(state: BGMainState) {
+        const ids: ('red' | 'white')[] = ['red', 'white']
+        return ids.map((id: 'red' | 'white') => {
+            return (
+                <p>
+                    <label htmlFor={id}>{labels[id]}: </label>
+                    <input
+                        id={id}
+                        type="field"
+                        value={state.playersConf[id].name}
+                        onChange={(e) => {
+                            setState({ ...state,playersConf:{...state.playersConf, [id]:{name:e.target.value}} })
+                        }}
+                    />
+                </p>
+            )
+        })
     }
 }

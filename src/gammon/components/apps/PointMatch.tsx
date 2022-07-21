@@ -35,7 +35,7 @@ import {
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
-import { PlayersConf } from '../uiparts/PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 import { useBGState } from '../useBGState'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
@@ -44,7 +44,7 @@ export type PointMatchProps = {
     gameConf?: GameConf
     matchLength?: number
     matchScore?: Score
-    playersConf:PlayersConf
+    playersConf?:PlayersConf
     isCrawford?: boolean
     board?: GameSetup
     autoOperators?: { cb: CBOperator; sg: SGOperator; rs?: RSOperator }
@@ -68,7 +68,7 @@ export function PointMatch(props: PointMatchProps) {
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
         matchLength = 0,
         matchScore: curScore = score(),
-        playersConf,
+        playersConf = defaultPlayersConf,
         isCrawford = false,
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
