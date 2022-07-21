@@ -27,7 +27,7 @@ export function useBGRecorder(
     recordMatch: boolean,
     gameConf: GameConf,
     matchLength: number
-): BGRecorder {
+): (recordMatch: boolean) => BGRecorder {
     // マッチの状態管理のみを行う
     const { matchState, matchStateListener, resetMatchState } = useMatchState(
         score(),
@@ -39,21 +39,21 @@ export function useBGRecorder(
     const { matchRecord, matchRecorder, resetMatchRecord } =
         useMatchRecorder<BGState>(gameConf, matchLength)
     const matchRecordListener = matchRecorderAsBG(gameConf, matchRecorder)
-
-    return recordMatch
-        ? {
-              recordMatch,
-              matchState: matchRecord.matchState,
-              matchListener: matchRecordListener,
-              matchRecord,
-              matchRecorder,
-              resetMatchLength: resetMatchRecord,
-          }
-        : {
-              recordMatch,
-              matchState,
-              matchListener: matchStateListener,
-              resetMatchLength: (_: GameConf, matchLength: number) =>
-                  resetMatchState(matchLength),
-          }
+    return (recordMatch: boolean) =>
+        recordMatch
+            ? {
+                  recordMatch,
+                  matchState: matchRecord.matchState,
+                  matchListener: matchRecordListener,
+                  matchRecord,
+                  matchRecorder,
+                  resetMatchLength: resetMatchRecord,
+              }
+            : {
+                  recordMatch,
+                  matchState,
+                  matchListener: matchStateListener,
+                  resetMatchLength: (_: GameConf, matchLength: number) =>
+                      resetMatchState(matchLength),
+              }
 }

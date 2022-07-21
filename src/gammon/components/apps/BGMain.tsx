@@ -17,7 +17,7 @@ import { Button } from '../uiparts/Button'
 import { Buttons } from '../uiparts/Buttons'
 import { Dialog } from '../uiparts/Dialog'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
-import { BGMatch, BGMatchProps } from './BGMatch'
+import { CubefulMatch, BGMatchProps } from './CubefulMatch'
 
 import './bgMain.css'
 import { useBGRecorder } from '../useBGRecorder'
@@ -85,7 +85,7 @@ export function BGMain(props: BGMainProps) {
                             isTerminating: false,
                         }
                         setState(newState)
-                        bgRecorder.resetMatchLength(
+                        bgRecorder(newState.recordMoves).resetMatchLength(
                             gameConf,
                             toMatchLength(newState)
                         )
@@ -100,14 +100,13 @@ export function BGMain(props: BGMainProps) {
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
-            recordMatch: state.recordMoves,
             matchLength: toMatchLength(state),
-            bgRecorder,
+            bgRecorder: bgRecorder(state.recordMoves),
         }
 
         return (
             <Fragment>
-                <BGMatch {...bgMatchProps} key={matchKey} />
+                <CubefulMatch {...bgMatchProps} key={matchKey} />
                 {autoOpConf(state)}
                 {!state.isTerminating && (
                     <Button
