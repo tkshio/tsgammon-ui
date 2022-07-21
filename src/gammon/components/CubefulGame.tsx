@@ -6,8 +6,13 @@ import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
 import { SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
 import { toGameState } from 'tsgammon-core/dispatchers/utils/toGameState'
-import { MatchState, MatchStateEoG } from 'tsgammon-core/MatchState'
+import {
+    isCubeMaxForMatch,
+    MatchState,
+    MatchStateEoG
+} from 'tsgammon-core/MatchState'
 import { score } from 'tsgammon-core/Score'
+import { CubeProps } from './boards/Cube'
 import { CubefulGameBoard, CubefulGameBoardProps } from './CubefulGameBoard'
 import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
 import { resignDialog } from './SingleGame'
@@ -49,7 +54,7 @@ export function CubefulGame(props: CubefulGameProps) {
         onResign,
         ...eventHandlers
     } = props
-    const { sgState } = bgState
+    const { sgState, cbState } = bgState
 
     const resignButton =
         // 指定されたボタンがあれば、resignButtonは表示しない
@@ -69,7 +74,15 @@ export function CubefulGame(props: CubefulGameProps) {
             cubeResponseDialog: cubeResponseDialog(eventHandlers),
         })
 
+    const { cubeState } = cbState
+    const cubeProps: CubeProps = {
+        cube: cubeState,
+        isCrawford: matchState.isCrawford,
+        isCubeMaxForMatch: isCubeMaxForMatch(matchState, cubeState),
+    }
+
     const cbProps: CubefulGameBoardProps = {
+        cubeProps,
         bgState,
         cpState,
         dialog: cbDialog,

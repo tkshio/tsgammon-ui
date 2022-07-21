@@ -1,4 +1,3 @@
-import { CubeState } from 'tsgammon-core/CubeState'
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import {
@@ -21,15 +20,16 @@ import {
     BoardProps,
     decorate,
     DiceLayout,
-    layoutCube,
 } from './boards/Board'
+import { layoutCube } from "./boards/utils/layoutCube"
 import { blankDice, BlankDice, blankDices } from './boards/Dice'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
+import { CubeProps } from './boards/Cube'
 
 export type SingleGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState
-    cube?: CubeState
+    cubeProps?:CubeProps
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<SingleGameEventHandler & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
@@ -59,7 +59,7 @@ function renderBoard(
         ...props,
         board: sgState.absBoard,
         ...layoutDices(sgState),
-        ...layoutCube(props.cube),
+        ...layoutCube(props.cubeProps),
         onClickDice,
     }
     return <Board {...boardProps} />

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { CubeState } from 'tsgammon-core/CubeState'
 import { Dice } from 'tsgammon-core/Dices'
 import {
     checkerPlayDispatcher,
@@ -14,15 +13,16 @@ import {
     BoardProps,
     decorate as decorateBEHandlers,
     DiceLayout,
-    layoutCube,
 } from './boards/Board'
+import { CubeProps } from './boards/Cube'
+import { layoutCube } from "./boards/utils/layoutCube"
 import { IconButton } from './uiparts/IconButton'
 import { RevertButton } from './uiparts/RevertButton'
 
 export type CheckerPlayBoardProps = {
     cpState: CheckerPlayState
     diceLayout: (dices: Dice[]) => DiceLayout
-    cube?: CubeState
+    cube?: CubeProps
     dialog?: JSX.Element
     upperButton?: JSX.Element
     lowerButton?: JSX.Element

@@ -3,7 +3,6 @@ import {
     AbsoluteBoardState,
     initAbsoluteBoard,
 } from 'tsgammon-core/AbsoluteBoardState'
-import { CubeOwner, CubeState } from 'tsgammon-core/CubeState'
 import { Dice } from 'tsgammon-core/Dices'
 import { Cube, CubeProps } from './Cube'
 import { BlankDice, Dice as DiceComponent, DiceProps } from './Dice'
@@ -242,30 +241,6 @@ export function Board(props: BoardProps) {
             </div>
         </div>
     )
-}
-
-export function layoutCube(cubeState?: CubeState): {
-    centerCube?: CubeProps
-    redCube?: CubeProps
-    whiteCube?: CubeProps
-} {
-    const cube = { cube: cubeState }
-    const cubeOwner = cubeState?.owner
-    const [centerCube, redCube, whiteCube] = doLayout()
-
-    return { centerCube, redCube, whiteCube }
-
-    function doLayout() {
-        if (cubeOwner === undefined) {
-            return [cube, undefined, undefined]
-        }
-        switch (cubeOwner) {
-            case CubeOwner.WHITE:
-                return [undefined, undefined, cube]
-            case CubeOwner.RED:
-                return [undefined, cube, undefined]
-        }
-    }
 }
 
 export function decorate(

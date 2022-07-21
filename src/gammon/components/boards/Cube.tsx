@@ -4,6 +4,8 @@ import './cube.css'
 
 export type CubeProps = {
     cube?: CubeState
+    isCrawford?:boolean
+    isCubeMaxForMatch?:boolean
 }
 
 /**
@@ -15,8 +17,10 @@ export type CubeProps = {
 export function Cube(props: CubeProps) {
     if (props.cube) {
         const value = props.cube.value === 1 ? 64 : props.cube.value
+        const crawford = (props.isCrawford?' CRAWFORD':'') 
+        const max = (props.cube.isMax||props.isCubeMaxForMatch ? ' MAX' : '')
         return (
-            <div className={'cube' + (props.cube.isMax ? ' MAX' : '')}>
+            <div className={['cube',crawford,max].join()}>
                 {value}
             </div>
         )
