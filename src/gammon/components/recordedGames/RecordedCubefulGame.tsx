@@ -25,6 +25,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         onResumeState = () => {
             //
         },
+        dialog,
         ...eventHandlers
     } = props
     const { matchState } = matchRecord
@@ -44,6 +45,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         bgState,
         cpState,
         playersConf,
+        dialog,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest

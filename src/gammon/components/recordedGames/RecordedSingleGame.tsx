@@ -20,6 +20,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         onResumeState = () => {
             //
         },
+        dialog,
        ...listeners
     } = props
 
@@ -40,6 +41,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         cpState,
         matchScore:matchRecord.matchState.score,
         playersConf,
+        dialog,
         ...cpListeners,
     }
 
