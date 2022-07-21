@@ -73,7 +73,12 @@ export function CubefulMatch(props: CubefulMatchProps) {
         matchScore = score(),
         recordMatch = false,
     } = props
-    const bgRecorder = useBGRecorder(gameConf, matchLength, matchScore, isCrawford)(recordMatch)
+    const bgRecorder = useBGRecorder(
+        gameConf,
+        matchLength,
+        matchScore,
+        isCrawford
+    )(recordMatch)
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
@@ -157,10 +162,14 @@ export function CubefulMatch(props: CubefulMatchProps) {
         return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />
     } else {
         return (
-            <CubefulGame
-                key={gameKey}
-                {...{ ...cbProps, matchState, cpState, ...cpListeners }}
-            />
+            <div id="main">
+                <div id="boardPane">
+                    <CubefulGame
+                        key={gameKey}
+                        {...{ ...cbProps, matchState, cpState, ...cpListeners }}
+                    />
+                </div>
+            </div>
         )
     }
 }

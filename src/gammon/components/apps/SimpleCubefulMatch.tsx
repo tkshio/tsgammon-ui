@@ -78,5 +78,11 @@ export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
         ...cpListeners,
     }
 
-    return <CubefulGame {...cbProps} />
+    return (
+        <div id="main">
+            <div id="boardPane">
+                <CubefulGame {...cbProps} />
+            </div>
+        </div>
+    )
 }

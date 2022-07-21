@@ -50,7 +50,7 @@ export function SimpleCubeless(props: SimpleCubelessProps) {
     const initialSGState = toSGState(props)
     const { matchScore, matchScoreListener } = useMatchScore()
     const { sgState, setSGState } = useSingleGameState(initialSGState)
-    
+
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
@@ -59,16 +59,13 @@ export function SimpleCubeless(props: SimpleCubelessProps) {
     const listeners: Partial<SingleGameListener>[] = [
         setSGStateListener(initialSGState, setSGState),
         matchScoreListener,
-        _listeners
+        _listeners,
     ]
-    const _handlers = buildSGEventHandler(
-        rollListener,
-        ...listeners
-    )
+    const _handlers = buildSGEventHandler(rollListener, ...listeners)
 
     const { resignState, rsDialogHandler: rsHandler } = useResignState(
         (result: SGResult, eog: EOGStatus) =>
-        eogEventHandlersSG(...listeners).onEndOfGame(sgState, result, eog)
+            eogEventHandlersSG(...listeners).onEndOfGame(sgState, result, eog)
     )
 
     const { sgHandler, rsDialogHandler } = operateWithSGandRS(
@@ -90,7 +87,13 @@ export function SimpleCubeless(props: SimpleCubelessProps) {
         ...cpListeners,
     }
 
-    return <SingleGame {...sgProps} />
+    return (
+        <div id="main">
+            <div id="boardPane">
+                <SingleGame {...sgProps} />
+            </div>
+        </div>
+    )
 }
 export function useMatchScore(): {
     matchScore: Score
