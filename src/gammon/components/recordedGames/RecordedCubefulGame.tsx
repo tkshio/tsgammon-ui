@@ -3,13 +3,16 @@ import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { matchStateLastGame } from 'tsgammon-core/MatchState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
-import { PlyInfo } from '../uiparts/PlyInfo'
+import { defaultPlayersConf } from '../uiparts/PlayersConf'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedCubefulGameProps = Omit<CubefulGameProps, 'matchState'|'cpState'> & {
-    matchRecord: MatchRecord<BGState>
+export type RecordedCubefulGameProps = Omit<
+    CubefulGameProps,
+    'matchState' | 'cpState'
+> & {
+    matchRecord: MatchRecord<BGState>,
     onResumeState?: (index: number) => void
 }
 
@@ -18,6 +21,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         resignState,
         bgState: curBGState,
         matchRecord,
+        playersConf = defaultPlayersConf,
         onResumeState = () => {
             //
         },
@@ -39,6 +43,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         resignState,
         bgState,
         cpState,
+        playersConf,
         ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest
@@ -58,22 +63,15 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
 
     const recordedGameProps = {
         matchRecord,
+        playersConf,
         index,
         ...ssListeners,
-    }
-
-    const plyInfoProps = {
-        ...cubeGameProps.bgState,
-        cpState,
-        score: cubeGameProps.matchState.score,
-        matchLength: cubeGameProps.matchState.matchLength
     }
 
     return (
         <RecordedGame {...recordedGameProps}>
             <Fragment>
                 <CubefulGame {...cubeGameProps} key={key} />
-                <PlyInfo {...plyInfoProps} />
             </Fragment>
         </RecordedGame>
     )

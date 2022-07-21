@@ -7,11 +7,13 @@ import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog } from './uiparts/ResignDialog'
-import { RSDialogHandler, RSToOffer } from "./RSDialogHandler"
+import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
+import { defaultPlayersConf, PlayersConf } from './uiparts/PlayersConf'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer
     matchScore?: Score
+    playersConf?: PlayersConf
     showPositionID?: boolean
 } & Partial<RSDialogHandler>
 
@@ -21,6 +23,7 @@ export function SingleGame(props: SingleGameProps) {
         cpState,
         sgState,
         matchScore = score(),
+        playersConf = defaultPlayersConf,
         showPositionID = true,
         dialog,
         lowerButton,
@@ -32,12 +35,13 @@ export function SingleGame(props: SingleGameProps) {
 
     const sgDialog =
         dialog ??
-        resignDialog(resignState, eventHandlers) ??
+        resignDialog(resignState, playersConf, eventHandlers) ??
         (sgState.tag === 'SGEoG' ? (
             <EOGDialog
                 stake={sgState.stake}
                 eogStatus={sgState.eogStatus}
                 score={matchScore}
+                playersConf={playersConf}
                 onClick={() => {
                     onStartGame?.()
                 }}
@@ -63,6 +67,7 @@ export function SingleGame(props: SingleGameProps) {
         sgState,
         cpState,
         score: matchScore,
+        playersConf,
     }
 
     return (
@@ -78,6 +83,7 @@ export function SingleGame(props: SingleGameProps) {
 
 export function resignDialog(
     resignState: ResignState | RSToOffer | undefined,
+    playersConf: PlayersConf,
     eventHandlers: Partial<RSDialogHandler>
 ) {
     const isGammonSaved = false
@@ -87,6 +93,7 @@ export function resignDialog(
             {...{
                 isGammonSaved,
                 resignState,
+                playersConf,
                 ...eventHandlers,
             }}
         />

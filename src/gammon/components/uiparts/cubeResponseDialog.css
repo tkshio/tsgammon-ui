@@ -1,22 +1,9 @@
 .dialog > .cubeResponse {
     width: 100%;
-    height: 75%;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
 }
-
-.dialog > .cubeResponse .csscaption {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.dialog > .cubeResponse .csscaption:before {
-    content: 'Take or Pass?';
-    align-self: center;
-}
-
 
 .button#take {
     background: darkslategray;

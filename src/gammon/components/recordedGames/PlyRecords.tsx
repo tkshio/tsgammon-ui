@@ -4,6 +4,7 @@ import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
 import { formatPlyRecord } from 'tsgammon-core/records/utils/formatPlyRecord'
 import { score, Score } from 'tsgammon-core/Score'
 import { MoveFormatDirection } from 'tsgammon-core/utils/formatAbsMove'
+import { PlayersConf } from '../uiparts/PlayersConf'
 
 import './plyRecords.css'
 
@@ -11,6 +12,7 @@ export type PlyRecordsProps<T> = {
     plyRecords: PlyStateRecord<T>[]
     eogRecord?: PlyRecordEoG
     matchScore: Score
+    playersConf:PlayersConf
     selected?: number
     dispatcher: (index: number, state?: T) => void
 }
@@ -32,6 +34,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
         plyRecords: plyStates = [],
         eogRecord,
         matchScore = score(),
+        playersConf,
         selected,
         dispatcher = () => {
             //
@@ -73,7 +76,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
             <div id={'scrollPane'}>
                 <table className={'records'}>
                     <caption>
-                        {`Red: ${matchScore.redScore} White: ${matchScore.whiteScore}`}
+                        {`${playersConf.red.name}: ${matchScore.redScore} ${playersConf.white.name}: ${matchScore.whiteScore}`}
                     </caption>
                     <colgroup>
                         <col id={'numCol'} />

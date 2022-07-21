@@ -14,6 +14,7 @@ import { operateWithBG } from '../operateWithBG'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
+import { PlayersConf } from '../uiparts/PlayersConf'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useMatchState } from '../useMatchState'
@@ -21,6 +22,7 @@ import { useMatchState } from '../useMatchState'
 export type MoneyGameProps = {
     gameConf: GameConf
     matchScore?: Score
+    playersConf:PlayersConf,
     setup?: GameSetup
     autoOperators?: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
@@ -33,6 +35,7 @@ export function MoneyGame(props: MoneyGameProps) {
     const {
         gameConf = { ...standardConf, jacobyRule: true },
         matchScore = score(),
+        playersConf,
         setup,
         autoOperators = { cb: undefined, sg: undefined },
         isRollHandlerEnabled = false,
@@ -68,8 +71,9 @@ export function MoneyGame(props: MoneyGameProps) {
     const cbProps: CubefulGameProps = {
         bgState,
         cpState,
-        ...listeners,
         matchState,
+        playersConf,
+        ...listeners,
         ...handlers,
         ...cpListeners,
     }

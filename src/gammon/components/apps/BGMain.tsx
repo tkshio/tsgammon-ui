@@ -73,6 +73,7 @@ export function BGMain(props: BGMainProps) {
         const pointMatchProps: PointMatchProps = {
             onEndOfMatch: () => onEndOfMatch(state),
             matchLength: toMatchPoint(state),
+            playersConf:{red:{name:'Red'}, white:{name:'White'}},
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
         }

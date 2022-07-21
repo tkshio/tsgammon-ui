@@ -1,20 +1,22 @@
 import { Fragment } from 'react'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { ResignOffer } from 'tsgammon-core/ResignOffer'
-import { RSDialogHandler, RSToOffer } from "../RSDialogHandler"
+import { RSDialogHandler, RSToOffer } from '../RSDialogHandler'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
+import { defaultPlayersConf, PlayersConf } from './PlayersConf'
 import './resignDialog.css'
 
 export type ResignDialogProps = {
     isGammonSaved: boolean
     resignState: ResignState | RSToOffer
+    playersConf?: PlayersConf
 } & Partial<RSDialogHandler>
 
 export function ResignDialog(props: ResignDialogProps) {
-    const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
-    const { isGammonSaved, resignState, ...resignEventHandlers } = props
+    const { isGammonSaved, resignState, playersConf=defaultPlayersConf, ...resignEventHandlers } =
+        props
 
     function format(offer: ResignOffer): string {
         switch (offer) {
@@ -37,9 +39,8 @@ export function ResignDialog(props: ResignDialogProps) {
                                   ? ''
                                   : ' (' + format(resignState.lastOffer) + ')'
                           } was rejected`,
-                          ZERO_WIDTH_SPACE,
                       ]
-                    : [`Select offer: `, ZERO_WIDTH_SPACE]
+                    : [`Select offer: `]
             }
         >
             <Buttons>
@@ -87,8 +88,11 @@ export function ResignDialog(props: ResignDialogProps) {
     resignState.tag === 'RSOffered' ? (
         <Dialog
             msgs={[
-                `Opponent offers to resign at: ${format(resignState.offer)}`,
-                ZERO_WIDTH_SPACE,
+                `${
+                    resignState.isRed
+                        ? playersConf.white.name
+                        : playersConf.red.name
+                } offers to resign at: ${format(resignState.offer)}`,
             ]}
         >
             <Buttons>

@@ -9,7 +9,7 @@ import { toGameState } from 'tsgammon-core/dispatchers/utils/toGameState'
 import {
     isCubeMaxForMatch,
     MatchState,
-    MatchStateEoG
+    MatchStateEoG,
 } from 'tsgammon-core/MatchState'
 import { score } from 'tsgammon-core/Score'
 import { CubeProps } from './boards/Cube'
@@ -19,6 +19,8 @@ import { resignDialog } from './SingleGame'
 import { CubeResponseDialog } from './uiparts/CubeResponseDialog'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { MatchID } from './uiparts/MatchID'
+import { defaultPlayersConf, PlayersConf } from './uiparts/PlayersConf'
+import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { eogMatchState } from './useMatchState'
@@ -26,6 +28,7 @@ import { eogMatchState } from './useMatchState'
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
+    playersConf?: PlayersConf
     showPositionIDs?: boolean
     onEndOfMatch?: () => void
 } & Partial<Pick<BGEventHandler, 'onTake' | 'onPass'>> &
@@ -47,6 +50,7 @@ export function CubefulGame(props: CubefulGameProps) {
         matchState = props.bgState.cbState.tag === 'CBEoG'
             ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
+        playersConf = defaultPlayersConf,
         dialog,
         upperButton,
         lowerButton,
@@ -68,10 +72,10 @@ export function CubefulGame(props: CubefulGameProps) {
 
     const cbDialog =
         dialog ??
-        resignDialog(resignState, eventHandlers) ??
+        resignDialog(resignState, playersConf, eventHandlers) ??
         dialogForCubefulGame(bgState, matchState, {
-            eogDialog: eogDialog(eventHandlers),
-            cubeResponseDialog: cubeResponseDialog(eventHandlers),
+            eogDialog: eogDialog(eventHandlers, playersConf),
+            cubeResponseDialog: cubeResponseDialog(eventHandlers, playersConf),
         })
 
     const { cubeState } = cbState
@@ -96,6 +100,15 @@ export function CubefulGame(props: CubefulGameProps) {
             ? RSNONE
             : resignState
     )
+
+    const plyInfoProps = {
+        ...bgState,
+        cpState,
+        score: matchState.score,
+        matchLength: matchState.matchLength,
+        playersConf,
+    }
+
     return (
         <Fragment>
             {showPositionIDs && (
@@ -105,6 +118,7 @@ export function CubefulGame(props: CubefulGameProps) {
                 </Fragment>
             )}
             <CubefulGameBoard {...cbProps} />
+            <PlyInfo {...plyInfoProps} />
         </Fragment>
     )
 }
@@ -132,16 +146,20 @@ function dialogForCubefulGame(
     )
 }
 
-function eogDialog(handler: {
-    onStartGame?: () => void
-    onEndOfMatch?: () => void
-}): (matchState: MatchStateEoG) => JSX.Element {
+function eogDialog(
+    handler: {
+        onStartGame?: () => void
+        onEndOfMatch?: () => void
+    },
+    playersConf: PlayersConf
+): (matchState: MatchStateEoG) => JSX.Element {
     return (matchState: MatchStateEoG) => {
         return (
             <EOGDialog
                 {...{
                     ...matchState,
                     score: matchState.scoreAfter,
+                    playersConf,
                     onClick: () => {
                         if (matchState.isEoM) {
                             handler.onEndOfMatch?.()
@@ -155,11 +173,15 @@ function eogDialog(handler: {
     }
 }
 function cubeResponseDialog(
-    eventHandlers: Partial<BGEventHandler>
+    eventHandlers: Partial<BGEventHandler>,
+    playersConf: PlayersConf
 ): (bgState: { cbState: CBResponse; sgState: SGToRoll }) => JSX.Element {
     return (bgState: { cbState: CBResponse; sgState: SGToRoll }) => (
         <CubeResponseDialog
             {...{
+                player: bgState.cbState.isRed
+                    ? playersConf.red.name
+                    : playersConf.white.name,
                 onTake: () => {
                     eventHandlers.onTake?.(bgState)
                 },

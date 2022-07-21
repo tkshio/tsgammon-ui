@@ -7,20 +7,20 @@ import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
 import {
     matchStateForPointMatch,
     matchStateForUnlimitedMatch,
-    shouldSkipCubeAction
+    shouldSkipCubeAction,
 } from 'tsgammon-core/MatchState'
 import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay
+    MatchRecordInPlay,
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -32,9 +32,10 @@ import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
+import { PlayersConf } from '../uiparts/PlayersConf'
 import { useBGState } from '../useBGState'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
@@ -43,6 +44,7 @@ export type PointMatchProps = {
     gameConf?: GameConf
     matchLength?: number
     matchScore?: Score
+    playersConf:PlayersConf
     isCrawford?: boolean
     board?: GameSetup
     autoOperators?: { cb: CBOperator; sg: SGOperator; rs?: RSOperator }
@@ -66,6 +68,7 @@ export function PointMatch(props: PointMatchProps) {
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
         matchLength = 0,
         matchScore: curScore = score(),
+        playersConf,
         isCrawford = false,
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
@@ -157,6 +160,7 @@ export function PointMatch(props: PointMatchProps) {
     const recordedMatchProps: RecordedCubefulGameProps = {
         resignState,
         matchRecord,
+        playersConf,
         bgState,
         ...bgEventHandler,
         ...rsDialogHandler,

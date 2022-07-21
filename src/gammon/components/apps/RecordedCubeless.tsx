@@ -18,10 +18,12 @@ import {
     RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
+import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 import { useSingleGameState } from '../useSingleGameState'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
+    playersConf?:PlayersConf
     state?: GameSetup
     autoOperators?: { sg?: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
@@ -39,6 +41,7 @@ export type UnlimitedSingleGameProps = {
 export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const {
         gameConf = standardConf,
+        playersConf = defaultPlayersConf,
         state,
         autoOperators = {},
         isRollHandlerEnabled = false,
@@ -66,6 +69,7 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
         matchRecord,
+        playersConf,
         ...handlers,
     }
 

@@ -5,11 +5,13 @@ import { PlyRecords, PlyRecordsProps } from './PlyRecords'
 import { SelectableStateListeners } from './useSelectableState'
 
 import './recordedGame.css'
+import { PlayersConf } from '../uiparts/PlayersConf'
 
 export function RecordedGame<T>(
     props: {
         children: JSX.Element
         matchRecord: MatchRecord<T>
+        playersConf:PlayersConf
         index: number | undefined
     } & SelectableStateListeners<T>
 ) {
@@ -20,6 +22,7 @@ export function RecordedGame<T>(
         onSelectLatest,
         onResumeState,
         matchRecord,
+        playersConf,
     } = props
     const eogRecord = matchRecord.curGameRecord.isEoG
         ? matchRecord.curGameRecord.eogRecord
@@ -47,6 +50,7 @@ export function RecordedGame<T>(
         plyRecords,
         eogRecord,
         matchScore: matchRecord.matchState.scoreBefore,
+        playersConf,
         selected: index,
         dispatcher: (index: number, state?: T) => {
             if (state) {
@@ -57,13 +61,13 @@ export function RecordedGame<T>(
         },
     }
 
-    const matchRecordText = formatMatchRecord(matchRecord)
+    const matchRecordText = formatMatchRecord(matchRecord,playersConf.red.name, playersConf.white.name)
     return (
         <div id={'main'}>
             <div id={'boardPane'}>
                 {children}
                 <CopyTextButton
-                    getText={() => formatMatchRecord(matchRecord)}
+                    getText={() => matchRecordText}
                 />
                 <div id={'matchRecord'}>
                     <pre>{matchRecordText}</pre>

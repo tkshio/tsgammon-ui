@@ -4,6 +4,7 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { formatState } from 'tsgammon-core/dispatchers/utils/formatState'
 import { Score } from 'tsgammon-core/Score'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
+import { PlayersConf } from './PlayersConf'
 import './plyInfo.css'
 
 export function PlyInfo(props: {
@@ -12,11 +13,12 @@ export function PlyInfo(props: {
     cpState?: CheckerPlayState
     score: Score
     matchLength?: number
+    playersConf: PlayersConf
 }) {
-    const { cbState, sgState, cpState, score, matchLength } = props
+    const { cbState, sgState, cpState, score, matchLength, playersConf } = props
 
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
-    const stateText = formatState(sgState, cbState, cpState)
+    const stateText = formatState(sgState, cbState, cpState,undefined,playersConf.red.name, playersConf.white.name)
     return (
         <div id={'plyAsText'}>
             <div className={'curPly'}>
@@ -24,7 +26,11 @@ export function PlyInfo(props: {
                 {stateText}
             </div>
             <div className={'score'}>
-                {formatScore(score)}
+                {formatScore(
+                    score,
+                    playersConf.red.name,
+                    playersConf.white.name
+                )}
                 {formatMatchLength(matchLength)}
             </div>
         </div>

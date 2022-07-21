@@ -6,6 +6,7 @@ import { Buttons } from './Buttons'
 import { Button } from './Button'
 
 export type CubeResponseDialogProps = {
+    player?: string
     onTake: () => void
     onPass: () => void
 }
@@ -19,14 +20,13 @@ export function CubeResponseDialog(props: CubeResponseDialogProps) {
     return (
         <Dialog
             {...{
-                msgs: [],
+                msgs: [`${props.player??'Oppenent'} offers Double.`],
                 onClick: () => {
                     //
                 },
             }}
         >
             <div className="cubeResponse">
-                <div className="csscaption" />
                 <Buttons>
                     <Fragment>
                         {' '}
