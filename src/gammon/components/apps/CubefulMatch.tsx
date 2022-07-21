@@ -39,7 +39,6 @@ export type BGMatchProps = {
     diceSource?: DiceSource
     onEndOfMatch?: () => void
     dialog?: JSX.Element
-    recordMatch?: boolean
     matchLength: number
     bgRecorder: BGRecorder
 } & Partial<RollListener & BGListener>
@@ -52,7 +51,7 @@ export type BGMatchProps = {
  * @param props.initialScore スコアの初期値
  * @constructor
  */
-export function BGMatch(props: BGMatchProps) {
+export function CubefulMatch(props: BGMatchProps) {
     const {
         gameConf = standardConf,
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },

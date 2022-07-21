@@ -1,20 +1,20 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { UnlimitedSingleGame } from '../../gammon/components/apps/RecordedCubeless'
+import { Cubeless } from '../../gammon/components/apps/Cubeless'
 import {
     bothSGAutoOperator,
     redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
 
 export default {
-    title: 'UnlimitedSingleGame',
-    component: UnlimitedSingleGame,
+    title: 'Cubeless',
+    component: Cubeless,
     parameters: {},
 } as Meta
 
-const Template: Story<ComponentProps<typeof UnlimitedSingleGame>> = (args) => (
-    <UnlimitedSingleGame {...args} />
+const Template: Story<ComponentProps<typeof Cubeless>> = (args) => (
+    <Cubeless {...args} />
 )
 
 export const initialBoard = Template.bind({})

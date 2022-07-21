@@ -5,7 +5,7 @@ import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandl
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
@@ -19,22 +19,21 @@ import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useMatchState } from '../useMatchState'
 
-export type MoneyGameProps = {
+export type SimpleCubefulMatchProps = {
     gameConf: GameConf
     matchScore?: Score
-    playersConf:PlayersConf,
+    matchLength?: number
+    playersConf: PlayersConf
     setup?: GameSetup
     autoOperators?: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
-} & Partial<
-        RollListener
->
+} & Partial<RollListener>
 
-export function MoneyGame(props: MoneyGameProps) {
+export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
     const {
-        gameConf = { ...standardConf, jacobyRule: true },
         matchScore = score(),
+        matchLength = 0,
         playersConf,
         setup,
         autoOperators = { cb: undefined, sg: undefined },
@@ -45,15 +44,16 @@ export function MoneyGame(props: MoneyGameProps) {
         },
         ...listeners
     } = props
-    const matchLength = 0
+    const gameConf = { ...standardConf, jacobyRule: matchLength === 0 }
     const initialBGState = toState(setup)
     const { bgState, setBGState } = useBGState(initialBGState)
+    const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
+
     const { matchState, matchStateListener: matchStateAddOn } = useMatchState(
         matchScore,
         matchLength,
         gameConf
     )
-    const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
