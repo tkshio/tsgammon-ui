@@ -15,7 +15,9 @@ import { CubefulMatch } from '../../gammon/components/apps/CubefulMatch'
 export default {
     title: 'PointMatch',
     component: CubefulMatch,
-    parameters: {},
+    parameters: {
+        recordMatch:true,
+    },
 } as Meta
 
 const Template: Story<ComponentProps<typeof CubefulMatch>> = (args) => (
@@ -25,6 +27,7 @@ const Template: Story<ComponentProps<typeof CubefulMatch>> = (args) => (
 export const cpuPlaysRed3pt = Template.bind({})
 cpuPlaysRed3pt.args = {
     matchLength: 3,
+    recordMatch:true,
     autoOperators: { cb: redCBAutoOperator(), sg: redSGAutoOperator(), rs:redRSAutoOperator() },
 }
 
@@ -35,6 +38,7 @@ const minimalPieces = [
 export const endGame3pt = Template.bind({})
 endGame3pt.args = {
     matchLength: 3,
+    recordMatch:true,
     gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
@@ -46,6 +50,7 @@ endGame3pt.args = {
 export const goIntoCrawford = Template.bind({})
 goIntoCrawford.args = {
     matchLength: 3,
+    recordMatch:true,
     matchScore: score({ redScore: 1, whiteScore: 1 }),
     gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
@@ -59,6 +64,7 @@ goIntoCrawford.args = {
 export const endOfMatch = Template.bind({})
 endOfMatch.args = {
     matchLength: 3,
+    recordMatch:true,
     matchScore: score({ redScore: 1, whiteScore: 2 }),
     isCrawford: true,
     gameSetup: {
@@ -73,6 +79,7 @@ endOfMatch.args = {
 export const endWithAutoResign = Template.bind({})
 endWithAutoResign.args = {
     matchLength: 3,
+    recordMatch:true,
     matchScore: score({ redScore: 1, whiteScore: 2 }),
     isCrawford: true,
     gameSetup: {
@@ -93,6 +100,7 @@ endWithAutoResign.args = {
 
 export const doubletInOpening = Template.bind({})
 doubletInOpening.args = {
+    recordMatch:true,
     diceSource: {
         roll: doublet,
         openingRoll: () => {
