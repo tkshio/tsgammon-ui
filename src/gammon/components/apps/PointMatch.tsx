@@ -6,25 +6,25 @@ import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandl
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
-    matchStateForPointMatch,
-    matchStateForUnlimitedMatch,
-    shouldSkipCubeAction,
-} from 'tsgammon-core/MatchState'
-import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import {
+    matchStateForPointMatch,
+    matchStateForUnlimitedMatch,
+    shouldSkipCubeAction
+} from 'tsgammon-core/MatchState'
 import {
     eogRecord,
     MatchRecord,
     matchRecordInPlay,
-    MatchRecordInPlay,
+    MatchRecordInPlay
 } from 'tsgammon-core/records/MatchRecord'
 import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
+import { StakeConf } from 'tsgammon-core/StakeConf'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { operateWithBGandRS } from '../operateWithRS'
 import { CBOperator } from '../operators/CBOperator'
@@ -32,7 +32,7 @@ import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../recordedGames/RecordedCubefulGame'
 import { useMatchRecorderForCubeGame } from '../recordedGames/useMatchRecorderForCubeGame'
 import { useBGState } from '../useBGState'
@@ -75,7 +75,7 @@ export function PointMatch(props: PointMatchProps) {
         onEndOfMatch = () => {
             //
         },
-        dialog
+        dialog,
     } = props
 
     const rollListener = rollListeners({
@@ -162,7 +162,7 @@ export function PointMatch(props: PointMatchProps) {
         ...rsDialogHandler,
         onResumeState,
         onEndOfMatch,
-        dialog
+        dialog,
     }
 
     return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />

@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     MatchState,
     MatchStateEoG,
     matchStateEoG,
-    MatchStateInPlay,
+    MatchStateInPlay
 } from 'tsgammon-core/MatchState'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { StakeConf } from 'tsgammon-core/dispatchers/StakeConf'
+import { StakeConf } from 'tsgammon-core/StakeConf'
 
 export function useMatchState(
     matchScore: Score = score(),

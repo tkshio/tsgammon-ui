@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { score } from 'tsgammon-core'
-import { matchStateForPointMatch } from 'tsgammon-core/dispatchers/MatchState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { matchStateForPointMatch } from 'tsgammon-core/MatchState'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
 

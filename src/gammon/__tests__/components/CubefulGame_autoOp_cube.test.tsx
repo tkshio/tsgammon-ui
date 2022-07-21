@@ -2,7 +2,7 @@ import { act, render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import {
     matchStateForUnlimitedMatch
-} from 'tsgammon-core/dispatchers/MatchState'
+} from 'tsgammon-core/MatchState'
 import {
     GameSetup,
     GameStatus,

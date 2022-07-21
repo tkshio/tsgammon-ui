@@ -3,29 +3,29 @@ import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { standardConf } from 'tsgammon-core'
 import { CBInPlay } from 'tsgammon-core/dispatchers/CubeGameState'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
 import { SGInPlay } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState,
+    toSGState
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { operateWithBG } from '../../components/operateWithBG'
 import { CubefulGame } from '../../components/CubefulGame'
+import { operateWithBG } from '../../components/operateWithBG'
 import { AutoOperateCBGame } from './AutoOperateCBGame'
 import {
     BoardOp,
     isRed,
     isWhite,
-    setupEventHandlers,
+    setupEventHandlers
 } from './CubefulGame.common'
 import {
     noDoubleEngine,
     setRedAutoOp,
-    setWhiteAutoOp,
+    setWhiteAutoOp
 } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null

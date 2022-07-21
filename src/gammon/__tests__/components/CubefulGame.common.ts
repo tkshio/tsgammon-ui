@@ -3,17 +3,17 @@ import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { BGEventHandlersExtensible, buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import {
     CheckerPlayListeners,
     setCPStateListener
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { BGEventHandlersExtensible, buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
-import { MatchState } from 'tsgammon-core/dispatchers/MatchState'
 import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { MatchState } from 'tsgammon-core/MatchState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { matchStateAddOn } from '../../components/useMatchState'
 
