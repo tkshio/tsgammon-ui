@@ -1,30 +1,26 @@
 import { Fragment, useState } from 'react'
-import { score, standardConf } from 'tsgammon-core'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { matchRecorderAsBG } from 'tsgammon-core/records/MatchRecorder'
+import { standardConf } from 'tsgammon-core'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator
+    whiteSGAutoOperator,
 } from '../operators/autoOperators'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
-    whiteRSAutoOperator
+    whiteRSAutoOperator,
 } from '../operators/RSAutoOperators'
-import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { Button } from '../uiparts/Button'
 import { Buttons } from '../uiparts/Buttons'
 import { Dialog } from '../uiparts/Dialog'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
-import { useMatchState } from '../useMatchState'
-import { BGMatch, BGMatchProps, BGMatchRecordConf } from './BGMatch'
+import { BGMatch, BGMatchProps } from './BGMatch'
 
 import './bgMain.css'
-
+import { useBGRecorder } from '../useBGRecorder'
 
 export type BGMainProps = {
     //
@@ -50,7 +46,7 @@ type BGMainPlayState = _BGMainState & {
 }
 export function BGMain(props: BGMainProps) {
     const labels = { red: 'Red', white: 'White' }
-    const gameConf = { ...standardConf }
+    const gameConf = standardConf
     const [matchKey, setMatchKey] = useState(0)
     const initialConf: BGMainConfState = {
         tag: 'CONF',
@@ -60,19 +56,11 @@ export function BGMain(props: BGMainProps) {
         recordMoves: true,
     }
     const [state, setState] = useState<BGMainState>(initialConf)
-
-    // マッチの状態管理のみを行う
-    const { matchState, matchStateListener, resetMatchState } = useMatchState(
-        score(),
-        toMatchPoint(initialConf),
-        gameConf
+    const bgRecorder = useBGRecorder(
+        initialConf.recordMoves,
+        gameConf,
+        toMatchLength(initialConf)
     )
-
-    // マッチの記録を行う
-    const { matchRecord, matchRecorder, resetMatchRecord } =
-        useMatchRecorder<BGState>(gameConf, toMatchPoint(initialConf))
-    const matchRecordListener = matchRecorderAsBG(gameConf, matchRecorder)
-
     if (state.tag === 'CONF') {
         return (
             <Fragment>
@@ -90,39 +78,31 @@ export function BGMain(props: BGMainProps) {
                 <Button
                     id="startBGMatch"
                     onClick={() => {
-                        setState({
+                        const newState: BGMainPlayState = {
                             ...state,
                             tag: 'PLAY',
                             selected: state.selected,
                             isTerminating: false,
-                        })
+                        }
+                        setState(newState)
+                        bgRecorder.resetMatchLength(
+                            gameConf,
+                            toMatchLength(newState)
+                        )
                     }}
                 />
             </Fragment>
         )
     } else {
-        const addRecorderConf = (state: BGMainPlayState): BGMatchRecordConf => {
-            if (state.recordMoves) {
-                return {
-                    recordMatch: true,
-                    matchRecord,
-                    matchRecorder,
-                    matchRecordListener,
-                }
-            } else {
-                return {
-                    recordMatch: false,
-                    matchState,
-                    matchStateListener,
-                }
-            }
-        }
         const bgMatchProps: BGMatchProps = {
+            gameConf,
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
-            ...addRecorderConf(state),
+            recordMatch: state.recordMoves,
+            matchLength: toMatchLength(state),
+            bgRecorder,
         }
 
         return (
@@ -155,11 +135,6 @@ export function BGMain(props: BGMainProps) {
                             recordMoves: !state.recordMoves,
                         }
                         setState(nextState)
-                        if (nextState.recordMoves) {
-                            resetMatchRecord(gameConf, toMatchPoint(nextState))
-                        } else {
-                            resetMatchState(toMatchPoint(nextState))
-                        }
                     }}
                 />
                 <label htmlFor={id}>record moves</label>
@@ -226,13 +201,8 @@ export function BGMain(props: BGMainProps) {
     function onEndOfMatch(state: BGMainState) {
         setMatchKey((prev) => prev + 1)
         setState({ ...state, tag: 'CONF', selected: state.selected })
-        if (state.recordMoves) {
-            resetMatchRecord(gameConf, toMatchPoint(state))
-        } else {
-            resetMatchState(toMatchPoint(state))
-        }
     }
-    function toMatchPoint(state: BGMainState) {
+    function toMatchLength(state: BGMainState) {
         switch (state.selected) {
             case '1pt':
                 return 1
@@ -269,14 +239,6 @@ export function BGMain(props: BGMainProps) {
                                 selected: value,
                             }
                             setState(nextState)
-                            if (nextState.recordMoves) {
-                                resetMatchRecord(
-                                    gameConf,
-                                    toMatchPoint(nextState)
-                                )
-                            } else {
-                                resetMatchState(toMatchPoint(nextState))
-                            }
                         }}
                     />
                     <label htmlFor={value}>{value}</label>

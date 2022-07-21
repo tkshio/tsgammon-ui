@@ -1,19 +1,17 @@
 import { EOGStatus } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
+import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListeners,
+    rollListeners
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { MatchState, shouldSkipCubeAction } from 'tsgammon-core/MatchState'
-import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { MatchRecorder } from 'tsgammon-core/records/MatchRecorder'
+import { shouldSkipCubeAction } from 'tsgammon-core/MatchState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../CubefulGame'
@@ -23,13 +21,14 @@ import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps,
+    RecordedCubefulGameProps
 } from '../recordedGames/RecordedCubefulGame'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
+import { BGRecorder } from '../useBGRecorder'
 
 export type BGMatchProps = {
     gameConf?: GameConf
@@ -40,21 +39,11 @@ export type BGMatchProps = {
     diceSource?: DiceSource
     onEndOfMatch?: () => void
     dialog?: JSX.Element
-} & Partial<RollListener & BGListener> &
-    BGMatchRecordConf
-    
-export type BGMatchRecordConf =
-    | {
-          recordMatch: true
-          matchRecord: MatchRecord<BGState>
-          matchRecorder: MatchRecorder<BGState>
-          matchRecordListener: Partial<BGListener>
-      }
-    | {
-          recordMatch: false
-          matchState: MatchState
-          matchStateListener: Partial<BGListener>
-      }
+    recordMatch?: boolean
+    matchLength: number
+    bgRecorder:BGRecorder
+} & Partial<RollListener & BGListener>
+
 /**
  * 回数無制限の対戦を行うコンポーネント
  * @param props ゲーム設定
@@ -78,17 +67,15 @@ export function BGMatch(props: BGMatchProps) {
             //
         },
         dialog,
-        recordMatch,
+        bgRecorder
     } = props
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
         rollListener: { onRollRequest },
     })
-    const matchState = recordMatch
-        ? props.matchRecord.matchState
-        : props.matchState
 
+    const { matchState, matchListener } = bgRecorder
     // 盤面の指定があれば、そこから開始
     const initialBGState = toState(gameSetup)
 
@@ -103,7 +90,7 @@ export function BGMatch(props: BGMatchProps) {
     const listeners: Partial<BGListener>[] = [
         setBGStateListener(defaultBGState(gameConf), setBGState),
         gameKeyAddOn,
-        recordMatch ? props.matchRecordListener : props.matchStateListener,
+        matchListener,
     ]
 
     // 降参機能
@@ -146,18 +133,17 @@ export function BGMatch(props: BGMatchProps) {
         dialog,
     }
 
-    if (recordMatch) {
-        const { matchRecord, matchRecorder } = props
+    if (bgRecorder.recordMatch) {
         // 記録された状態からの復元
         const onResumeState = (index: number) => {
-            const { state } = matchRecorder.resumeTo(index)
+            const { state } = bgRecorder.matchRecorder.resumeTo(index)
             setBGState(state)
             // ここでautoOperationも実行しないといけないが、手を変更できたほうが便利だろう
         }
 
         const recordedMatchProps: RecordedCubefulGameProps = {
             ...cbProps,
-            matchRecord,
+            matchRecord: bgRecorder.matchRecord,
             onResumeState,
         }
 
@@ -171,3 +157,5 @@ export function BGMatch(props: BGMatchProps) {
         )
     }
 }
+
+
