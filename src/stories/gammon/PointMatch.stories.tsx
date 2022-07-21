@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
-import { CubeState, score } from 'tsgammon-core'
+import { CubeState, DicePip, DiceRoll, score } from 'tsgammon-core'
 import { ResignOffer } from 'tsgammon-core/ResignOffer'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { PointMatch } from '../../gammon/components/apps/PointMatch'
@@ -89,6 +89,21 @@ endWithAutoResign.args = {
             offerResponse:alwaysAccept
         }
     )},
+}
+
+export const doubletInOpening = Template.bind({})
+doubletInOpening.args = {
+    diceSource: {
+        roll: doublet,
+        openingRoll: () => {
+            throw Error()
+        },
+    },
+}
+
+function doublet(): DiceRoll {
+    const n = (Math.floor(Math.random() * 6) + 1) as DicePip
+    return { dice1: n, dice2: n }
 }
 
 function alwaysAccept(_: ResignOffer, doAccept: () => void) {
