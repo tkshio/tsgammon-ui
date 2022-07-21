@@ -52,5 +52,6 @@
 
     --cubeColor: black;
     --cubeFontColor: white;
-    --cubeMaxColor: gray;
+    --cubeMaxColor: darkgray;
+    --cubeBorderColor: black;
 }

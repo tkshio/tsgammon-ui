@@ -58,5 +58,8 @@ cubeSet.args = {
         { cube: cube(128) },
         { cube: cube(256) },
         { cube: cube(512) },
+        { cube: cube(1), isCrawford: true },
+        { cube: cube(1), isCubeMaxForMatch: true },
+        { cube: cube(1, undefined, 1) },
     ],
 }
