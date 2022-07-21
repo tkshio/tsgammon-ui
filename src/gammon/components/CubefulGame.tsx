@@ -180,8 +180,8 @@ function cubeResponseDialog(
         <CubeResponseDialog
             {...{
                 player: bgState.cbState.isRed
-                    ? playersConf.red.name
-                    : playersConf.white.name,
+                    ? playersConf.white.name
+                    : playersConf.red.name,
                 onTake: () => {
                     eventHandlers.onTake?.(bgState)
                 },
