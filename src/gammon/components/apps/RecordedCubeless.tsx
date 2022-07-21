@@ -9,6 +9,7 @@ import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatch
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { matchRecorderAsSG } from 'tsgammon-core/records/MatchRecorder'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { operateWithSG } from '../operateWithSG'
 import { RSOperator } from '../operators/RSOperator'
@@ -17,13 +18,13 @@ import {
     RecordedSingleGame,
     RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
-import { useMatchRecorderForSingleGame } from '../recordedGames/useMatchRecorderForSingleGame'
+import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 import { useSingleGameState } from '../useSingleGameState'
 
 export type UnlimitedSingleGameProps = {
     gameConf?: GameConf
-    playersConf?:PlayersConf
+    playersConf?: PlayersConf
     state?: GameSetup
     autoOperators?: { sg?: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
@@ -59,12 +60,12 @@ export function UnlimitedSingleGame(props: UnlimitedSingleGameProps) {
     })
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
-    const { handlers:_handlers, matchRecord } = useRecordedCubeless(
+    const { handlers: _handlers, matchRecord } = useRecordedCubeless(
         gameConf,
         setSGState,
         rollListener
     )
-    const handlers = operateWithSG( autoOperators.sg, _handlers)
+    const handlers = operateWithSG(autoOperators.sg, _handlers)
 
     const recordedMatchProps: RecordedSingleGameProps = {
         sgState,
@@ -81,12 +82,15 @@ function useRecordedCubeless(
     setSGState: (sgState: SGState) => void,
     rollListener: RollListener = rollListeners()
 ) {
-    const { matchRecord, matchRecorder, matchRecordAddOn } =
-        useMatchRecorderForSingleGame(gameConf)
+    const { matchRecord, matchRecorder } = useMatchRecorder<SGState>(
+        gameConf,
+        0
+    )
+    const matchRecordListener = matchRecorderAsSG(matchRecorder)
     const handlers = buildSGEventHandler(
         rollListener,
         setSGStateListener(defaultSGState(gameConf), setSGState)
-    ).addListeners(matchRecordAddOn)
+    ).addListeners(matchRecordListener)
     return {
         handlers: {
             ...handlers,

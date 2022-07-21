@@ -1,23 +1,30 @@
 import { Fragment, useState } from 'react'
-import { Button } from '../uiparts/Button'
-import { PointMatch, PointMatchProps } from './PointMatch'
-import './bgMain.css'
-import { Dialog } from '../uiparts/Dialog'
-import { Buttons } from '../uiparts/Buttons'
+import { score, standardConf } from 'tsgammon-core'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { matchRecorderAsBG } from 'tsgammon-core/records/MatchRecorder'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator,
+    whiteSGAutoOperator
 } from '../operators/autoOperators'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
-    whiteRSAutoOperator,
+    whiteRSAutoOperator
 } from '../operators/RSAutoOperators'
+import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
+import { Button } from '../uiparts/Button'
+import { Buttons } from '../uiparts/Buttons'
+import { Dialog } from '../uiparts/Dialog'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
+import { useMatchState } from '../useMatchState'
+import { BGMatch, BGMatchProps, BGMatchRecordConf } from './BGMatch'
+
+import './bgMain.css'
+
 
 export type BGMainProps = {
     //
@@ -30,32 +37,48 @@ type BGMainState = BGMainConfState | BGMainPlayState
 type _BGMainState = {
     autoOp: { red: boolean; white: boolean }
     playersConf: PlayersConf
+    selected: MatchChoice
+    recordMoves: boolean
 }
 
 type BGMainConfState = _BGMainState & {
     tag: 'CONF'
-    selected: MatchChoice
 }
 type BGMainPlayState = _BGMainState & {
     tag: 'PLAY'
-    selected: MatchChoice
     isTerminating: boolean
 }
 export function BGMain(props: BGMainProps) {
-    const labels = {red:'Red', white:'White'}
-
+    const labels = { red: 'Red', white: 'White' }
+    const gameConf = { ...standardConf }
     const [matchKey, setMatchKey] = useState(0)
-    const [state, setState] = useState<BGMainState>({
+    const initialConf: BGMainConfState = {
         tag: 'CONF',
         autoOp: { red: true, white: false },
         playersConf: defaultPlayersConf,
         selected: defaultChoice,
-    })
+        recordMoves: true,
+    }
+    const [state, setState] = useState<BGMainState>(initialConf)
+
+    // マッチの状態管理のみを行う
+    const { matchState, matchStateListener, resetMatchState } = useMatchState(
+        score(),
+        toMatchPoint(initialConf),
+        gameConf
+    )
+
+    // マッチの記録を行う
+    const { matchRecord, matchRecorder, resetMatchRecord } =
+        useMatchRecorder<BGState>(gameConf, toMatchPoint(initialConf))
+    const matchRecordListener = matchRecorderAsBG(gameConf, matchRecorder)
 
     if (state.tag === 'CONF') {
         return (
             <Fragment>
                 <h2>Configuration</h2>
+                <h3>Record Moves</h3>
+                {recordMovesConf(state)}
                 <h3>Match Point</h3>
                 {matchPointConf(state)}
                 <p />
@@ -78,17 +101,33 @@ export function BGMain(props: BGMainProps) {
             </Fragment>
         )
     } else {
-        const pointMatchProps: PointMatchProps = {
+        const addRecorderConf = (state: BGMainPlayState): BGMatchRecordConf => {
+            if (state.recordMoves) {
+                return {
+                    recordMatch: true,
+                    matchRecord,
+                    matchRecorder,
+                    matchRecordListener,
+                }
+            } else {
+                return {
+                    recordMatch: false,
+                    matchState,
+                    matchStateListener,
+                }
+            }
+        }
+        const bgMatchProps: BGMatchProps = {
             onEndOfMatch: () => onEndOfMatch(state),
-            matchLength: toMatchPoint(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
+            ...addRecorderConf(state),
         }
 
         return (
             <Fragment>
-                <PointMatch {...pointMatchProps} key={matchKey} />
+                <BGMatch {...bgMatchProps} key={matchKey} />
                 {autoOpConf(state)}
                 {!state.isTerminating && (
                     <Button
@@ -98,6 +137,32 @@ export function BGMain(props: BGMainProps) {
                         }}
                     />
                 )}
+            </Fragment>
+        )
+    }
+    function recordMovesConf(state: BGMainConfState) {
+        const id = 'recordMoves'
+        return (
+            <Fragment>
+                <input
+                    type="checkbox"
+                    id={id}
+                    value={id}
+                    checked={state.recordMoves}
+                    onChange={() => {
+                        const nextState = {
+                            ...state,
+                            recordMoves: !state.recordMoves,
+                        }
+                        setState(nextState)
+                        if (nextState.recordMoves) {
+                            resetMatchRecord(gameConf, toMatchPoint(nextState))
+                        } else {
+                            resetMatchState(toMatchPoint(nextState))
+                        }
+                    }}
+                />
+                <label htmlFor={id}>record moves</label>
             </Fragment>
         )
     }
@@ -144,9 +209,12 @@ export function BGMain(props: BGMainProps) {
                         value={id}
                         checked={state.autoOp[id]}
                         onChange={() =>
-                            onChange({
-                                ...state.autoOp,
-                                [id]: !state.autoOp[id],
+                            setState({
+                                ...state,
+                                autoOp: {
+                                    ...state.autoOp,
+                                    [id]: !state.autoOp[id],
+                                },
                             })
                         }
                     />
@@ -154,13 +222,15 @@ export function BGMain(props: BGMainProps) {
                 </Fragment>
             )
         }
-        function onChange(autoOp: { red: boolean; white: boolean }) {
-            setState({ ...state, autoOp })
-        }
     }
     function onEndOfMatch(state: BGMainState) {
         setMatchKey((prev) => prev + 1)
         setState({ ...state, tag: 'CONF', selected: state.selected })
+        if (state.recordMoves) {
+            resetMatchRecord(gameConf, toMatchPoint(state))
+        } else {
+            resetMatchState(toMatchPoint(state))
+        }
     }
     function toMatchPoint(state: BGMainState) {
         switch (state.selected) {
@@ -193,7 +263,20 @@ export function BGMain(props: BGMainProps) {
                         value={value}
                         checked={conf.selected === value}
                         onChange={() => {
-                            setState({ ...conf, tag: 'CONF', selected: value })
+                            const nextState: BGMainConfState = {
+                                ...conf,
+                                tag: 'CONF',
+                                selected: value,
+                            }
+                            setState(nextState)
+                            if (nextState.recordMoves) {
+                                resetMatchRecord(
+                                    gameConf,
+                                    toMatchPoint(nextState)
+                                )
+                            } else {
+                                resetMatchState(toMatchPoint(nextState))
+                            }
                         }}
                     />
                     <label htmlFor={value}>{value}</label>
@@ -237,7 +320,13 @@ export function BGMain(props: BGMainProps) {
                         type="field"
                         value={state.playersConf[id].name}
                         onChange={(e) => {
-                            setState({ ...state,playersConf:{...state.playersConf, [id]:{name:e.target.value}} })
+                            setState({
+                                ...state,
+                                playersConf: {
+                                    ...state.playersConf,
+                                    [id]: { name: e.target.value },
+                                },
+                            })
                         }}
                     />
                 </p>

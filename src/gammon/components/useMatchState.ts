@@ -7,7 +7,7 @@ import {
     MatchState,
     MatchStateEoG,
     matchStateEoG,
-    MatchStateInPlay
+    MatchStateInPlay,
 } from 'tsgammon-core/MatchState'
 import { StakeConf } from 'tsgammon-core/StakeConf'
 
@@ -17,41 +17,43 @@ export function useMatchState(
     stakeConf: StakeConf = { jacobyRule: false }
 ): {
     matchState: MatchState
-    initialMatchState: MatchStateInPlay
-    matchStateAddOn: Partial<BGListener>
-    resetMatchState: () => void
+    matchStateListener: Partial<BGListener>
+    resetMatchState: (matchLength: number) => void
 } {
-    const initialMatchState: MatchStateInPlay = {
-        isEoG: false,
-        matchLength,
-        scoreBefore: matchScore,
-        score: matchScore,
-        stakeConf,
-        isCrawford: matchLength === 1,
-    }
-    const [matchState, setMatchState] = useState<MatchState>(initialMatchState)
+    const [matchState, setMatchState] = useState<MatchState>(
+        initialMatchState(matchScore, matchLength)
+    )
 
     return {
         matchState,
-        initialMatchState,
         resetMatchState,
-        matchStateAddOn: matchStateAddOn(matchState, setMatchState),
+        matchStateListener: matchStateListener(matchState, setMatchState),
     }
-    function resetMatchState() {
-        if (matchState.isEoG) {
-            const resetState: MatchStateInPlay = {
-                ...matchState,
-                isEoG: false,
-            }
-            setMatchState(resetState)
+
+    function initialMatchState(
+        matchScore: Score,
+        matchLength: number
+    ): MatchStateInPlay {
+        return {
+            isEoG: false,
+            matchLength,
+            scoreBefore: matchScore,
+            score: matchScore,
+            stakeConf,
+            isCrawford: matchLength === 1,
         }
     }
+
+    function resetMatchState(matchLength: number) {
+        setMatchState(initialMatchState(score(), matchLength))
+    }
 }
-export function matchStateAddOn(
+
+export function matchStateListener(
     matchState: MatchState,
     setMatchState: (matchState: MatchState) => void
 ): Partial<BGListener> {
-    const onEndOfBGGame = (bgState:{cbState: CBEoG, sgState:SGState}) => {
+    const onEndOfBGGame = (bgState: { cbState: CBEoG; sgState: SGState }) => {
         setMatchState(eogMatchState(matchState, bgState.cbState))
     }
     const onBGGameStarted = () => {

@@ -1,7 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react'
+import { GameConf, Score, score } from 'tsgammon-core'
+import { MatchStateInPlay, matchStateForUnlimitedMatch, matchStateForPointMatch } from 'tsgammon-core/MatchState'
 import {
     addPlyRecord,
     discardCurrentGame, eogRecord, MatchRecord,
+    matchRecordInPlay,
     recordFinishedGame, trimPlyRecords
 } from 'tsgammon-core/records/MatchRecord'
 import { MatchRecorder } from 'tsgammon-core/records/MatchRecorder'
@@ -13,15 +16,23 @@ import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
  *
  * 対局状態の変化、指し手の追加によってゲームの進行と同時に記録も更新される。
  */
-export function useMatchRecorder<T>(
-    initialMatchRecord: MatchRecord<T>
-): [
-    MatchRecord<T>,
-    MatchRecorder<T>,
-    Dispatch<SetStateAction<MatchRecord<T>>>
-] {
-    const [matchRecord, setMatchRecord] =
-        useState<MatchRecord<T>>(initialMatchRecord)
+export 
+function useMatchRecorder<T>(
+    gameConf: GameConf,
+    matchLength: number
+): {
+    matchRecord: MatchRecord<T>
+    matchRecorder: MatchRecorder<T>
+    setMatchRecord: Dispatch<SetStateAction<MatchRecord<T>>>
+    resetMatchRecord: (gameConf: GameConf, matchLength: number) => void
+} {
+    const initialMatchState: MatchStateInPlay = matchStateInPlay(
+        gameConf,
+        matchLength
+    )
+    const [matchRecord, setMatchRecord] = useState<MatchRecord<T>>(
+        matchRecordInPlay(gameConf, initialMatchState)
+    )
 
     function recordPly(plyRecord: PlyRecordInPlay, state: T) {
         setMatchRecord((prev) =>
@@ -49,6 +60,10 @@ export function useMatchRecorder<T>(
         return matchRecord.curGameRecord.plyRecords[index]
     }
 
+    function resetMatchRecord(gameConf: GameConf, matchLength: number) {
+        const initialMatchState = matchStateInPlay(gameConf, matchLength)
+        setMatchRecord(matchRecordInPlay(gameConf, initialMatchState))
+    }
     const matchRecorder: MatchRecorder<T> = {
         recordEoG,
         resetCurGame,
@@ -56,5 +71,15 @@ export function useMatchRecorder<T>(
         resumeTo,
     }
 
-    return [matchRecord, matchRecorder, setMatchRecord]
+    return { matchRecord, matchRecorder, setMatchRecord, resetMatchRecord }
+}
+
+function matchStateInPlay(
+    gameConf: GameConf,
+    matchLength: number,
+    initScore: Score = score()
+): MatchStateInPlay {
+    return matchLength === 0
+        ? matchStateForUnlimitedMatch(initScore, gameConf.jacobyRule)
+        : matchStateForPointMatch(matchLength, initScore, matchLength === 1)
 }

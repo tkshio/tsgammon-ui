@@ -15,7 +15,7 @@ import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchState } from 'tsgammon-core/MatchState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { matchStateAddOn } from '../../components/useMatchState'
+import { matchStateListener } from '../../components/useMatchState'
 
 export const BoardOp = {
     clickPoint: (pos: number) => {
@@ -73,7 +73,7 @@ export function setupEventHandlers(
     BGEventHandlersExtensible & {
         diceSource: DiceSource
     } {
-    const addOn = matchStateAddOn(
+    const addOn = matchStateListener(
         state.matchState,
         (matchState: MatchState) => {
             state.matchState = matchState

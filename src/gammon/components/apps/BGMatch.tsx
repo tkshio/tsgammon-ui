@@ -1,4 +1,4 @@
-import { EOGStatus, Score } from 'tsgammon-core'
+import { EOGStatus } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
@@ -7,44 +7,54 @@ import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListeners
+    rollListeners,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import {
-    shouldSkipCubeAction
-} from 'tsgammon-core/MatchState'
-import { matchRecorderAsBG } from 'tsgammon-core/records/MatchRecorder'
+import { MatchState, shouldSkipCubeAction } from 'tsgammon-core/MatchState'
+import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { MatchRecorder } from 'tsgammon-core/records/MatchRecorder'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
+import { CubefulGame } from '../CubefulGame'
 import { operateWithBGandRS } from '../operateWithRS'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
 import {
     RecordedCubefulGame,
-    RecordedCubefulGameProps
+    RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
-import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
 import { useBGState } from '../useBGState'
+import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
 
-export type PointMatchProps = {
+export type BGMatchProps = {
     gameConf?: GameConf
-    matchLength?: number
-    matchScore?: Score
     playersConf?: PlayersConf
-    isCrawford?: boolean
-    board?: GameSetup
+    gameSetup?: GameSetup
     autoOperators?: { cb: CBOperator; sg: SGOperator; rs?: RSOperator }
     isRollHandlerEnabled?: boolean
     diceSource?: DiceSource
     onEndOfMatch?: () => void
     dialog?: JSX.Element
-} & Partial<RollListener>
-
+} & Partial<RollListener & BGListener> &
+    BGMatchRecordConf
+    
+export type BGMatchRecordConf =
+    | {
+          recordMatch: true
+          matchRecord: MatchRecord<BGState>
+          matchRecorder: MatchRecorder<BGState>
+          matchRecordListener: Partial<BGListener>
+      }
+    | {
+          recordMatch: false
+          matchState: MatchState
+          matchStateListener: Partial<BGListener>
+      }
 /**
  * 回数無制限の対戦を行うコンポーネント
  * @param props ゲーム設定
@@ -53,12 +63,12 @@ export type PointMatchProps = {
  * @param props.initialScore スコアの初期値
  * @constructor
  */
-export function PointMatch(props: PointMatchProps) {
+export function BGMatch(props: BGMatchProps) {
     const {
         gameConf = standardConf,
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
-        matchLength = 0,
         playersConf = defaultPlayersConf,
+        gameSetup,
         isRollHandlerEnabled = false,
         diceSource = randomDiceSource,
         onRollRequest = () => {
@@ -68,37 +78,32 @@ export function PointMatch(props: PointMatchProps) {
             //
         },
         dialog,
+        recordMatch,
     } = props
-
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,
         rollListener: { onRollRequest },
     })
+    const matchState = recordMatch
+        ? props.matchRecord.matchState
+        : props.matchState
 
     // 盤面の指定があれば、そこから開始
-    const initialBGState = toState(props.board)
+    const initialBGState = toState(gameSetup)
+
     // 状態管理
     const { bgState, setBGState } = useBGState(initialBGState)
+    // チェッカープレイ中の状態管理は、記録なしの時にのみ使用
+    const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
+
     // 1ゲームごとにユニークなKeyを採番する
     const { gameKey, gameKeyAddOn } = useGameKey()
 
-    // マッチポイントの管理
-    const { matchRecord, matchRecorder } = useMatchRecorder<BGState>(
-        gameConf,
-        matchLength
-    )
-    const matchRecordListener = matchRecorderAsBG(gameConf, matchRecorder)
-    // 記録された状態からの復元
-    const onResumeState = (index: number) => {
-        const { state } = matchRecorder.resumeTo(index)
-        setBGState(state)
-        // ここでautoOperationも実行しないといけないが、手を変更できたほうが便利だろう
-    }
     const listeners: Partial<BGListener>[] = [
         setBGStateListener(defaultBGState(gameConf), setBGState),
         gameKeyAddOn,
-        matchRecordListener,
+        recordMatch ? props.matchRecordListener : props.matchStateListener,
     ]
 
     // 降参機能
@@ -112,7 +117,7 @@ export function PointMatch(props: PointMatchProps) {
         bgState.cbState.tag !== 'CBOpening' &&
         bgState.cbState.tag !== 'CBEoG' &&
         shouldSkipCubeAction(
-            matchRecord.matchState,
+            matchState,
             bgState.cbState.cubeState.value,
             bgState.cbState.isRed
         )
@@ -131,17 +136,38 @@ export function PointMatch(props: PointMatchProps) {
         rsHandler
     )
 
-    const recordedMatchProps: RecordedCubefulGameProps = {
+    const cbProps = {
         resignState,
-        matchRecord,
         playersConf,
         bgState,
         ...bgEventHandler,
         ...rsDialogHandler,
-        onResumeState,
         onEndOfMatch,
         dialog,
     }
 
-    return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />
+    if (recordMatch) {
+        const { matchRecord, matchRecorder } = props
+        // 記録された状態からの復元
+        const onResumeState = (index: number) => {
+            const { state } = matchRecorder.resumeTo(index)
+            setBGState(state)
+            // ここでautoOperationも実行しないといけないが、手を変更できたほうが便利だろう
+        }
+
+        const recordedMatchProps: RecordedCubefulGameProps = {
+            ...cbProps,
+            matchRecord,
+            onResumeState,
+        }
+
+        return <RecordedCubefulGame key={gameKey} {...recordedMatchProps} />
+    } else {
+        return (
+            <CubefulGame
+                key={gameKey}
+                {...{ ...cbProps, matchState, cpState, ...cpListeners }}
+            />
+        )
+    }
 }

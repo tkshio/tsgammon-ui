@@ -48,7 +48,7 @@ export function MoneyGame(props: MoneyGameProps) {
     const matchLength = 0
     const initialBGState = toState(setup)
     const { bgState, setBGState } = useBGState(initialBGState)
-    const { matchState, matchStateAddOn } = useMatchState(
+    const { matchState, matchStateListener: matchStateAddOn } = useMatchState(
         matchScore,
         matchLength,
         gameConf

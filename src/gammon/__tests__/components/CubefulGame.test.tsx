@@ -9,7 +9,7 @@ import {
     setupEventHandlers,
 } from './CubefulGame.common'
 import { CubefulGame } from '../../components/CubefulGame'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
 
 let container: HTMLElement | null = null
 
