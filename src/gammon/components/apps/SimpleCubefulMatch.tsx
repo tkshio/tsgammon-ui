@@ -50,9 +50,9 @@ export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
 
     const { matchState, matchStateListener: matchStateAddOn } = useMatchState(
-        matchScore,
+        gameConf,
         matchLength,
-        gameConf
+        matchScore
     )
     const rollListener = rollListeners({
         isRollHandlerEnabled,

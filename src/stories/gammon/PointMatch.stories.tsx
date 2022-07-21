@@ -3,7 +3,6 @@ import { ComponentProps } from 'react'
 import { CubeState, DicePip, DiceRoll, score } from 'tsgammon-core'
 import { ResignOffer } from 'tsgammon-core/ResignOffer'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { PointMatch } from '../../gammon/components/apps/PointMatch'
 import {
     redCBAutoOperator,
     redSGAutoOperator,
@@ -12,14 +11,15 @@ import {
     bothRSAutoOperator,
     redRSAutoOperator
 } from '../../gammon/components/operators/RSAutoOperators'
+import { CubefulMatch } from '../../gammon/components/apps/CubefulMatch'
 export default {
     title: 'PointMatch',
-    component: PointMatch,
+    component: CubefulMatch,
     parameters: {},
 } as Meta
 
-const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
-    <PointMatch {...args} />
+const Template: Story<ComponentProps<typeof CubefulMatch>> = (args) => (
+    <CubefulMatch {...args} />
 )
 
 export const cpuPlaysRed3pt = Template.bind({})
@@ -35,7 +35,7 @@ const minimalPieces = [
 export const endGame3pt = Template.bind({})
 endGame3pt.args = {
     matchLength: 3,
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 2,
@@ -47,7 +47,7 @@ export const goIntoCrawford = Template.bind({})
 goIntoCrawford.args = {
     matchLength: 3,
     matchScore: score({ redScore: 1, whiteScore: 1 }),
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 2,
@@ -61,7 +61,7 @@ endOfMatch.args = {
     matchLength: 3,
     matchScore: score({ redScore: 1, whiteScore: 2 }),
     isCrawford: true,
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 2,
@@ -75,7 +75,7 @@ endWithAutoResign.args = {
     matchLength: 3,
     matchScore: score({ redScore: 1, whiteScore: 2 }),
     isCrawford: true,
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.TOROLL_WHITE,
         absPos: minimalPieces,
     },

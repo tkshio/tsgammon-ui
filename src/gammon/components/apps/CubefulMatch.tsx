@@ -1,4 +1,4 @@
-import { EOGStatus } from 'tsgammon-core'
+import { EOGStatus, score, Score } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
@@ -28,9 +28,9 @@ import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
-import { BGRecorder } from '../useBGRecorder'
+import { useBGRecorder } from '../useBGRecorder'
 
-export type BGMatchProps = {
+export type CubefulMatchProps = {
     gameConf?: GameConf
     playersConf?: PlayersConf
     gameSetup?: GameSetup
@@ -40,7 +40,9 @@ export type BGMatchProps = {
     onEndOfMatch?: () => void
     dialog?: JSX.Element
     matchLength: number
-    bgRecorder: BGRecorder
+    recordMatch?: boolean
+    isCrawford?: boolean
+    matchScore?: Score
 } & Partial<RollListener & BGListener>
 
 /**
@@ -51,7 +53,7 @@ export type BGMatchProps = {
  * @param props.initialScore スコアの初期値
  * @constructor
  */
-export function CubefulMatch(props: BGMatchProps) {
+export function CubefulMatch(props: CubefulMatchProps) {
     const {
         gameConf = standardConf,
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
@@ -66,8 +68,12 @@ export function CubefulMatch(props: BGMatchProps) {
             //
         },
         dialog,
-        bgRecorder,
+        matchLength,
+        isCrawford = false,
+        matchScore = score(),
+        recordMatch = false,
     } = props
+    const bgRecorder = useBGRecorder(gameConf, matchLength, matchScore, isCrawford)(recordMatch)
     const rollListener = rollListeners({
         isRollHandlerEnabled,
         diceSource,

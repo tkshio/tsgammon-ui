@@ -12,16 +12,17 @@ import {
 import { StakeConf } from 'tsgammon-core/StakeConf'
 
 export function useMatchState(
+    stakeConf: StakeConf = { jacobyRule: false },
+    matchLength: number,
     matchScore: Score = score(),
-    matchLength = 0,
-    stakeConf: StakeConf = { jacobyRule: false }
+    isCrawford = false
 ): {
     matchState: MatchState
     matchStateListener: Partial<BGListener>
     resetMatchState: (matchLength: number) => void
 } {
     const [matchState, setMatchState] = useState<MatchState>(
-        initialMatchState(matchScore, matchLength)
+        initialMatchState(matchScore, matchLength, isCrawford)
     )
 
     return {
@@ -32,7 +33,8 @@ export function useMatchState(
 
     function initialMatchState(
         matchScore: Score,
-        matchLength: number
+        matchLength: number,
+        isCrawford: boolean
     ): MatchStateInPlay {
         return {
             isEoG: false,
@@ -40,12 +42,12 @@ export function useMatchState(
             scoreBefore: matchScore,
             score: matchScore,
             stakeConf,
-            isCrawford: matchLength === 1,
+            isCrawford: isCrawford || matchLength === 1,
         }
     }
 
     function resetMatchState(matchLength: number) {
-        setMatchState(initialMatchState(score(), matchLength))
+        setMatchState(initialMatchState(score(), matchLength, false))
     }
 }
 

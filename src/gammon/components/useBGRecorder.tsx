@@ -1,4 +1,4 @@
-import { score } from 'tsgammon-core'
+import { Score, score } from 'tsgammon-core'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { GameConf } from 'tsgammon-core/GameConf'
@@ -24,15 +24,17 @@ export type BGRecorder = {
     | { recordMatch: false }
 )
 export function useBGRecorder(
-    recordMatch: boolean,
     gameConf: GameConf,
-    matchLength: number
+    matchLength: number,
+    matchScore:Score = score(),
+    isCrawford = false
 ): (recordMatch: boolean) => BGRecorder {
     // マッチの状態管理のみを行う
     const { matchState, matchStateListener, resetMatchState } = useMatchState(
-        score(),
+        gameConf,
         matchLength,
-        gameConf
+        matchScore,
+        isCrawford
     )
 
     // マッチの記録を行う

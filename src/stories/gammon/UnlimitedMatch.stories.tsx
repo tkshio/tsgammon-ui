@@ -2,7 +2,7 @@ import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { PointMatch } from '../../gammon/components/apps/PointMatch'
+import { CubefulMatch } from '../../gammon/components/apps/CubefulMatch'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -14,12 +14,12 @@ import {
 
 export default {
     title: 'UnlimitedMatch',
-    component: PointMatch,
+    component: CubefulMatch,
     parameters: {},
 } as Meta
 
-const Template: Story<ComponentProps<typeof PointMatch>> = (args) => (
-    <PointMatch {...args} />
+const Template: Story<ComponentProps<typeof CubefulMatch>> = (args) => (
+    <CubefulMatch {...args} />
 )
 
 export const cpuPlaysRed = Template.bind({})
@@ -40,7 +40,7 @@ cpuPlaysBoth.args = {
 export const gameFromMidst = Template.bind({})
 const diceSource = presetDiceSource(1, 4, 2, 3)
 gameFromMidst.args = {
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_RED,
         dice1: 1,
         dice2: 2,
@@ -58,7 +58,7 @@ const minimalPieces = [
 ]
 export const endGame = Template.bind({})
 endGame.args = {
-    board: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 2,
