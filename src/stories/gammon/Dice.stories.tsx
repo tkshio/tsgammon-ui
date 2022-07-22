@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
-import { dices } from 'tsgammon-core/Dices'
+import { dice, DicePip } from 'tsgammon-core'
 import { blankDice, Dice, DiceProps } from '../../gammon/components/boards/Dice'
 
 const decolator =
@@ -58,4 +58,8 @@ diceSet.args = {
         { dices: dices(2, 3) },
         { dices: dices(4, 5, 6) },
     ],
+}
+
+function dices(...pips: DicePip[]) {
+    return pips.map((pip) => dice(pip))
 }
