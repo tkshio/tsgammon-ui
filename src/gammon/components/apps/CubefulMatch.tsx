@@ -87,7 +87,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
 
     const { matchState, matchListener } = bgRecorder
     // 盤面の指定があれば、そこから開始
-    const initialBGState = toState(gameSetup)
+    const initialBGState = toState(gameSetup, gameConf)
 
     // 状態管理
     const { bgState, setBGState } = useBGState(initialBGState)

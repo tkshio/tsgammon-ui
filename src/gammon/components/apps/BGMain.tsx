@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { standardConf } from 'tsgammon-core'
+import { honsugorokuConf, standardConf } from 'tsgammon-core'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -34,6 +34,7 @@ type _BGMainState = {
     playersConf: PlayersConf
     selected: MatchChoice
     recordMoves: boolean
+    rule: 'Standard' | 'HonSugoroku'
 }
 
 type BGMainConfState = _BGMainState & {
@@ -45,7 +46,6 @@ type BGMainPlayState = _BGMainState & {
 }
 export function BGMain(props: BGMainProps) {
     const labels = { red: 'Red', white: 'White' }
-    const gameConf = standardConf
     const [matchKey, setMatchKey] = useState(0)
     const initialConf: BGMainConfState = {
         tag: 'CONF',
@@ -53,6 +53,7 @@ export function BGMain(props: BGMainProps) {
         playersConf: defaultPlayersConf,
         selected: defaultChoice,
         recordMoves: true,
+        rule: 'Standard',
     }
     const [state, setState] = useState<BGMainState>(initialConf)
 
@@ -69,6 +70,8 @@ export function BGMain(props: BGMainProps) {
                 {playersConf(state)}
                 <h3>CPU plays</h3>
                 {autoOpConf(state)}
+                <h3>Rule</h3>
+                {gameRuleConf(state)}
                 <hr />
                 <Button
                     id="startBGMatch"
@@ -86,13 +89,14 @@ export function BGMain(props: BGMainProps) {
         )
     } else {
         const bgMatchProps: CubefulMatchProps = {
-            gameConf,
+            gameConf:
+                state.rule === 'Standard' ? standardConf : honsugorokuConf,
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
             matchLength: toMatchLength(state),
-            recordMatch:state.recordMoves
+            recordMatch: state.recordMoves,
         }
 
         return (
@@ -284,5 +288,42 @@ export function BGMain(props: BGMainProps) {
                 </p>
             )
         })
+    }
+    function gameRuleConf(state: BGMainConfState) {
+        const rules: ('Standard' | 'HonSugoroku')[] = [
+            'Standard',
+            'HonSugoroku',
+        ]
+        return (
+            <p>
+                {rules.map((s: 'Standard' | 'HonSugoroku') =>
+                    confItem(state, s)
+                )}
+            </p>
+        )
+        function confItem(
+            conf: BGMainConfState,
+            value: 'Standard' | 'HonSugoroku'
+        ) {
+            return (
+                <Fragment>
+                    <input
+                        type="radio"
+                        name="ruleConf"
+                        id={value}
+                        value={value}
+                        checked={conf.rule === value}
+                        onChange={() => {
+                            const nextState: BGMainConfState = {
+                                ...conf,
+                                rule: value,
+                            }
+                            setState(nextState)
+                        }}
+                    />
+                    <label htmlFor={value}>{value}</label>
+                </Fragment>
+            )
+        }
     }
 }
