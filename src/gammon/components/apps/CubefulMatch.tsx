@@ -23,7 +23,7 @@ import {
     RecordedCubefulGame,
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
-import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useGameKey } from '../useGameKey'

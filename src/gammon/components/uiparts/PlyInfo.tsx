@@ -4,7 +4,7 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { formatState } from 'tsgammon-core/dispatchers/utils/formatState'
 import { Score } from 'tsgammon-core/Score'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
-import { PlayersConf } from './PlayersConf'
+import { PlayersConf } from '../PlayersConf'
 import './plyInfo.css'
 
 export function PlyInfo(props: {

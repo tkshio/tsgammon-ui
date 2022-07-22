@@ -8,7 +8,7 @@ import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog } from './uiparts/ResignDialog'
 import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
-import { defaultPlayersConf, PlayersConf } from './uiparts/PlayersConf'
+import { defaultPlayersConf, PlayersConf } from './PlayersConf'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer

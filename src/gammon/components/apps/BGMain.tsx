@@ -16,7 +16,7 @@ import {
 import { Button } from '../uiparts/Button'
 import { Buttons } from '../uiparts/Buttons'
 import { Dialog } from '../uiparts/Dialog'
-import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
 import './bgMain.css'

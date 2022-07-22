@@ -5,7 +5,7 @@ import { PlyRecords, PlyRecordsProps } from './PlyRecords'
 import { SelectableStateListeners } from './useSelectableState'
 
 import './recordedGame.css'
-import { PlayersConf } from '../uiparts/PlayersConf'
+import { PlayersConf } from '../PlayersConf'
 
 export function RecordedGame<T>(
     props: {

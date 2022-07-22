@@ -2,7 +2,7 @@ import { EOGStatus, Score } from 'tsgammon-core'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
 import { formatStake } from 'tsgammon-core/utils/formatStake'
 import { Dialog } from './Dialog'
-import { defaultPlayersConf, PlayersConf } from './PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 
 export type EOGDialogProps = {
     stake: Score

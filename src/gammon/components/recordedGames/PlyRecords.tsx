@@ -4,7 +4,7 @@ import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
 import { formatPlyRecord } from 'tsgammon-core/records/utils/formatPlyRecord'
 import { score, Score } from 'tsgammon-core/Score'
 import { MoveFormatDirection } from 'tsgammon-core/utils/formatAbsMove'
-import { PlayersConf } from '../uiparts/PlayersConf'
+import { PlayersConf } from '../PlayersConf'
 
 import './plyRecords.css'
 

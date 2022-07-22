@@ -5,7 +5,7 @@ import { RSDialogHandler, RSToOffer } from '../RSDialogHandler'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
-import { defaultPlayersConf, PlayersConf } from './PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import './resignDialog.css'
 
 export type ResignDialogProps = {

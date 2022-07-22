@@ -19,7 +19,7 @@ import {
     RecordedSingleGameProps
 } from '../recordedGames/RecordedSingleGame'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
-import { defaultPlayersConf, PlayersConf } from '../uiparts/PlayersConf'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { useSingleGameState } from '../useSingleGameState'
 
 export type CublessProps = {
