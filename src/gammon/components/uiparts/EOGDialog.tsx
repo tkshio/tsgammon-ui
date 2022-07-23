@@ -28,7 +28,11 @@ export function EOGDialog(props: EOGDialogProps) {
     } = { ...props }
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
     const msgs = [
-        matchLength ? `${matchLength} points match` : 'Unlimited match',
+        matchLength === undefined
+            ? 'Cubeless game'
+            : matchLength !== 0
+            ? `${matchLength} points match`
+            : 'Unlimited match',
         ZERO_WIDTH_SPACE,
         formatStake(stake, eog, playersConf.red.name, playersConf.white.name) +
             (isEoM ? ' and won the match' : ''),
