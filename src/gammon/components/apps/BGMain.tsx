@@ -20,6 +20,7 @@ import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
 import './bgMain.css'
+import { Cubeless } from './Cubeless'
 
 export type BGMainProps = {
     //
@@ -99,6 +100,23 @@ export function BGMain(props: BGMainProps) {
             recordMatch: state.recordMoves,
         }
 
+        if ( state.rule === 'HonSugoroku'){
+            return (
+                <Fragment>
+                    <Cubeless {...bgMatchProps} key={matchKey} />
+                    {autoOpConf(state)}
+                    {!state.isTerminating && (
+                        <Button
+                            id="term"
+                            onClick={() => {
+                                setState({ ...state, isTerminating: true })
+                            }}
+                        />
+                    )}
+                </Fragment>
+            )
+    
+        }
         return (
             <Fragment>
                 <CubefulMatch {...bgMatchProps} key={matchKey} />
