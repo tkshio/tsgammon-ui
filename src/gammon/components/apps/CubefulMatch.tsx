@@ -5,45 +5,34 @@ import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
-import {
-    RollListener,
-    rollListeners,
-} from 'tsgammon-core/dispatchers/RollDispatcher'
-import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { rollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { standardConf } from 'tsgammon-core/GameConf'
 import { shouldSkipCubeAction } from 'tsgammon-core/MatchState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../CubefulGame'
 import { operateWithBGandRS } from '../operateWithRS'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
+import { defaultPlayersConf } from '../PlayersConf'
 import {
     RecordedCubefulGame,
     RecordedCubefulGameProps,
 } from '../recordedGames/RecordedCubefulGame'
-import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
+import { useBGRecorder } from '../useBGRecorder'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useGameKey } from '../useGameKey'
 import { useResignState } from '../useResignState'
-import { useBGRecorder } from '../useBGRecorder'
+import { BGCommonProps } from './BGCommonProps'
 
-export type CubefulMatchProps = {
-    gameConf?: GameConf
-    playersConf?: PlayersConf
-    gameSetup?: GameSetup
+export type CubefulMatchProps = BGCommonProps & {
     autoOperators?: { cb: CBOperator; sg: SGOperator; rs?: RSOperator }
-    isRollHandlerEnabled?: boolean
-    diceSource?: DiceSource
     onEndOfMatch?: () => void
-    dialog?: JSX.Element
     matchLength: number
-    recordMatch?: boolean
     isCrawford?: boolean
     matchScore?: Score
-} & Partial<RollListener & BGListener>
+} & Partial<BGListener>
 
 /**
  * 回数無制限の対戦を行うコンポーネント
@@ -59,11 +48,8 @@ export function CubefulMatch(props: CubefulMatchProps) {
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
         playersConf = defaultPlayersConf,
         gameSetup,
-        isRollHandlerEnabled = false,
-        diceSource = randomDiceSource,
-        onRollRequest = () => {
-            //
-        },
+        diceSource,
+        onRollRequest,
         onEndOfMatch = () => {
             //
         },
@@ -72,6 +58,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
         isCrawford = false,
         matchScore = score(),
         recordMatch = false,
+        ...exListeners
     } = props
     const bgRecorder = useBGRecorder(
         gameConf,
@@ -79,10 +66,9 @@ export function CubefulMatch(props: CubefulMatchProps) {
         matchScore,
         isCrawford
     )(recordMatch)
-    const rollListener = rollListeners({
-        isRollHandlerEnabled,
+    const rListener = rollListener({
         diceSource,
-        rollListener: { onRollRequest },
+        onRollRequest,
     })
 
     const { matchState, matchListener } = bgRecorder
@@ -92,7 +78,10 @@ export function CubefulMatch(props: CubefulMatchProps) {
     // 状態管理
     const { bgState, setBGState } = useBGState(initialBGState)
     // チェッカープレイ中の状態管理は、記録なしの時にのみ使用
-    const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
+    const [cpState, cpListeners] = useCheckerPlayListeners(
+        undefined,
+        exListeners
+    )
 
     // 1ゲームごとにユニークなKeyを採番する
     const { gameKey, gameKeyAddOn } = useGameKey()
@@ -101,6 +90,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
         setBGStateListener(defaultBGState(gameConf), setBGState),
         gameKeyAddOn,
         matchListener,
+        exListeners,
     ]
 
     // 降参機能
@@ -122,7 +112,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
         )
     const _bgEventHandlers = buildBGEventHandler(
         skipCubeAction,
-        rollListener,
+        rListener,
         ...listeners
     )
 
@@ -136,9 +126,12 @@ export function CubefulMatch(props: CubefulMatchProps) {
     )
 
     const cbProps = {
+        ...exListeners,
         resignState,
         playersConf,
         bgState,
+        cpState,
+        ...cpListeners,
         ...bgEventHandler,
         ...rsDialogHandler,
         onEndOfMatch,
@@ -166,7 +159,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
                 <div id="boardPane">
                     <CubefulGame
                         key={gameKey}
-                        {...{ ...cbProps, matchState, cpState, ...cpListeners }}
+                        {...{ ...cbProps, matchState }}
                     />
                 </div>
             </div>

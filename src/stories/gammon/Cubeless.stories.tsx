@@ -32,7 +32,7 @@ cpuPlaysBoth.args = {
 
 export const playDoublet = Template.bind({})
 playDoublet.args = {
-    state: {
+    gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
         dice2: 1,

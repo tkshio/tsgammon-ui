@@ -1,5 +1,5 @@
 export const parameters = {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    actions: { argTypesRegex: '^on(?!.*RollRequest).*$' },
     options: {
         storySort: {
             order: ['Game'],

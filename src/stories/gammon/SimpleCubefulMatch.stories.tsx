@@ -24,7 +24,7 @@ initialBoard.args = {}
 
 export const almostEnd = Template.bind({})
 almostEnd.args = {
-    setup: {
+    gameSetup: {
         absPos: [
             0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
             0, 0, 0, 0,

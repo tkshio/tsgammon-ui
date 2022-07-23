@@ -21,10 +21,20 @@ import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
 import './bgMain.css'
 import { Cubeless } from './Cubeless'
+import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
+import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
+import { BoardEventHandlers } from '../boards/Board'
 
-export type BGMainProps = {
-    //
-}
+export type BGMainProps = Partial<
+    BGEventHandler &
+        RollListener &
+        SingleGameListener &
+        CheckerPlayListeners &
+        BoardEventHandlers
+>
+
 type MatchChoice = 'Unlimited' | '1pt' | '3pt' | '5pt'
 const matchChoice: MatchChoice[] = ['Unlimited', '1pt', '3pt', '5pt']
 const defaultChoice: MatchChoice = '3pt'
@@ -46,6 +56,7 @@ type BGMainPlayState = _BGMainState & {
     isTerminating: boolean
 }
 export function BGMain(props: BGMainProps) {
+    const {...exListeners} = props
     const labels = { red: 'Red', white: 'White' }
     const [matchKey, setMatchKey] = useState(0)
     const initialConf: BGMainConfState = {
@@ -90,6 +101,7 @@ export function BGMain(props: BGMainProps) {
         )
     } else {
         const bgMatchProps: CubefulMatchProps = {
+            ...exListeners,
             gameConf:
                 state.rule === 'Standard' ? standardConf : honsugorokuConf,
             onEndOfMatch: () => onEndOfMatch(state),
@@ -100,7 +112,7 @@ export function BGMain(props: BGMainProps) {
             recordMatch: state.recordMoves,
         }
 
-        if ( state.rule === 'HonSugoroku'){
+        if (state.rule === 'HonSugoroku') {
             return (
                 <Fragment>
                     <Cubeless {...bgMatchProps} key={matchKey} />
@@ -115,7 +127,6 @@ export function BGMain(props: BGMainProps) {
                     )}
                 </Fragment>
             )
-    
         }
         return (
             <Fragment>

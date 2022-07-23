@@ -1,51 +1,39 @@
-import { GameConf, Score, score, standardConf } from 'tsgammon-core'
+import { Score, score, standardConf } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { toState } from 'tsgammon-core/dispatchers/BGState'
 import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
-    RollListener,
-    rollListeners,
+    rollListener
 } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { DiceSource, randomDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { operateWithBG } from '../operateWithBG'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
-import { PlayersConf } from '../PlayersConf'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
 import { useMatchState } from '../useMatchState'
+import { BGCommonProps } from './BGCommonProps'
 
-export type SimpleCubefulMatchProps = {
-    gameConf: GameConf
+export type SimpleCubefulMatchProps = BGCommonProps & {
     matchScore?: Score
     matchLength?: number
-    playersConf: PlayersConf
-    setup?: GameSetup
     autoOperators?: { cb?: CBOperator; sg?: SGOperator; rs?: RSOperator }
-    isRollHandlerEnabled?: boolean
-    diceSource?: DiceSource
-} & Partial<RollListener>
-
+}
 export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
     const {
         matchScore = score(),
         matchLength = 0,
         playersConf,
-        setup,
+        gameSetup,
         autoOperators = { cb: undefined, sg: undefined },
-        isRollHandlerEnabled = false,
-        diceSource = randomDiceSource,
-        onRollRequest = () => {
-            //
-        },
+        diceSource ,
+        onRollRequest,
         ...listeners
     } = props
     const gameConf = { ...standardConf, jacobyRule: matchLength === 0 }
-    const initialBGState = toState(setup)
+    const initialBGState = toState(gameSetup)
     const { bgState, setBGState } = useBGState(initialBGState)
     const [cpState, cpListeners] = useCheckerPlayListeners(undefined)
 
@@ -54,15 +42,14 @@ export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
         matchLength,
         matchScore
     )
-    const rollListener = rollListeners({
-        isRollHandlerEnabled,
+    const rListener = rollListener({
         diceSource,
-        rollListener: { onRollRequest },
+        onRollRequest,
     })
 
     const _handlers = buildBGEventHandler(
         false,
-        rollListener,
+        rListener,
         setBGStateListener(defaultBGState(gameConf), setBGState),
         matchStateAddOn
     )
