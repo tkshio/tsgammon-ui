@@ -11,18 +11,24 @@ import {
 } from 'tsgammon-core/MatchState'
 import { StakeConf } from 'tsgammon-core/StakeConf'
 
-export function useMatchState(
-    stakeConf: StakeConf = { jacobyRule: false },
-    matchLength: number,
-    matchScore: Score = score(),
-    isCrawford = false
-): {
+export function useMatchState(conf: {
+    stakeConf?: StakeConf
+    matchLength?: number
+    matchScore?: Score
+    isCrawford?: boolean
+}): {
     matchState: MatchState
     matchStateListener: Partial<BGListener>
     resetMatchState: (matchLength: number) => void
 } {
+    const {
+        stakeConf = { jacobyRule: false },
+        matchLength = 0,
+        matchScore = score(),
+        isCrawford = false,
+    } = conf
     const [matchState, setMatchState] = useState<MatchState>(
-        initialMatchState(matchScore, matchLength, isCrawford)
+        initMatchState({ stakeConf, matchScore, matchLength, isCrawford })
     )
 
     return {
@@ -31,23 +37,31 @@ export function useMatchState(
         matchStateListener: matchStateListener(matchState, setMatchState),
     }
 
-    function initialMatchState(
-        matchScore: Score,
-        matchLength: number,
-        isCrawford: boolean
-    ): MatchStateInPlay {
-        return {
-            isEoG: false,
-            matchLength,
-            scoreBefore: matchScore,
-            score: matchScore,
-            stakeConf,
-            isCrawford: isCrawford || matchLength === 1,
-        }
-    }
-
     function resetMatchState(matchLength: number) {
-        setMatchState(initialMatchState(score(), matchLength, false))
+        setMatchState(
+            initMatchState({
+                stakeConf,
+                matchScore: score(),
+                matchLength,
+                isCrawford: false,
+            })
+        )
+    }
+}
+export function initMatchState(args: {
+    stakeConf: StakeConf
+    matchScore: Score
+    matchLength: number
+    isCrawford: boolean
+}): MatchStateInPlay {
+    const { stakeConf, matchScore, matchLength, isCrawford } = args
+    return {
+        isEoG: false,
+        matchLength,
+        scoreBefore: matchScore,
+        score: matchScore,
+        stakeConf,
+        isCrawford: isCrawford || matchLength === 1,
     }
 }
 

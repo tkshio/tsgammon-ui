@@ -5,10 +5,7 @@ import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { CBInPlay, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { ResignEventHandler } from 'tsgammon-core/dispatchers/ResignEventHandlers'
-import {
-    ResignState,
-    RSOffered,
-} from 'tsgammon-core/dispatchers/ResignState'
+import { ResignState, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import {
     SingleGameEventHandler,
@@ -39,13 +36,16 @@ export function operateWithBGandRS(
     // 降参のシーケンスに入っている時は、BG側では何もしない
     if (resignState.tag !== 'RSNone') {
         return {
-            bgEventHandler: bgHandler.addListeners(bgListener),
+            bgEventHandler: bgHandler.addListener(bgListener),
             rsDialogHandler,
         }
     }
 
     return {
-        bgEventHandler: operateWithBG(autoOperators, bgHandler.addListeners(bgListener)),
+        bgEventHandler: operateWithBG(
+            autoOperators,
+            bgHandler.addListener(bgListener)
+        ),
         rsDialogHandler,
     }
 }
@@ -86,7 +86,7 @@ export function operateWithSGandRS(
     const { sg, rs } = autoOperators
     if (rs === undefined) {
         return {
-            sgHandler,
+            sgHandler: operateWithSG(sg, sgHandler),
             rsDialogHandler: rsHandler,
         }
     }

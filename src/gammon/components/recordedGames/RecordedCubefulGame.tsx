@@ -4,7 +4,7 @@ import { matchStateLastGame } from 'tsgammon-core/MatchState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { defaultPlayersConf } from '../PlayersConf'
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
+import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
@@ -29,7 +29,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         ...eventHandlers
     } = props
     const { matchState } = matchRecord
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(
+    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
         undefined,
         eventHandlers
     )

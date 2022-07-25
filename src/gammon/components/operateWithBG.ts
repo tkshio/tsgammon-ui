@@ -20,7 +20,7 @@ export function operateWithBG(
         return bgHandlers
     }
     const autoHandler = {
-        ...bgHandlers.addListeners({
+        ...bgHandlers.addListener({
             onCubeActionStarted: async (bgState: {
                 cbState: CBAction
                 sgState: SGToRoll

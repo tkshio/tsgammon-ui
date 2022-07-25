@@ -18,18 +18,14 @@ import { PlyStateRecord } from 'tsgammon-core/records/PlyStateRecord'
  */
 export 
 function useMatchRecorder<T>(
-    gameConf: GameConf,
-    matchLength: number
+    gameConf:GameConf,
+    initialMatchState:MatchStateInPlay
 ): {
     matchRecord: MatchRecord<T>
     matchRecorder: MatchRecorder<T>
     setMatchRecord: Dispatch<SetStateAction<MatchRecord<T>>>
     resetMatchRecord: (gameConf: GameConf, matchLength: number) => void
 } {
-    const initialMatchState: MatchStateInPlay = matchStateInPlay(
-        gameConf,
-        matchLength
-    )
     const [matchRecord, setMatchRecord] = useState<MatchRecord<T>>(
         matchRecordInPlay(gameConf, initialMatchState)
     )

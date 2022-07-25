@@ -3,7 +3,7 @@ import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { defaultPlayersConf } from '../PlayersConf'
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
+import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
@@ -24,7 +24,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
        ...listeners
     } = props
 
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(
+    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
         undefined,
         listeners
     )

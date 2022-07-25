@@ -1,36 +1,23 @@
-import { buildSGEventHandler } from 'tsgammon-core/dispatchers/buildSGEventHandler'
-import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
-import {
-    RollListener,
-    rollListener
-} from 'tsgammon-core/dispatchers/RollDispatcher'
-import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
+import { EOGStatus } from 'tsgammon-core'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { standardConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { matchRecorderAsSG } from 'tsgammon-core/records/MatchRecorder'
-import { operateWithSG } from '../operateWithSG'
-import { defaultPlayersConf } from '../PlayersConf'
-import {
-    RecordedSingleGame,
-    RecordedSingleGameProps
-} from '../recordedGames/RecordedSingleGame'
-import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
-import { SingleGame, SingleGameProps } from '../SingleGame'
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners'
-import { useSingleGameState } from '../useSingleGameState'
-import { BGCommonProps } from './BGCommonProps'
+import { SGResult } from 'tsgammon-core/records/SGResult'
+import { operateWithSGandRS } from '../operateWithRS'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
+import { defaultPlayersConf } from '../PlayersConf'
+import { RecordedSingleGame } from '../recordedGames/RecordedSingleGame'
+import { SingleGame, SingleGameProps } from '../SingleGame'
+import { useResignState } from '../useResignState'
+import { BGCommonProps } from './BGCommonProps'
+import { useCubeless } from './useCubeless'
 
-export type CubelessProps ={
-    autoOperators?: { sg: SGOperator; rs?: RSOperator }
-} & BGCommonProps
+export type CubelessProps = {
+    autoOperators?: { sg?: SGOperator; rs?: RSOperator }
+} & BGCommonProps &
+    Partial<SingleGameListener>
 
 /**
  * 回数無制限の対戦を行うコンポーネント
@@ -45,7 +32,7 @@ export function Cubeless(props: CubelessProps) {
         gameConf = standardConf,
         playersConf = defaultPlayersConf,
         gameSetup,
-        autoOperators = {sg:undefined},
+        autoOperators = { sg: undefined },
         diceSource,
         onRollRequest,
         dialog,
@@ -53,73 +40,48 @@ export function Cubeless(props: CubelessProps) {
         ...exListeners
     } = props
 
-    const initialSGState = toSGState(gameSetup, gameConf)
-    const rListener = rollListener({
-        diceSource,
-        onRollRequest
-    })
-    const { sgState, setSGState } = useSingleGameState(initialSGState)
+    const { sgState, cpState, cpListener, handler, sgRecorder, eogHandler } =
+        useCubeless({
+            gameSetup,
+            gameConf,
+            diceSource,
+            onRollRequest,
+            recordMatch,
+        })
 
-    const sgRecorder = useCubeless(gameConf, setSGState, rListener)(recordMatch)
-    const handlers = operateWithSG(autoOperators.sg, sgRecorder.handlers)
+    const { resignState, rsDialogHandler: rsHandler } = useResignState(
+        (result: SGResult, eog: EOGStatus) =>
+            eogHandler.onEndOfGame(sgState, result, eog)
+    )
+
+    const { sgHandler: handlersWithOp, rsDialogHandler } = operateWithSGandRS(
+        autoOperators,
+        sgState,
+        rsHandler,
+        handler
+    )
 
     const singleGameProps: SingleGameProps = {
         ...exListeners,
+        resignState,
         sgState,
-        cpState: sgRecorder.cpState,
+        cpState,
         dialog,
         playersConf,
-        ...handlers,
-        ...sgRecorder.cpListeners,
+        ...rsDialogHandler,
+        ...handlersWithOp,
+        ...cpListener,
     }
-    if (sgRecorder.recordMatch) {
-        const recordedGameProps: RecordedSingleGameProps = {
-            ...singleGameProps,
-            matchRecord: sgRecorder.matchRecord,
-            onResumeState: sgRecorder.onResumeState,
-        }
 
-        return <RecordedSingleGame {...recordedGameProps} />
+    if (sgRecorder.recordMatch) {
+        return <RecordedSingleGame {...{ ...singleGameProps, ...sgRecorder }} />
     } else {
-        return <SingleGame {...singleGameProps} />
+        return <SingleGame {...{...singleGameProps, matchScore:sgRecorder.matchRecord.matchState.score}} />
     }
 }
-type SGRecorder = {
+
+export type SGRecorder = {
     recordMatch: boolean
-    handlers: SingleGameEventHandlerExtensible
     onResumeState: (index: number) => void
     matchRecord: MatchRecord<SGState>
-    cpListeners: CheckerPlayListeners
-    cpState: CheckerPlayState | undefined
-}
-
-function useCubeless(
-    gameConf: GameConf,
-    setSGState: (sgState: SGState) => void,
-    rListener: RollListener
-): (recordMatch: boolean) => SGRecorder {
-    const { matchRecord, matchRecorder } = useMatchRecorder<SGState>(
-        gameConf,
-        0
-    )
-    const [cpState, cpListeners] = useCheckerPlayListeners()
-    return (recordMatch: boolean) => {
-        const matchRecordListener = matchRecorderAsSG(matchRecorder)
-        const handlers = buildSGEventHandler(
-            rListener,
-            setSGStateListener(defaultSGState(gameConf), setSGState),
-            matchRecordListener
-        )
-        return {
-            recordMatch,
-            handlers,
-            onResumeState: (index: number) => {
-                const resumed = matchRecorder.resumeTo(index)
-                setSGState(resumed.state)
-            },
-            matchRecord,
-            cpState,
-            cpListeners,
-        }
-    }
 }

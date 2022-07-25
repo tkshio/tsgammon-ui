@@ -1,7 +1,6 @@
-import { GameConf } from 'tsgammon-core'
+import { GameConf, Score } from 'tsgammon-core'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
@@ -14,9 +13,7 @@ export type BGCommonProps = {
     diceSource?: DiceSource
     dialog?: JSX.Element
     recordMatch?: boolean
-} & Partial<
-    RollListener &
-        SingleGameListener &
-        CheckerPlayListeners &
-        BoardEventHandlers
->
+    matchScore?: Score
+    matchLength?: number
+    isCrawford?: boolean
+} & Partial<RollListener & CheckerPlayListeners & BoardEventHandlers>

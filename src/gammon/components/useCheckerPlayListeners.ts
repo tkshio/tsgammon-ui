@@ -6,7 +6,7 @@ import {
     setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 
-export function useCheckerPlayListeners(
+export function useCheckerPlayListener(
     initialState: CheckerPlayState | undefined = undefined,
     listeners: Partial<CheckerPlayListeners> = {}
 ): [
