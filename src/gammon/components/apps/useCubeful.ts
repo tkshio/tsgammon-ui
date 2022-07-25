@@ -4,18 +4,19 @@ import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import {
     BGEventHandlersExtensible,
-    buildBGEventHandler
+    buildBGEventHandler,
 } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { CBInPlay } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
 import {
     BGEoGHandler,
-    eogEventHandler
+    eogEventHandler,
 } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import {
     RollListener,
-    rollListener
+    rollListener,
 } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
@@ -76,7 +77,7 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
         gameConf,
         isCrawford,
         matchLength,
-        matchScore
+        matchScore,
     }
     // 指定に応じて棋譜をとる、または単にマッチ状態を管理する
     const bgRecorder = useBGRecorder(
@@ -91,16 +92,16 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
 
     const matchState = bgRecorder.matchState
     // キューブありのゲームの進行管理
-    const skipCubeAction =
-        bgState.cbState.tag === 'CBInPlay' &&
-        shouldSkipCubeAction(
+    const skipCubeAction = (cbState: CBInPlay) => {
+        return shouldSkipCubeAction(
             matchState,
-            bgState.cbState.cubeState.value,
+            cbState.cubeState.value,
             // skipCubeActionが意味を持つのは、実質的にはコミット直前の時だけで、
             // その時点ではまだ相手の手番なので、自分のスコアを基準に判定するためには
             // 反転させる必要がある
-            !bgState.cbState.isRed
+            !cbState.isRed
         )
+    }
 
     const _listeners = [bgListener, bgRecorder.matchListener, exListeners]
 
