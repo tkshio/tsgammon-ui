@@ -2,12 +2,8 @@ import { Score } from 'tsgammon-core'
 import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { GameConf } from 'tsgammon-core/GameConf'
-import {
-    MatchState
-} from 'tsgammon-core/MatchState'
-import {
-    MatchRecord
-} from 'tsgammon-core/records/MatchRecord'
+import { MatchState } from 'tsgammon-core/MatchState'
+import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { matchRecorderAsBG } from 'tsgammon-core/records/MatchRecorder'
 import { useMatchRecorder } from './recordedGames/useMatchRecorder'
 import { initMatchState, useMatchState } from './useMatchState'
@@ -15,7 +11,6 @@ import { initMatchState, useMatchState } from './useMatchState'
 export type BGRecorder = {
     matchState: MatchState
     matchListener: Partial<BGListener>
-    resetMatchLength: (gameConf: GameConf, matchLength: number) => void
 } & (
     | {
           recordMatch: true
@@ -58,16 +53,20 @@ export function useBGRecorder(conf: BGRecorderHookProps): BGRecorder {
         useMatchState(initialMatchState)
 
     // マッチの記録を行う
-    const { matchRecord, matchRecorder, resetMatchRecord } =
-        useMatchRecorder<BGState>(gameConf, initialMatchState)
-    const matchRecorderListener = matchRecorderAsBG(gameConf, matchRecorder)
+    const { matchRecord, matchRecorder } = useMatchRecorder<BGState>(
+        gameConf,
+        initialMatchState
+    )
+    const matchRecorderListener = matchRecorderAsBG(
+        gameConf,
+        matchRecorder
+    )
     const bgRecorder = recordMatch
         ? {
               recordMatch,
               matchState: matchRecord.matchState,
               matchListener: matchRecorderListener,
               matchRecord,
-              resetMatchLength: resetMatchRecord,
               // 記録された状態からの復元
               onResumeState: (index: number) => {
                   const { state } = matchRecorder.resumeTo(index)
