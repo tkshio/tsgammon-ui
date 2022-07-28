@@ -1,3 +1,6 @@
+#conf {
+    font-family: sans-serif;
+}
 #startBGMatch {
     background: darkslategray;
     color: white;

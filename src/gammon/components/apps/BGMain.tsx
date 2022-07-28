@@ -6,12 +6,12 @@ import {
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator
+    whiteSGAutoOperator,
 } from '../operators/autoOperators'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
-    whiteRSAutoOperator
+    whiteRSAutoOperator,
 } from '../operators/RSAutoOperators'
 import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { Button } from '../uiparts/Button'
@@ -71,7 +71,7 @@ export function BGMain(props: BGMainProps) {
 
     if (state.tag === 'CONF') {
         return (
-            <Fragment>
+            <div id="conf">
                 <h2>Configuration</h2>
                 <h3>Record Moves</h3>
                 {recordMovesConf(state)}
@@ -97,7 +97,7 @@ export function BGMain(props: BGMainProps) {
                         setState(newState)
                     }}
                 />
-            </Fragment>
+            </div>
         )
     } else {
         const bgMatchProps: CubefulMatchProps = {
@@ -131,15 +131,17 @@ export function BGMain(props: BGMainProps) {
         return (
             <Fragment>
                 <CubefulMatch {...bgMatchProps} key={matchKey} />
-                {autoOpConf(state)}
-                {!state.isTerminating && (
-                    <Button
-                        id="term"
-                        onClick={() => {
-                            setState({ ...state, isTerminating: true })
-                        }}
-                    />
-                )}
+                <div id="conf">
+                    {autoOpConf(state)}
+                    {!state.isTerminating && (
+                        <Button
+                            id="term"
+                            onClick={() => {
+                                setState({ ...state, isTerminating: true })
+                            }}
+                        />
+                    )}
+                </div>
             </Fragment>
         )
     }
