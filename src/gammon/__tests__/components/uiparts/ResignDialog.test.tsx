@@ -3,9 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { eog, EOGStatus } from 'tsgammon-core'
 import {
-    ResignOffer,
-    ResignState,
-    rsNone,
+    ResignState, RSNONE,
 } from 'tsgammon-core/dispatchers/ResignState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
@@ -25,16 +23,17 @@ import {
 import { operateWithSGandRS } from '../../../components/operateWithRS'
 import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
 import { SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
-    resignState: rsNone(),
+    resignState: RSNONE,
 }
 
 beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
-    state.resignState = rsNone()
+    state.resignState = RSNONE
 })
 
 const handlers: RSDialogHandler = rsDialogHandler(
@@ -134,7 +133,7 @@ describe('ResignDialog', () => {
             <ResignDialog
                 {...{
                     ...props,
-                    resignState: rsNone().doOfferResignRed(ResignOffer.Single),
+                    resignState: RSNONE.doOfferResignRed(ResignOffer.Single),
                 }}
             />
         )
@@ -162,7 +161,7 @@ describe('ResignDialog', () => {
             <ResignDialog
                 {...{
                     ...props,
-                    resignState: rsNone().doOfferResignWhite(
+                    resignState: RSNONE.doOfferResignWhite(
                         ResignOffer.Gammon
                     ),
                     ...rsHandlers,
@@ -183,7 +182,7 @@ describe('ResignDialog', () => {
 
     test('disables rejected offer(single)', async () => {
         // SingleでOfferして一回Rejectされた状態
-        const offer = rsNone().doOfferResignWhite(ResignOffer.Single)
+        const offer = RSNONE.doOfferResignWhite(ResignOffer.Single)
         handlers.onRejectResign(offer)
         render(
             <ResignDialog
@@ -201,7 +200,7 @@ describe('ResignDialog', () => {
 
     test('disables rejected offer(Gammon)', async () => {
         // GammonでOfferして一回Rejectされた状態
-        const offer = rsNone().doOfferResignWhite(ResignOffer.Gammon)
+        const offer = RSNONE.doOfferResignWhite(ResignOffer.Gammon)
         handlers.onRejectResign(offer)
         render(
             <ResignDialog
@@ -218,7 +217,7 @@ describe('ResignDialog', () => {
     })
 
     test('disables rejected offer(Backgammon)', async () => {
-        const offer = rsNone().doOfferResignWhite(ResignOffer.Backgammon)
+        const offer = RSNONE.doOfferResignWhite(ResignOffer.Backgammon)
         handlers.onRejectResign(offer)
         render(
             <ResignDialog

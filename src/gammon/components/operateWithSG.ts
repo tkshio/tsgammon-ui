@@ -15,7 +15,7 @@ export function operateWithSG(
     }
     const autoHandler = {
         ...handler.addListeners({
-            onAwaitRoll: (nextState: SGToRoll, _: SGInPlay) => {
+            onAwaitRoll: (nextState: SGToRoll) => {
                 const operation = sg[nextState.isRed
                     ? 'operateRollRed'
                     : 'operateRollWhite'];

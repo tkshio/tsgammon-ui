@@ -5,12 +5,8 @@ import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
 import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/dispatchers/MatchState'
-import {
-    ResignOffer,
-    ResignState,
-    rsNone,
-} from 'tsgammon-core/dispatchers/ResignState'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
+import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
 import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { CubefulGame } from '../../../components/CubefulGame'
@@ -27,16 +23,17 @@ import {
 import { operateWithRS } from '../../../components/operateWithRS'
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
-    resignState: rsNone(),
+    resignState: RSNONE,
 }
 
 beforeEach(() => {
     container = document.createElement('div')
     document.body.appendChild(container)
-    state.resignState = rsNone()
+    state.resignState = RSNONE
 })
 
 const rsHandler: RSDialogHandler = rsDialogHandler(
@@ -72,13 +69,13 @@ describe('ResignDialog', () => {
         })
 
         const bgHandler = buildBGEventHandler(
-            true,
+            () => false,
             undefined,
             setBGStateListener(bgState, setBGState)
         )
         const { bgListener, rsDialogHandler: resignEventHandler } =
             operateWithRS(bgState, rs, rsHandler)
-        const bgEventHandler = bgHandler.addListeners(bgListener)
+        const bgEventHandler = bgHandler.addListener(bgListener)
 
         const cbProps = {
             bgState,
@@ -114,13 +111,13 @@ describe('ResignDialog', () => {
         })
 
         const bgHandler = buildBGEventHandler(
-            true,
+            () => true,
             undefined,
             setBGStateListener(bgState, setBGState)
         )
         const { bgListener, rsDialogHandler: resignEventHandler } =
             operateWithRS(bgState, rs, rsHandler)
-        const bgEventHandler = bgHandler.addListeners(bgListener)
+        const bgEventHandler = bgHandler.addListener(bgListener)
 
         const cbProps = {
             bgState,
@@ -165,19 +162,23 @@ describe('ResignDialog', () => {
 
         const listeners = [setBGStateListener(bgState, setBGState)]
 
-        const bgHandler = buildBGEventHandler(true, undefined, ...listeners)
+        const bgHandler = buildBGEventHandler(
+            () => true,
+            undefined,
+            ...listeners
+        )
         const eogHandler = eogEventHandler(...listeners)
         const handlers = rsDialogHandler(
             (resignState: ResignState | RSToOffer) => {
                 state.resignState = resignState
             },
             (result: SGResult, eog: EOGStatus) => {
-                eogHandler.onEndOfCubeGame(bgState, result, eog)
+                eogHandler.onEndOfBGGame(bgState, result, eog)
             }
         )
         const { bgListener, rsDialogHandler: resignEventHandler } =
             operateWithRS(bgState, rs, handlers)
-        const bgEventHandler = bgHandler.addListeners(bgListener)
+        const bgEventHandler = bgHandler.addListener(bgListener)
         const cbProps = {
             bgState,
             matchState: matchStateForUnlimitedMatch(),

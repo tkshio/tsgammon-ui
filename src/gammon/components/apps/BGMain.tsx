@@ -6,29 +6,29 @@ import {
     redCBAutoOperator,
     redSGAutoOperator,
     whiteCBAutoOperator,
-    whiteSGAutoOperator,
+    whiteSGAutoOperator
 } from '../operators/autoOperators'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
-    whiteRSAutoOperator,
+    whiteRSAutoOperator
 } from '../operators/RSAutoOperators'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { Button } from '../uiparts/Button'
 import { Buttons } from '../uiparts/Buttons'
 import { Dialog } from '../uiparts/Dialog'
-import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
-import './bgMain.css'
-import { Cubeless } from './Cubeless'
-import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
+import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import { BoardEventHandlers } from '../boards/Board'
+import './bgMain.css'
+import { Cubeless } from './Cubeless'
 
 export type BGMainProps = Partial<
-    BGEventHandler &
+    BGListener &
         RollListener &
         SingleGameListener &
         CheckerPlayListeners &
@@ -56,7 +56,7 @@ type BGMainPlayState = _BGMainState & {
     isTerminating: boolean
 }
 export function BGMain(props: BGMainProps) {
-    const {...exListeners} = props
+    const { ...exListeners } = props
     const labels = { red: 'Red', white: 'White' }
     const [matchKey, setMatchKey] = useState(0)
     const initialConf: BGMainConfState = {
