@@ -34,18 +34,36 @@ export type BGMainProps = Partial<
         CheckerPlayListeners &
         BoardEventHandlers
 >
-
-type MatchChoice = 'Unlimited' | '1pt' | '3pt' | '5pt'
-const matchChoice: MatchChoice[] = ['Unlimited', '1pt', '3pt', '5pt']
+const matchChoiceSet = {
+    Unlimited: { len: 0 },
+    '1pt': { len: 1 },
+    '3pt': { len: 3 },
+    '5pt': { len: 5 },
+    '7pt': { len: 7 },
+    Cubeless: { len: 0 },
+}
+type MatchChoice = keyof typeof matchChoiceSet
+const matchChoice: MatchChoice[] = [
+    'Unlimited',
+    '1pt',
+    '3pt',
+    '5pt',
+    '7pt',
+    'Cubeless',
+]
 const defaultChoice: MatchChoice = '3pt'
-
+const gameConfSet = {
+    standard: standardConf,
+    honSugoroku: honsugorokuConf,
+}
+type RuleLabel = keyof typeof gameConfSet
 type BGMainState = BGMainConfState | BGMainPlayState
 type _BGMainState = {
     autoOp: { red: boolean; white: boolean }
     playersConf: PlayersConf
     selected: MatchChoice
     recordMoves: boolean
-    rule: 'Standard' | 'HonSugoroku'
+    rule: RuleLabel
 }
 
 type BGMainConfState = _BGMainState & {
@@ -65,7 +83,7 @@ export function BGMain(props: BGMainProps) {
         playersConf: defaultPlayersConf,
         selected: defaultChoice,
         recordMoves: true,
-        rule: 'Standard',
+        rule: 'standard',
     }
     const [state, setState] = useState<BGMainState>(initialConf)
 
@@ -102,17 +120,16 @@ export function BGMain(props: BGMainProps) {
     } else {
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
-            gameConf:
-                state.rule === 'Standard' ? standardConf : honsugorokuConf,
+            gameConf: gameConfSet[state.rule],
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
-            matchLength: toMatchLength(state),
+            matchLength: matchChoiceSet[state.selected].len,
             recordMatch: state.recordMoves,
         }
 
-        if (state.rule === 'HonSugoroku') {
+        if (state.rule === 'honSugoroku' || state.selected === 'Cubeless') {
             return (
                 <Fragment>
                     <Cubeless {...bgMatchProps} key={matchKey} />
@@ -227,18 +244,6 @@ export function BGMain(props: BGMainProps) {
         setMatchKey((prev) => prev + 1)
         setState({ ...state, tag: 'CONF', selected: state.selected })
     }
-    function toMatchLength(state: BGMainState) {
-        switch (state.selected) {
-            case '1pt':
-                return 1
-            case '3pt':
-                return 3
-            case '5pt':
-                return 5
-            case 'Unlimited':
-                return 0
-        }
-    }
 
     function matchPointConf(state: BGMainConfState) {
         return (
@@ -321,21 +326,11 @@ export function BGMain(props: BGMainProps) {
         })
     }
     function gameRuleConf(state: BGMainConfState) {
-        const rules: ('Standard' | 'HonSugoroku')[] = [
-            'Standard',
-            'HonSugoroku',
-        ]
-        return (
-            <p>
-                {rules.map((s: 'Standard' | 'HonSugoroku') =>
-                    confItem(state, s)
-                )}
-            </p>
-        )
-        function confItem(
-            conf: BGMainConfState,
-            value: 'Standard' | 'HonSugoroku'
-        ) {
+        const rules: RuleLabel[] = Object.getOwnPropertyNames(
+            gameConfSet
+        ) as RuleLabel[]
+        return <p>{rules.map((s: RuleLabel) => confItem(state, s))}</p>
+        function confItem(conf: BGMainConfState, value: RuleLabel) {
             return (
                 <Fragment>
                     <input
@@ -352,7 +347,7 @@ export function BGMain(props: BGMainProps) {
                             setState(nextState)
                         }}
                     />
-                    <label htmlFor={value}>{value}</label>
+                    <label htmlFor={value}>{gameConfSet[value].name}</label>
                 </Fragment>
             )
         }
