@@ -397,7 +397,7 @@ export function BGMain(props: BGMainProps) {
                         setState({ ...state, isCrawford: e.target.checked })
                     }}
                 />
-                <label>crawford game</label>
+                <label htmlFor='matchpoint_isCrawford'>crawford game</label>
                 <Button
                     id="reset_score"
                     role="reset"
