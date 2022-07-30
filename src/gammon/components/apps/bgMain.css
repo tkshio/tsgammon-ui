@@ -21,7 +21,7 @@
 #term {
     background: darkred;
     color: white;
-    width: 15%;
+    width: fit-content;
     justify-content: center;
     margin-top: 25px;
     padding: 5px 10px;
