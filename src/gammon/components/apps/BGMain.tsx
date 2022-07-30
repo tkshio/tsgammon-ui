@@ -192,8 +192,10 @@ export function BGMain(props: BGMainProps) {
         )
     } else {
         const gameSetup: GameSetup = toGameSetup(state)
-        const redScore = isNaN(state.score.redScore)?0:state.score.redScore
-        const whiteScore = isNaN(state.score.whiteScore)?0:state.score.whiteScore
+        const redScore = isNaN(state.score.redScore) ? 0 : state.score.redScore
+        const whiteScore = isNaN(state.score.whiteScore)
+            ? 0
+            : state.score.whiteScore
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
             gameConf: gameConfSet[state.rule].conf,
@@ -204,8 +206,8 @@ export function BGMain(props: BGMainProps) {
             matchLength: matchChoiceSet[state.selected].len,
             recordMatch: state.recordMoves,
             gameSetup,
-            matchScore:score({redScore, whiteScore}),
-            isCrawford:state.isCrawford??false
+            matchScore: score({ redScore, whiteScore }),
+            isCrawford: state.isCrawford ?? false,
         }
 
         if (state.selected === 'Cubeless') {
@@ -320,10 +322,16 @@ export function BGMain(props: BGMainProps) {
         }
     }
     function onEndOfMatch(state: BGMainState) {
+        setState({ ...state, tag: 'PLAY', isTerminating: true })
+    }
+    function returnToConf(state: BGMainState) {
         setMatchKey((prev) => prev + 1)
         setState({ ...state, tag: 'CONF', selected: state.selected })
     }
-    function isCrawford(len: number, score: { redScore: number; whiteScore: number }) {
+    function isCrawford(
+        len: number,
+        score: { redScore: number; whiteScore: number }
+    ) {
         return len === score.redScore + 1 || len === score.whiteScore + 1
     }
     function matchScoreConf(state: BGMainConfState) {
@@ -334,9 +342,10 @@ export function BGMain(props: BGMainProps) {
         )
         const matchLen = matchChoiceSet[state.selected].len
         const onChange =
-            (s: 'redScore' | 'whiteScore') => (e: ChangeEvent<HTMLInputElement>) => {
+            (s: 'redScore' | 'whiteScore') =>
+            (e: ChangeEvent<HTMLInputElement>) => {
                 const _v: number = parseInt(e.currentTarget.value)
-                const v = isNaN(_v)?_v:_v
+                const v = isNaN(_v) ? _v : _v
                 if (isNaN(v) || (0 <= v && v <= matchLen)) {
                     const newScore = { ...state.score, [s]: v }
                     setState({
@@ -355,7 +364,9 @@ export function BGMain(props: BGMainProps) {
                     id="score_red"
                     type="field"
                     size={3}
-                    value={isNaN(state.score.redScore)?'':state.score.redScore}
+                    value={
+                        isNaN(state.score.redScore) ? '' : state.score.redScore
+                    }
                     onChange={onChange('redScore')}
                 />
                 <label htmlFor="score_white">White:</label>
@@ -363,7 +374,11 @@ export function BGMain(props: BGMainProps) {
                     id="score_white"
                     type="field"
                     size={3}
-                    value={isNaN(state.score.whiteScore)?'':state.score.whiteScore}
+                    value={
+                        isNaN(state.score.whiteScore)
+                            ? ''
+                            : state.score.whiteScore
+                    }
                     onChange={onChange('whiteScore')}
                 />
                 <input
@@ -407,11 +422,17 @@ export function BGMain(props: BGMainProps) {
                             const nextState: BGMainConfState = {
                                 ...state,
                                 selected: value,
-                                score:{redScore:Math.min(state.score.redScore, matchLen), whiteScore:Math.min(state.score.whiteScore, matchLen)},
-                                isCrawford: isCrawford(
-                                    matchLen,
-                                    state.score
-                                ),
+                                score: {
+                                    redScore: Math.min(
+                                        state.score.redScore,
+                                        matchLen
+                                    ),
+                                    whiteScore: Math.min(
+                                        state.score.whiteScore,
+                                        matchLen
+                                    ),
+                                },
+                                isCrawford: isCrawford(matchLen, state.score),
                             }
                             setState(nextState)
                         }}
@@ -430,7 +451,7 @@ export function BGMain(props: BGMainProps) {
                     <Buttons>
                         <Button
                             id="execTerm"
-                            onClick={() => onEndOfMatch(curState)}
+                            onClick={() => returnToConf(curState)}
                         />
                         <Button
                             id="cancelTerm"

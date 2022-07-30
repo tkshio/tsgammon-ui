@@ -16,7 +16,7 @@
     justify-content: space-evenly;
 }
 #termDialog > .csscaption:before {
-    content: 'Terminate current match?';
+    content: 'Return to configuration menu?';
 }
 #term {
     background: darkred;
@@ -27,11 +27,11 @@
     padding: 5px 10px;
 }
 #term:after {
-    content: 'Terminate';
+    content: 'Return to Config';
 }
 
 #execTerm:after {
-    content: 'Terminate';
+    content: 'Return';
 }
 
 #cancelTerm:after {
