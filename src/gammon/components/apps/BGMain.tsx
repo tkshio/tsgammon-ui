@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { honsugorokuConf, standardConf } from 'tsgammon-core'
+import { DicePip, honsugorokuConf, standardConf } from 'tsgammon-core'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -23,6 +23,11 @@ import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
+import {
+    GameSetup,
+    GameStatus,
+} from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { decodePositionID } from 'tsgammon-core/utils/decodePositionID'
 import { BoardEventHandlers } from '../boards/Board'
 import './bgMain.css'
 import { Cubeless } from './Cubeless'
@@ -53,8 +58,16 @@ const matchChoice: MatchChoice[] = [
 ]
 const defaultChoice: MatchChoice = '3pt'
 const gameConfSet = {
-    standard: standardConf,
-    honSugoroku: honsugorokuConf,
+    standard: {
+        conf: standardConf,
+        name: standardConf.name,
+        forceCubeless: false,
+    },
+    honSugoroku: {
+        conf: honsugorokuConf,
+        name: honsugorokuConf.name,
+        forceCubeless: true,
+    },
 }
 type RuleLabel = keyof typeof gameConfSet
 type BGMainState = BGMainConfState | BGMainPlayState
@@ -64,6 +77,14 @@ type _BGMainState = {
     selected: MatchChoice
     recordMoves: boolean
     rule: RuleLabel
+    position: {
+        positionID: string
+        isValid: boolean
+        toPlay: 'OPENING' | 'RED' | 'WHITE'
+        presetRoll: boolean
+        dice1: DicePip
+        dice2: DicePip
+    }
 }
 
 type BGMainConfState = _BGMainState & {
@@ -84,9 +105,53 @@ export function BGMain(props: BGMainProps) {
         selected: defaultChoice,
         recordMoves: true,
         rule: 'standard',
+        position: {
+            isValid: true,
+            positionID: '',
+            toPlay: 'OPENING',
+            presetRoll: false,
+            dice1: 1,
+            dice2: 1,
+        },
     }
     const [state, setState] = useState<BGMainState>(initialConf)
-
+    function toGameSetup(state: BGMainState): GameSetup {
+        const { position } = state
+        const absPos =
+            state.position.positionID.length === 0
+                ? gameConfSet[state.rule].conf.initialPos
+                : decodePositionID(position.positionID).points
+        if (position.toPlay === 'OPENING') {
+            return {
+                gameStatus: GameStatus.OPENING,
+                absPos,
+            }
+        }
+        if (position.toPlay === 'RED') {
+            return position.presetRoll
+                ? {
+                      gameStatus: GameStatus.INPLAY_RED,
+                      absPos,
+                      dice1: position.dice1,
+                      dice2: position.dice2,
+                  }
+                : {
+                      gameStatus: GameStatus.TOROLL_RED,
+                      absPos,
+                  }
+        }
+        return position.presetRoll
+            ? {
+                  gameStatus: GameStatus.INPLAY_WHITE,
+                  absPos,
+                  dice1: position.dice1,
+                  dice2: position.dice2,
+              }
+            : {
+                  gameStatus: GameStatus.TOROLL_WHITE,
+                  absPos,
+              }
+    }
     if (state.tag === 'CONF') {
         return (
             <div id="conf">
@@ -102,6 +167,8 @@ export function BGMain(props: BGMainProps) {
                 {autoOpConf(state)}
                 <h3>Rule</h3>
                 {gameRuleConf(state)}
+                <h3>Position</h3>
+                {positionConf(state)}
                 <hr />
                 <Button
                     id="startBGMatch"
@@ -118,18 +185,20 @@ export function BGMain(props: BGMainProps) {
             </div>
         )
     } else {
+        const gameSetup: GameSetup = toGameSetup(state)
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
-            gameConf: gameConfSet[state.rule],
+            gameConf: gameConfSet[state.rule].conf,
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
             dialog: state.isTerminating ? terminateDialog(state) : undefined,
             matchLength: matchChoiceSet[state.selected].len,
             recordMatch: state.recordMoves,
+            gameSetup,
         }
 
-        if (state.rule === 'honSugoroku' || state.selected === 'Cubeless') {
+        if (state.selected === 'Cubeless') {
             return (
                 <Fragment>
                     <Cubeless {...bgMatchProps} key={matchKey} />
@@ -255,13 +324,17 @@ export function BGMain(props: BGMainProps) {
         )
         function confItem(conf: BGMainConfState, value: MatchChoice) {
             return (
-                <Fragment>
+                <Fragment key={value}>
                     <input
                         type="radio"
                         name="gameConf"
                         id={value}
                         value={value}
                         checked={conf.selected === value}
+                        disabled={
+                            gameConfSet[conf.rule].forceCubeless &&
+                            value !== 'Cubeless'
+                        }
                         onChange={() => {
                             const nextState: BGMainConfState = {
                                 ...conf,
@@ -305,7 +378,7 @@ export function BGMain(props: BGMainProps) {
         const ids: ('red' | 'white')[] = ['red', 'white']
         return ids.map((id: 'red' | 'white') => {
             return (
-                <p>
+                <Fragment key={id}>
                     <label htmlFor={id}>{labels[id]}: </label>
                     <input
                         id={id}
@@ -321,7 +394,7 @@ export function BGMain(props: BGMainProps) {
                             })
                         }}
                     />
-                </p>
+                </Fragment>
             )
         })
     }
@@ -329,10 +402,15 @@ export function BGMain(props: BGMainProps) {
         const rules: RuleLabel[] = Object.getOwnPropertyNames(
             gameConfSet
         ) as RuleLabel[]
-        return <p>{rules.map((s: RuleLabel) => confItem(state, s))}</p>
+        return (
+            <Fragment>
+                {rules.map((s: RuleLabel) => confItem(state, s))}
+            </Fragment>
+        )
         function confItem(conf: BGMainConfState, value: RuleLabel) {
+            const gameConf = gameConfSet[value]
             return (
-                <Fragment>
+                <Fragment key={value}>
                     <input
                         type="radio"
                         name="ruleConf"
@@ -343,11 +421,157 @@ export function BGMain(props: BGMainProps) {
                             const nextState: BGMainConfState = {
                                 ...conf,
                                 rule: value,
+                                selected: gameConf.forceCubeless
+                                    ? 'Cubeless'
+                                    : conf.selected,
+                                position: {
+                                    ...conf.position,
+                                    toPlay:
+                                        value === 'honSugoroku'
+                                            ? 'RED'
+                                            : 'OPENING',
+                                },
                             }
                             setState(nextState)
                         }}
                     />
-                    <label htmlFor={value}>{gameConfSet[value].name}</label>
+                    <label htmlFor={value}>{gameConf.name}</label>
+                </Fragment>
+            )
+        }
+    }
+
+    function positionConf(state: BGMainConfState) {
+        return (
+            <Fragment>
+                <div>
+                    <label htmlFor="position">PositionID: </label>
+                    <input
+                        id="position"
+                        type="field"
+                        value={state.position.positionID}
+                        onChange={(position) => {
+                            setState({
+                                ...state,
+                                position: {
+                                    ...state.position,
+                                    positionID: position.target.value,
+                                    isValid: true,
+                                },
+                            })
+                        }}
+                    />
+                    <Button id="reset_posID" onClick={()=>{
+                        setState({
+                            ...state,
+                            position:{
+                                ...state.position,
+                                positionID:''
+                            }
+                        })
+                    }}>reset</Button>
+                </div>
+                {setupConf(state)}
+            </Fragment>
+        )
+
+        function setupConf(state: BGMainConfState) {
+            const position = state.position
+            const onChange = (s: 'RED' | 'WHITE' | 'OPENING') => () => {
+                const nextState: BGMainConfState = {
+                    ...state,
+                    position: {
+                        ...position,
+                        toPlay: s,
+                    },
+                }
+                setState(nextState)
+            }
+            return (
+                <Fragment>
+                    <input
+                        type="radio"
+                        name="setupConf"
+                        id="setupConf_opening"
+                        value="OPENING"
+                        checked={position.toPlay === 'OPENING'}
+                        onChange={onChange('OPENING')}
+                    />
+                    <label htmlFor="setupConf_opening">Opening</label>
+                    <input
+                        type="radio"
+                        name="setupConf"
+                        id="setupConf_red"
+                        value="RED"
+                        checked={position.toPlay === 'RED'}
+                        onChange={onChange('RED')}
+                    />
+                    <label htmlFor="setupConf_red">Red to Play</label>
+                    <input
+                        type="radio"
+                        name="setupConf"
+                        id="setupConf_white"
+                        value="WHITE"
+                        checked={position.toPlay === 'WHITE'}
+                        onChange={onChange('WHITE')}
+                    />
+                    <label htmlFor="setupConf_white">White to Play</label>
+                    <br />
+                    <input
+                        type="checkbox"
+                        id="setupConf_presetRoll"
+                        checked={position.presetRoll}
+                        disabled={state.position.toPlay === 'OPENING'}
+                        onChange={(e) => {
+                            const nextState: BGMainConfState = {
+                                ...state,
+                                position: {
+                                    ...state.position,
+                                    presetRoll: e.target.checked,
+                                },
+                            }
+                            setState(nextState)
+                        }}
+                    />
+                    <label htmlFor="setupConf_presetRoll">Preset Roll</label>
+                    {state.position.presetRoll && (
+                        <Fragment>
+                            <br />
+                            {diceConf('dice1')}
+                            <br />
+                            {diceConf('dice2')}
+                        </Fragment>
+                    )}
+                </Fragment>
+            )
+        }
+
+        function diceConf(label: 'dice1' | 'dice2') {
+            const pips: DicePip[] = [1, 2, 3, 4, 5, 6]
+            return (
+                <Fragment>
+                    {pips.map((d: DicePip) => (
+                        <Fragment key={d}>
+                            {' '}
+                            <input
+                                type="radio"
+                                name={`diceConf${label}`}
+                                id={`diceConf${label}_${d}`}
+                                checked={state.position[label] === d}
+                                onChange={() => {
+                                    const nextState: BGMainConfState = {
+                                        ...state,
+                                        position: {
+                                            ...state.position,
+                                            [label]: d,
+                                        },
+                                    }
+                                    setState(nextState)
+                                }}
+                            />
+                            <label htmlFor={`diceConf${label}_${d}`}>{d}</label>
+                        </Fragment>
+                    ))}
                 </Fragment>
             )
         }
