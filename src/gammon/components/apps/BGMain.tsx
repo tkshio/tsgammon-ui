@@ -1,5 +1,5 @@
-import { Fragment, useState } from 'react'
-import { DicePip, honsugorokuConf, standardConf } from 'tsgammon-core'
+import { ChangeEvent, Fragment, useState } from 'react'
+import { DicePip, honsugorokuConf, score, standardConf } from 'tsgammon-core'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -75,6 +75,8 @@ type _BGMainState = {
     autoOp: { red: boolean; white: boolean }
     playersConf: PlayersConf
     selected: MatchChoice
+    score: { redScore: number; whiteScore: number }
+    isCrawford: boolean
     recordMoves: boolean
     rule: RuleLabel
     position: {
@@ -103,6 +105,8 @@ export function BGMain(props: BGMainProps) {
         autoOp: { red: true, white: false },
         playersConf: defaultPlayersConf,
         selected: defaultChoice,
+        score: { redScore: 0, whiteScore: 0 },
+        isCrawford: false,
         recordMoves: true,
         rule: 'standard',
         position: {
@@ -160,6 +164,8 @@ export function BGMain(props: BGMainProps) {
                 {recordMovesConf(state)}
                 <h3>Match Point</h3>
                 {matchPointConf(state)}
+                <h4>Score</h4>
+                {matchScoreConf(state)}
                 <p />
                 <h3>Players name</h3>
                 {playersConf(state)}
@@ -186,6 +192,8 @@ export function BGMain(props: BGMainProps) {
         )
     } else {
         const gameSetup: GameSetup = toGameSetup(state)
+        const redScore = isNaN(state.score.redScore)?0:state.score.redScore
+        const whiteScore = isNaN(state.score.whiteScore)?0:state.score.whiteScore
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
             gameConf: gameConfSet[state.rule].conf,
@@ -196,6 +204,8 @@ export function BGMain(props: BGMainProps) {
             matchLength: matchChoiceSet[state.selected].len,
             recordMatch: state.recordMoves,
             gameSetup,
+            matchScore:score({redScore, whiteScore}),
+            isCrawford:state.isCrawford??false
         }
 
         if (state.selected === 'Cubeless') {
@@ -313,7 +323,64 @@ export function BGMain(props: BGMainProps) {
         setMatchKey((prev) => prev + 1)
         setState({ ...state, tag: 'CONF', selected: state.selected })
     }
+    function isCrawford(len: number, score: { redScore: number; whiteScore: number }) {
+        return len === score.redScore + 1 || len === score.whiteScore + 1
+    }
+    function matchScoreConf(state: BGMainConfState) {
+        const isMatchPoint = !(
+            state.selected === '1pt' ||
+            state.selected === 'Cubeless' ||
+            state.selected === 'Unlimited'
+        )
+        const matchLen = matchChoiceSet[state.selected].len
+        const onChange =
+            (s: 'redScore' | 'whiteScore') => (e: ChangeEvent<HTMLInputElement>) => {
+                const _v: number = parseInt(e.currentTarget.value)
+                const v = isNaN(_v)?_v:_v
+                if (isNaN(v) || (0 <= v && v <= matchLen)) {
+                    const newScore = { ...state.score, [s]: v }
+                    setState({
+                        ...state,
+                        score: newScore,
+                        isCrawford: isCrawford(matchLen, newScore),
+                    })
+                }
+            }
 
+        return (
+            <Fragment>
+                {' '}
+                <label htmlFor="score_red">Red:</label>
+                <input
+                    id="score_red"
+                    type="field"
+                    size={3}
+                    value={isNaN(state.score.redScore)?'':state.score.redScore}
+                    onChange={onChange('redScore')}
+                />
+                <label htmlFor="score_white">White:</label>
+                <input
+                    id="score_white"
+                    type="field"
+                    size={3}
+                    value={isNaN(state.score.whiteScore)?'':state.score.whiteScore}
+                    onChange={onChange('whiteScore')}
+                />
+                <input
+                    type="checkbox"
+                    id="matchpoint_isCrawford"
+                    checked={state.isCrawford}
+                    disabled={
+                        !isMatchPoint || !isCrawford(matchLen, state.score)
+                    }
+                    onChange={(e) => {
+                        setState({ ...state, isCrawford: e.target.checked })
+                    }}
+                />
+                <label>crawford game</label>
+            </Fragment>
+        )
+    }
     function matchPointConf(state: BGMainConfState) {
         return (
             <Fragment>
@@ -322,7 +389,7 @@ export function BGMain(props: BGMainProps) {
                 )}
             </Fragment>
         )
-        function confItem(conf: BGMainConfState, value: MatchChoice) {
+        function confItem(state: BGMainConfState, value: MatchChoice) {
             return (
                 <Fragment key={value}>
                     <input
@@ -330,16 +397,21 @@ export function BGMain(props: BGMainProps) {
                         name="gameConf"
                         id={value}
                         value={value}
-                        checked={conf.selected === value}
+                        checked={state.selected === value}
                         disabled={
-                            gameConfSet[conf.rule].forceCubeless &&
+                            gameConfSet[state.rule].forceCubeless &&
                             value !== 'Cubeless'
                         }
                         onChange={() => {
+                            const matchLen = matchChoiceSet[value].len
                             const nextState: BGMainConfState = {
-                                ...conf,
-                                tag: 'CONF',
+                                ...state,
                                 selected: value,
+                                score:{redScore:Math.min(state.score.redScore, matchLen), whiteScore:Math.min(state.score.whiteScore, matchLen)},
+                                isCrawford: isCrawford(
+                                    matchLen,
+                                    state.score
+                                ),
                             }
                             setState(nextState)
                         }}
@@ -461,15 +533,20 @@ export function BGMain(props: BGMainProps) {
                             })
                         }}
                     />
-                    <Button id="reset_posID" onClick={()=>{
-                        setState({
-                            ...state,
-                            position:{
-                                ...state.position,
-                                positionID:''
-                            }
-                        })
-                    }}>reset</Button>
+                    <Button
+                        id="reset_posID"
+                        onClick={() => {
+                            setState({
+                                ...state,
+                                position: {
+                                    ...state.position,
+                                    positionID: '',
+                                },
+                            })
+                        }}
+                    >
+                        reset
+                    </Button>
                 </div>
                 {setupConf(state)}
             </Fragment>
