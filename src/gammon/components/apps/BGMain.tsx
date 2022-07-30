@@ -303,7 +303,7 @@ export function BGMain(props: BGMainProps) {
                     {' '}
                     <input
                         type="checkbox"
-                        id={id}
+                        id={`cpu_${id}`}
                         value={id}
                         checked={state.autoOp[id]}
                         onChange={() =>
@@ -316,7 +316,7 @@ export function BGMain(props: BGMainProps) {
                             })
                         }
                     />
-                    <label htmlFor={id}>{labels[id]}</label>
+                    <label htmlFor={`cpu_${id}`}>{labels[id]}</label>
                 </Fragment>
             )
         }
@@ -472,9 +472,9 @@ export function BGMain(props: BGMainProps) {
         return ids.map((id: 'red' | 'white') => {
             return (
                 <Fragment key={id}>
-                    <label htmlFor={id}>{labels[id]}: </label>
+                    <label htmlFor={`player_${id}`}>{labels[id]}: </label>
                     <input
-                        id={id}
+                        id={`player_${id}`}
                         type="field"
                         value={state.playersConf[id].name}
                         onChange={(e) => {
