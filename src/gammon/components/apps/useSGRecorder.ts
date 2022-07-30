@@ -1,16 +1,17 @@
+import { Score } from 'tsgammon-core'
+import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { matchRecorderAsSG } from 'tsgammon-core/records/MatchRecorder'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
-import { SGRecorder } from './Cubeless'
-import { score } from 'tsgammon-core'
 import { initMatchState } from '../useMatchState'
+import { SGRecorder } from './Cubeless'
 
 export function useSGRecorder(
     gameConf: GameConf,
     setSGState: (sgState: SGState) => void,
-    recordMatch: boolean
+    recordMatch: boolean,
+    matchScore:Score
 ): {
     matchRecordListener: Partial<SingleGameListener>
     sgRecorder: SGRecorder
@@ -19,7 +20,7 @@ export function useSGRecorder(
         gameConf,
         initMatchState({
             stakeConf: gameConf,
-            matchScore: score(),
+            matchScore: matchScore,
             matchLength: 0,
             isCrawford: false,
         })

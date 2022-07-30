@@ -20,6 +20,7 @@ import {
     eogEventHandlersSG,
     SGEoGHandler,
 } from 'tsgammon-core/dispatchers/EOGEventHandlers'
+import { score, Score } from 'tsgammon-core'
 
 export function useCubeless(
     conf: {
@@ -27,6 +28,7 @@ export function useCubeless(
         gameConf?: GameConf
         diceSource?: DiceSource
         recordMatch?: boolean
+        matchScore?:Score
     } & Partial<RollListener>
 ): {
     sgState: SGState
@@ -42,6 +44,7 @@ export function useCubeless(
         diceSource,
         onRollRequest,
         recordMatch = false,
+        matchScore = score()
     } = conf
     const rListener = rollListener({
         diceSource,
@@ -54,7 +57,8 @@ export function useCubeless(
     const { sgRecorder, matchRecordListener } = useSGRecorder(
         gameConf,
         setSGState,
-        recordMatch
+        recordMatch,
+        matchScore
     )
     const listeners = [
         setSGStateListener(defaultSGState(gameConf), setSGState),

@@ -37,6 +37,7 @@ export function Cubeless(props: CubelessProps) {
         onRollRequest,
         dialog,
         recordMatch = false,
+        matchScore,
         ...exListeners
     } = props
 
@@ -47,6 +48,7 @@ export function Cubeless(props: CubelessProps) {
             diceSource,
             onRollRequest,
             recordMatch,
+            matchScore
         })
 
     const { resignState, rsDialogHandler: rsHandler } = useResignState(
