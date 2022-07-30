@@ -45,6 +45,7 @@ const matchChoiceSet = {
     '3pt': { len: 3 },
     '5pt': { len: 5 },
     '7pt': { len: 7 },
+    '11pt': { len: 11 },
     Cubeless: { len: 0 },
 }
 type MatchChoice = keyof typeof matchChoiceSet
@@ -54,6 +55,7 @@ const matchChoice: MatchChoice[] = [
     '3pt',
     '5pt',
     '7pt',
+    '11pt',
     'Cubeless',
 ]
 const defaultChoice: MatchChoice = '3pt'
@@ -344,9 +346,12 @@ export function BGMain(props: BGMainProps) {
         const onChange =
             (s: 'redScore' | 'whiteScore') =>
             (e: ChangeEvent<HTMLInputElement>) => {
-                const _v: number = parseInt(e.currentTarget.value)
-                const v = isNaN(_v) ? _v : _v
-                if (isNaN(v) || (0 <= v && v <= matchLen)) {
+                const v: number = parseInt(e.currentTarget.value)
+                if (
+                    isNaN(v) ||
+                    matchLen === 0 ||
+                    (matchLen !== 0 && 0 <= v && v < matchLen)
+                ) {
                     const newScore = { ...state.score, [s]: v }
                     setState({
                         ...state,
@@ -393,6 +398,18 @@ export function BGMain(props: BGMainProps) {
                     }}
                 />
                 <label>crawford game</label>
+                <Button
+                    id="reset_score"
+                    role="reset"
+                    onClick={() => {
+                        setState({
+                            ...state,
+                            score: { redScore: 0, whiteScore: 0 },
+                        })
+                    }}
+                >
+                    reset
+                </Button>
             </Fragment>
         )
     }
@@ -422,16 +439,19 @@ export function BGMain(props: BGMainProps) {
                             const nextState: BGMainConfState = {
                                 ...state,
                                 selected: value,
-                                score: {
-                                    redScore: Math.min(
-                                        state.score.redScore,
-                                        matchLen
-                                    ),
-                                    whiteScore: Math.min(
-                                        state.score.whiteScore,
-                                        matchLen
-                                    ),
-                                },
+                                score:
+                                    matchLen === 0
+                                        ? state.score
+                                        : {
+                                              redScore: Math.min(
+                                                  state.score.redScore,
+                                                  matchLen - 1
+                                              ),
+                                              whiteScore: Math.min(
+                                                  state.score.whiteScore,
+                                                  matchLen - 1
+                                              ),
+                                          },
                                 isCrawford: isCrawford(matchLen, state.score),
                             }
                             setState(nextState)
@@ -556,6 +576,7 @@ export function BGMain(props: BGMainProps) {
                     />
                     <Button
                         id="reset_posID"
+                        role="reset"
                         onClick={() => {
                             setState({
                                 ...state,

@@ -46,7 +46,7 @@
     background: darkslategray;
 }
 
-#reset_posID{
+[role=reset]{
     width:fit-content;
     display:inline;
     border:black;
