@@ -30,14 +30,14 @@
     margin-bottom: 1px;
 }
 
-/* ただし、バー内では逆 */
+/* バー内でも同様の向き */
 .bar .upper .column .point {
-    flex-direction: column-reverse;
+    flex-direction: column;
     margin-bottom: calc(var(--pieceSize) * 1 / 2);
 }
 
 .bar .lower .column .point {
-    flex-direction: column;
+    flex-direction: column-reverse;
     margin-top: calc(var(--pieceSize) * 1 / 2);
 }
 
