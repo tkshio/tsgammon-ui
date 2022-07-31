@@ -126,7 +126,10 @@ export function BGMain(props: BGMainProps) {
         const absPos =
             state.position.positionID.length === 0
                 ? gameConfSet[state.rule].conf.initialPos
+                : position.toPlay === 'RED'
+                ? decodePositionID(position.positionID).revert().points
                 : decodePositionID(position.positionID).points
+
         if (position.toPlay === 'OPENING') {
             return {
                 gameStatus: GameStatus.OPENING,
@@ -142,7 +145,7 @@ export function BGMain(props: BGMainProps) {
                       dice2: position.dice2,
                   }
                 : {
-                      gameStatus: GameStatus.TOROLL_RED,
+                      gameStatus: GameStatus.CUBEACTION_RED,
                       absPos,
                   }
         }
@@ -154,7 +157,7 @@ export function BGMain(props: BGMainProps) {
                   dice2: position.dice2,
               }
             : {
-                  gameStatus: GameStatus.TOROLL_WHITE,
+                  gameStatus: GameStatus.CUBEACTION_WHITE,
                   absPos,
               }
     }
@@ -397,7 +400,7 @@ export function BGMain(props: BGMainProps) {
                         setState({ ...state, isCrawford: e.target.checked })
                     }}
                 />
-                <label htmlFor='matchpoint_isCrawford'>crawford game</label>
+                <label htmlFor="matchpoint_isCrawford">crawford game</label>
                 <Button
                     id="reset_score"
                     role="reset"
