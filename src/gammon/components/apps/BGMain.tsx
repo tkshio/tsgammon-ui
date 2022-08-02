@@ -226,7 +226,9 @@ export function BGMain(props: BGMainProps) {
             : state.score.whiteScore
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
-            gameConf: gameConfSet[state.rule].conf,
+            gameConf: {...gameConfSet[state.rule].conf,
+                jacobyRule: state.selected === 'Unlimited'
+            },
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
             autoOperators: autoOp(state),
