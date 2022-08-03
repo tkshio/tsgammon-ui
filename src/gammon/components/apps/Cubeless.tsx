@@ -48,7 +48,7 @@ export function Cubeless(props: CubelessProps) {
             diceSource,
             onRollRequest,
             recordMatch,
-            matchScore
+            matchScore,
         })
 
     const { resignState, rsDialogHandler: rsHandler } = useResignState(
@@ -78,7 +78,18 @@ export function Cubeless(props: CubelessProps) {
     if (sgRecorder.recordMatch) {
         return <RecordedSingleGame {...{ ...singleGameProps, ...sgRecorder }} />
     } else {
-        return <SingleGame {...{...singleGameProps, matchScore:sgRecorder.matchRecord.matchState.score}} />
+        return (
+            <div id="main">
+                <div id="boardPane">
+                    <SingleGame
+                        {...{
+                            ...singleGameProps,
+                            matchScore: sgRecorder.matchRecord.matchState.score,
+                        }}
+                    />
+                </div>
+            </div>
+        )
     }
 }
 
