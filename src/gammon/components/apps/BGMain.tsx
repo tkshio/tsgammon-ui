@@ -28,9 +28,12 @@ import {
     GameStatus,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { decodePositionID } from 'tsgammon-core/utils/decodePositionID'
+import { formatBoard } from 'tsgammon-core/utils/formatBoard'
 import { BoardEventHandlers } from '../boards/Board'
-import './bgMain.css'
 import { Cubeless } from './Cubeless'
+
+import './bgMain.css'
+import { toPositionID } from 'tsgammon-core/utils/toPositionID'
 
 export type BGMainProps = Partial<
     BGListener &
@@ -81,13 +84,14 @@ const gameConfSet = {
         },
         name: 'Nackgammon',
         forceCubeless: false,
-    },    hyperGammon: {
+    },
+    hyperGammon: {
         conf: {
             ...standardConf,
             name: 'Hypergammon',
             initialPos: [
-                0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, -1, -1, -1, 0,
+                0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, -1, -1, -1, 0,
             ],
         },
         name: 'Hypergammon',
@@ -226,8 +230,9 @@ export function BGMain(props: BGMainProps) {
             : state.score.whiteScore
         const bgMatchProps: CubefulMatchProps = {
             ...exListeners,
-            gameConf: {...gameConfSet[state.rule].conf,
-                jacobyRule: state.selected === 'Unlimited'
+            gameConf: {
+                ...gameConfSet[state.rule].conf,
+                jacobyRule: state.selected === 'Unlimited',
             },
             onEndOfMatch: () => onEndOfMatch(state),
             playersConf: state.playersConf,
@@ -583,6 +588,9 @@ export function BGMain(props: BGMainProps) {
     }
 
     function positionConf(state: BGMainConfState) {
+        const text = state.position.positionID
+            ? formatBoard(decodePositionID(state.position.positionID), true).join('\n')
+            : ''
         return (
             <Fragment>
                 <div>
@@ -617,6 +625,38 @@ export function BGMain(props: BGMainProps) {
                     >
                         reset
                     </Button>
+                    <div id="confPositionID">
+                        {state.position.positionID && (
+                            <Fragment>
+                                <div id="textBoard">
+                                    X to Play:
+                                    <br />
+                                    <br />
+                                    {text}
+                                </div>
+                                <Button
+                                    id="revertPositionID"
+                                    role="reset"
+                                    onClick={() => {
+                                        setState({
+                                            ...state,
+                                            position: {
+                                                ...state.position,
+                                                positionID: toPositionID(
+                                                    decodePositionID(
+                                                        state.position
+                                                            .positionID
+                                                    ).revert()
+                                                ),
+                                            },
+                                        })
+                                    }}
+                                >
+                                    revert
+                                </Button>
+                            </Fragment>
+                        )}
+                    </div>
                 </div>
                 {setupConf(state)}
             </Fragment>

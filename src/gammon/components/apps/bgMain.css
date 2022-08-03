@@ -42,16 +42,34 @@
 }
 
 #cancelTerm {
-    color:white;
+    color: white;
     background: darkslategray;
 }
 
-[role=reset]{
-    width:fit-content;
-    display:inline;
-    border:black;
+[role='reset'] {
+    width: fit-content;
+    display: inline;
+    border: black;
     border-style: solid;
     border-width: 1px;
     padding: 1px 10px;
     margin: 5px 10px;
+}
+
+#textBoard {
+    white-space: pre;
+    border: 1px solid gray;
+    margin: 5px;
+    padding: 5px;
+    font-family: 'Lucida Console', 'Consolas', 'Courier New', monospace;
+    width: fit-content;
+}
+
+#confPositionID {
+    width: fit-content;
+    display: flex;
+    flex-flow: column;
+}
+#revertPositionID {
+    align-self: flex-end;
 }
