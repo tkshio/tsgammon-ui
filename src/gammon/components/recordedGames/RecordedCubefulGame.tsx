@@ -1,141 +1,82 @@
-import { plyRecordForCheckerPlay, plyRecordForDouble, plyRecordForEoG, plyRecordForPass, plyRecordForTake } from 'tsgammon-core/records/PlyRecord';
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher';
-import { CubeGameListeners, decorate as decorateCB } from '../../dispatchers/CubeGameDispatcher';
-import { CBEoG, CBResponse, CBToRoll } from '../../dispatchers/CubeGameState';
-import { RollListener } from '../../dispatchers/RollDispatcher';
-import { decorate as decorateSG, SingleGameListeners } from '../../dispatchers/SingleGameDispatcher';
-import { SGEoG, SGToRoll } from '../../dispatchers/SingleGameState';
-import { CubefulGameBoard, CubefulGameBoardProps, CubefulGameConfs } from '../CubefulGameBoard';
-import { EOGDialog } from '../uiparts/EOGDialog';
-import { PlyInfo } from '../uiparts/PlyInfo';
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners';
-import { BGState } from './BGState';
-import { RecordedGame } from './RecordedGame';
-import { MatchRecorder, useMatchRecorder } from './useMatchRecorder';
-import { useSelectableStateWithRecord } from './useSelectableStateWithRecords';
+import { Fragment } from 'react'
+import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { matchStateLastGame } from 'tsgammon-core/MatchState'
+import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { CubefulGame, CubefulGameProps } from '../CubefulGame'
+import { defaultPlayersConf } from '../PlayersConf'
+import { useCheckerPlayListener } from '../useCheckerPlayListeners'
+import { RecordedGame } from './RecordedGame'
+import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-
-export type RecordedCubefulGameProps = {
-    bgState: BGState,
-
-    onStartNextGame: () => void
-    onResumeState: (state: BGState) => void
-    cbConfs: CubefulGameConfs
+export type RecordedCubefulGameProps = Omit<
+    CubefulGameProps,
+    'matchState' | 'cpState'
+> & {
+    matchRecord: MatchRecord<BGState>,
+    onResumeState?: (index: number) => void
 }
-    & CubeGameListeners
-    & SingleGameListeners
-    & Partial<CheckerPlayListeners
-        & RollListener
-    >
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
+        resignState,
         bgState: curBGState,
-        cbConfs = {
-            sgConfs: {
-            }
+        matchRecord,
+        gameConf,
+        playersConf = defaultPlayersConf,
+        onResumeState = () => {
+            //
         },
-        onResumeState = () => { },
-        onStartNextGame = () => { },
-        ...listeners
+        dialog,
+        ...eventHandlers
     } = props
+    const { matchState } = matchRecord
+    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
+        undefined,
+        eventHandlers
+    )
 
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(undefined, listeners);
-    const [matchRecord, matchRecorder] = useMatchRecorder<BGState>();
-    const { selectedState: { index, state: bgState }, ssListeners } =
-        useSelectableStateWithRecord(
-            curBGState, setCPState, matchRecorder, onResumeState
-        );
-
-
+    const {
+        selectedState: { index, state: bgState },
+        ssListeners,
+    } = useSelectableStateWithRecord(curBGState, setCPState, onResumeState)
     const isLatest = index === undefined
 
-    const cbListeners: CubeGameListeners = decorateCB(asCBListeners(matchRecorder, bgState), listeners)
-    const sgListeners: SingleGameListeners = decorateSG(asSGListeners(matchRecorder, bgState), listeners)
-
-    const eogDialog = bgState.cbState.tag === "CBEoG" ? (
-        <EOGDialog {...{
-            ...bgState.cbState, score: matchRecord.score, onClick: () => {
-                matchRecorder.resetCurGame()
-                onStartNextGame()
-            }
-        }} />
-    ) : undefined
-
     const minimalProps = {
-        ...bgState,
+        resignState,
+        bgState,
         cpState,
-        scoreBefore: matchRecord.score,
+        gameConf,
+        playersConf,
+        dialog,
         ...cpListeners,
-
     }
-    const cubeGameProps: CubefulGameBoardProps =
-        isLatest ?
-            {
-                ...minimalProps,
-                ...cbListeners,
-                ...sgListeners,
-                cbConfs,
-                eogDialog,
-            }
-            : minimalProps
+    const cubeGameProps: CubefulGameProps = isLatest
+        ? {
+              ...minimalProps,
+              ...eventHandlers,
+              matchState,
+          }
+        : {
+              ...minimalProps,
+              matchState: matchState.isEoG
+                  ? matchStateLastGame(matchState)
+                  : matchState,
+          }
 
-    const key = isLatest ? "latest" : "past" + index
+    const key = isLatest ? 'latest' : 'past' + index
 
     const recordedGameProps = {
-        matchRecord: matchRecord,
+        matchRecord,
+        playersConf,
         index,
-        ...ssListeners
-    }
-
-    const plyInfoProps = {
-        cbState: bgState.cbState,
-        sgState: bgState.sgState,
-        cpState,
-        score: matchRecord.score
+        ...ssListeners,
     }
 
     return (
         <RecordedGame {...recordedGameProps}>
-            <div className='boardContainer'>
-                <CubefulGameBoard {...cubeGameProps} key={key} />
-                <PlyInfo {...plyInfoProps} />
-            </div>
+            <Fragment>
+                <CubefulGame {...cubeGameProps} key={key} />
+            </Fragment>
         </RecordedGame>
     )
 }
-
-function asCBListeners(matchRecorder: MatchRecorder<BGState>, state: BGState): Partial<CubeGameListeners> {
-    return { onDouble, onTake, onEndOfCubeGame }
-
-    function onDouble(nextState: CBResponse) {
-        const plyRecord = plyRecordForDouble(nextState.cubeState, nextState.isDoubleFromRed)
-        matchRecorder.recordPly(plyRecord, state)
-    }
-
-    function onTake(nextState: CBToRoll) {
-        const plyRecord = plyRecordForTake(!!!nextState.isRed)
-        matchRecorder.recordPly(plyRecord, state)
-    }
-
-    function onEndOfCubeGame(nextState: CBEoG) {
-        if (nextState.isWonByPass) {
-            const plyRecord = plyRecordForPass(nextState.result)
-            matchRecorder.recordPly(plyRecord, state)
-        }
-        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result)
-        matchRecorder.recordEoG(plyRecordEoG)
-    }
-}
-
-function asSGListeners(matchRecorder: MatchRecorder<BGState>, state: BGState): Partial<SingleGameListeners> {
-    return { onAwaitRoll: recordPly, onEndOfGame: recordPly }
-
-    function recordPly(nextState: SGToRoll | SGEoG) {
-        const lastState = nextState.lastState()
-        const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
-        matchRecorder.recordPly(plyRecord, { cbState: state.cbState, sgState: lastState })
-    }
-}
-
-

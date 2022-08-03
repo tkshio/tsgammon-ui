@@ -1,14 +1,7 @@
-.boardContainer {
-    width: fit-content;
-    position: relative
-}
-
 .dialogContainer {
     width: 100%;
-    height: calc(var(--boardHeight) + var(--pieceSize));
 
     position: absolute;
-    top: 0;
     display: flex;
 
     justify-content: center;
@@ -21,22 +14,21 @@
     background: white;
 
     width: 75%;
-    height: calc(var(--pieceSize) * 4.0);
+    height: calc(var(--pieceSize) * 4);
     padding: 0 0;
     margin: 0 0;
     border: 1px solid black;
 
     display: flex;
     flex-flow: column;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
 }
 
 .dialog .caption {
-    height: calc(var(--pieceSize) * 1.0);
+    height: calc(var(--pieceSize) * 1);
     display: flex;
     flex-flow: column;
     justify-content: center;
     align-items: center;
 }
-

@@ -1,0 +1,75 @@
+#conf {
+    font-family: sans-serif;
+}
+#startBGMatch {
+    background: darkslategray;
+    color: white;
+    width: 120px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+#startBGMatch:after {
+    content: 'StartGame';
+}
+#termDialog {
+    justify-content: space-evenly;
+}
+#termDialog > .csscaption:before {
+    content: 'Return to configuration menu?';
+}
+#term {
+    background: darkred;
+    color: white;
+    width: fit-content;
+    justify-content: center;
+    margin-top: 25px;
+    padding: 5px 10px;
+}
+#term:after {
+    content: 'Return to Config';
+}
+
+#execTerm:after {
+    content: 'Return';
+}
+
+#cancelTerm:after {
+    content: 'Cancel';
+}
+#execTerm {
+    background: lightgray;
+}
+
+#cancelTerm {
+    color: white;
+    background: darkslategray;
+}
+
+[role='reset'] {
+    width: fit-content;
+    display: inline;
+    border: black;
+    border-style: solid;
+    border-width: 1px;
+    padding: 1px 10px;
+    margin: 5px 10px;
+}
+
+#textBoard {
+    white-space: pre;
+    border: 1px solid gray;
+    margin: 5px;
+    padding: 5px;
+    font-family: 'Lucida Console', 'Consolas', 'Courier New', monospace;
+    width: fit-content;
+}
+
+#confPositionID {
+    width: fit-content;
+    display: flex;
+    flex-flow: column;
+}
+#revertPositionID {
+    align-self: flex-end;
+}

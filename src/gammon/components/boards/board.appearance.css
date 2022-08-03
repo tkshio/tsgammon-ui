@@ -3,7 +3,8 @@
     margin: 5px;
     border-color: var(--boardColor);
     border-style: solid;
-    border-width: calc(var(--pieceSize) * 0.5 + 3px) calc(var(--pieceSize) * 0.5);
+    border-width: calc(var(--pieceSize) * 0.5 + 3px)
+        calc(var(--pieceSize) * 0.5);
     background-color: var(--boardBackgroundColor);
 }
 
@@ -15,9 +16,9 @@
 }
 
 /* 中央・左右のバー */
-.bar, .side-bar {
+.bar,
+.side-bar {
     background-color: var(--boardColor);
-
 }
 
 /* ベアオフの駒の置き場 */
@@ -28,7 +29,7 @@
 /* 座標表記 */
 .posIndex {
     color: white;
-    font-size: calc(var(--pieceSize) * 0.5);
+    font-size: calc(var(--pieceSize) * 0.4);
 }
 
 /* 配色・サイズパラメーター */
@@ -51,5 +52,6 @@
 
     --cubeColor: black;
     --cubeFontColor: white;
-    --cubeMaxColor: gray;
+    --cubeMaxColor: darkgray;
+    --cubeBorderColor: black;
 }

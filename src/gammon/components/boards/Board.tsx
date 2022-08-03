@@ -1,14 +1,16 @@
-import React from 'react';
-import { AbsoluteBoardState, initAbsoluteBoard } from "tsgammon-core/AbsoluteBoardState";
-import { CubeOwner, CubeState } from 'tsgammon-core/CubeState';
-import { Dice } from 'tsgammon-core/Dices';
-import { Cube, CubeProps } from "./Cube";
-import { BlankDice, Dice as DiceComponent, DiceProps } from "./Dice";
-import { Point } from "./Point";
+import React from 'react'
+import {
+    AbsoluteBoardState,
+    initAbsoluteBoard,
+} from 'tsgammon-core/AbsoluteBoardState'
+import { Dice } from 'tsgammon-core/Dices'
+import { Cube, CubeProps } from './Cube'
+import { BlankDice, Dice as DiceComponent, DiceProps } from './Dice'
+import { Point } from './Point'
 
-import "./board.appearance.css";
-import "./board.css";
-
+import './board.appearance.css'
+import './board.css'
+import { IconButton } from '../uiparts/IconButton'
 
 export type DiceLayout = {
     redDices: DiceProps
@@ -16,19 +18,22 @@ export type DiceLayout = {
 }
 
 export type BoardEventHandlers = {
-    onClickPoint: (pos: number, dices: Dice[]) => void,
-    onClickCube: () => void,
+    onClickPoint: (pos: number, dices: Dice[]) => void
+    onClickCube: () => void
     onClickDice: () => void
 }
 
 export type BoardProps = {
-    board: AbsoluteBoardState
-    redDices: DiceProps
-    whiteDices: DiceProps
+    board?: AbsoluteBoardState
+    redDices?: DiceProps
+    whiteDices?: DiceProps
     centerCube?: CubeProps
     redCube?: CubeProps
     whiteCube?: CubeProps
-    cubeSpace?: JSX.Element | null
+    centerButton?: JSX.Element
+    upperButton?: JSX.Element
+    lowerButton?: JSX.Element
+    dialog?: JSX.Element
 } & Partial<BoardEventHandlers>
 
 /**
@@ -56,68 +61,83 @@ export function Board(props: BoardProps) {
         centerCube,
         redCube,
         whiteCube,
-        cubeSpace,
-        onClickCube = () => { },
-        onClickDice = () => { },
-        onClickPoint = () => { }
-    } = { ...props };
+        centerButton = <IconButton />,
+        upperButton = <IconButton />,
+        lowerButton = <IconButton />,
+        onClickCube = () => {
+            //
+        },
+        onClickDice = () => {
+            //
+        },
+        onClickPoint = () => {
+            //
+        },
+        dialog,
+    } = { ...props }
 
     function renderColumn(pos: number) {
-        const num = board.piecesAt(pos);
-        const dices: Dice[] =
-            (redDices.dices.length !== 0 ? redDices : whiteDices)
-                .dices
-                .filter((d: BlankDice|Dice): d is Dice => d.pip !== 0)
+        const num = board.piecesAt(pos)
+        const dices: Dice[] = (
+            redDices.dices.length !== 0 ? redDices : whiteDices
+        ).dices.filter((d: BlankDice | Dice): d is Dice => d.pip !== 0)
 
         return (
-            <div className="column"
+            <div
+                className="column"
                 onClick={() => onClickPoint(pos, dices)}
+                data-testid={`point-${pos}`}
             >
                 <Point count={num} />
-                <div className={"triangle"} />
+                <div className={'triangle'} />
             </div>
-        );
+        )
     }
 
     function renderDices(dice: DiceProps, label: string) {
         return (
-            <div className={"dice-space " + label}
+            <div
+                className={'dice-space ' + label}
                 onClick={onClickDice}
+                data-testid={`dice-${label}`}
             >
                 <DiceComponent {...dice} />
             </div>
-        );
+        )
     }
 
-    function renderCube(cube: CubeProps | undefined) {
+    function renderCube(cube: CubeProps | undefined, label: string) {
         if (cube) {
             return (
-                <div onClick={onClickCube}>
+                <div onClick={onClickCube} data-testid={`cube-${label}`}>
                     <Cube {...cube} />
                 </div>
-            );
+            )
         }
     }
 
+    const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
+
     return (
-        <div data-testid={"tid_gammonboard"}>
+        <div className="boardContainer" data-testid={'tid_gammonboard'}>
+            {dialog}
             <div className="board">
-                <div className={"innerBox"}>
-                    <div className={"side-bar"}>
-                        <div className={"goal upper"}>
+                <div className={'innerBox'}>
+                    <div className={'side-bar'}>
+                        <div className={'goal upper'}>
                             <Point count={-board.redBornOff()} />
                         </div>
-                        <div className={"cube-space"}>
-                            {renderCube(centerCube)}
+                        <div className={'cube-space'}>
+                            {renderCube(centerCube, 'center')}
                         </div>
-                        <div className={"goal lower"}>
+                        <div className={'goal lower'}>
                             <Point count={board.whiteBornOff()} />
                         </div>
                     </div>
-                    <div className={"centerArea"}>
-                        <div className={"inner"}>
+                    <div className={'centerArea'}>
+                        <div className={'inner'}>
                             <div>
-                                <div className={"posIndex upper"}>
+                                <div className={'posIndex upper'}>
                                     <div>24</div>
                                     <div>23</div>
                                     <div>22</div>
@@ -134,7 +154,7 @@ export function Board(props: BoardProps) {
                                     {renderColumn(6)}
                                 </div>
                             </div>
-                            {renderDices(redDices, "left")}
+                            {renderDices(redDices, 'left')}
                             <div>
                                 <div className="table lower">
                                     {renderColumn(19)}
@@ -144,7 +164,7 @@ export function Board(props: BoardProps) {
                                     {renderColumn(23)}
                                     {renderColumn(24)}
                                 </div>
-                                <div className={"posIndex lower"}>
+                                <div className={'posIndex lower'}>
                                     <span>1</span>
                                     <span>2</span>
                                     <span>3</span>
@@ -154,19 +174,19 @@ export function Board(props: BoardProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className={"bar"}>
-                            <div className={"upper"}>
-                                {renderCube(redCube)}
+                        <div className={'bar'}>
+                            <div className={'upper'}>
+                                {renderCube(redCube, 'red')}
                                 {renderColumn(0)}
                             </div>
-                            <div className={"lower"}>
-                                {renderCube(whiteCube)}
+                            <div className={'lower'}>
+                                {renderCube(whiteCube, 'white')}
                                 {renderColumn(25)}
                             </div>
                         </div>
-                        <div className={"outer"}>
+                        <div className={'outer'}>
                             <div>
-                                <div className={"posIndex upper"}>
+                                <div className={'posIndex upper'}>
                                     <span>18</span>
                                     <span>17</span>
                                     <span>16</span>
@@ -183,7 +203,7 @@ export function Board(props: BoardProps) {
                                     {renderColumn(12)}
                                 </div>
                             </div>
-                            {renderDices(whiteDices, "right")}
+                            {renderDices(whiteDices, 'right')}
                             <div>
                                 <div className="table lower">
                                     {renderColumn(13)}
@@ -193,7 +213,7 @@ export function Board(props: BoardProps) {
                                     {renderColumn(17)}
                                     {renderColumn(18)}
                                 </div>
-                                <div className={"posIndex lower"}>
+                                <div className={'posIndex lower'}>
                                     <span>7</span>
                                     <span>8</span>
                                     <span>9</span>
@@ -204,65 +224,67 @@ export function Board(props: BoardProps) {
                             </div>
                         </div>
                     </div>
-                    <div className={"side-bar"}>
-                        <div className={"goal upper"} />
-                        <div className={"cube-space"}>
-                            {cubeSpace}
+                    <div className={'side-bar'}>
+                        <div className={'goal upper'} />
+                        <div className={'button-space upper'}>
+                            {upperButton ?? ZERO_WIDTH_SPACE}
                         </div>
-                        <div className={"goal lower"} />
+                        <div className={'cube-space'}>
+                            {centerButton ?? ZERO_WIDTH_SPACE}
+                        </div>
+                        <div className={'button-space lower'}>
+                            {lowerButton ?? ZERO_WIDTH_SPACE}
+                        </div>
+                        <div className={'goal lower'} />
                     </div>
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-
-export function layoutCube(cubeState?: CubeState): {
-    centerCube?: CubeProps,
-    redCube?: CubeProps,
-    whiteCube?: CubeProps
-} {
-    const cube = { cube: cubeState }
-    const cubeOwner = cubeState?.owner;
-    const [centerCube, redCube, whiteCube] = doLayout()
-
-    return { centerCube, redCube, whiteCube }
-
-    function doLayout() {
-        if (cubeOwner === undefined) {
-            return [cube, undefined, undefined]
-        }
-        switch (cubeOwner) {
-            case CubeOwner.WHITE:
-                return [undefined, undefined, cube]
-            case CubeOwner.RED:
-                return [undefined, cube, undefined]
-        }
-    }
-}
-
-export function decorate(base: Partial<BoardEventHandlers>, addOn: Partial<BoardEventHandlers>): BoardEventHandlers {
-    const { onClickDice: onClickDiceAddOn,
+export function decorate(
+    base: Partial<BoardEventHandlers>,
+    addOn: Partial<BoardEventHandlers>
+): BoardEventHandlers {
+    const {
+        onClickDice: onClickDiceAddOn,
         onClickPoint: onClickPointAddOn,
-        onClickCube: onClickCubeAddOn } = addOn
+        onClickCube: onClickCubeAddOn,
+    } = addOn
 
-    const { onClickDice = () => { },
-        onClickPoint = () => { },
-        onClickCube = () => { }
+    const {
+        onClickDice = () => {
+            //
+        },
+        onClickPoint = () => {
+            //
+        },
+        onClickCube = () => {
+            //
+        },
     } = base
 
     const decorated = {
-        onClickDice: onClickDiceAddOn ?
-            () => { onClickDiceAddOn(); onClickDice() }
+        onClickDice: onClickDiceAddOn
+            ? () => {
+                  onClickDiceAddOn()
+                  onClickDice()
+              }
             : onClickDice,
-        onClickPoint: onClickPointAddOn ?
-            (absPos: number, dice: Dice[]) => { onClickPointAddOn(absPos, dice); onClickPoint(absPos, dice) }
+        onClickPoint: onClickPointAddOn
+            ? (absPos: number, dice: Dice[]) => {
+                  onClickPointAddOn(absPos, dice)
+                  onClickPoint(absPos, dice)
+              }
             : onClickPoint,
-        onClickCube: onClickCubeAddOn ?
-            () => { onClickCubeAddOn(); onClickCube() } : onClickCube
+        onClickCube: onClickCubeAddOn
+            ? () => {
+                  onClickCubeAddOn()
+                  onClickCube()
+              }
+            : onClickCube,
     }
 
     return decorated
 }
-

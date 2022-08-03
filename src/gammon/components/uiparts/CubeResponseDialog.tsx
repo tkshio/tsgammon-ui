@@ -1,12 +1,15 @@
-import React from 'react';
-import { Dialog } from './Dialog';
-import "./button.css"
-import "./cubeResponseDialog.css"
+import React, { Fragment } from 'react'
+import { Dialog } from './Dialog'
+import './button.css'
+import './cubeResponseDialog.css'
+import { Buttons } from './Buttons'
+import { Button } from './Button'
 
 export type CubeResponseDialogProps = {
-    onTake: () => void,
+    player?: string
+    onTake: () => void
     onPass: () => void
-};
+}
 
 /**
  * キューブレスポンスのための、すなわちTake/Passのみを指定可能なダイアログを表示する
@@ -14,19 +17,24 @@ export type CubeResponseDialogProps = {
  * @constructor
  */
 export function CubeResponseDialog(props: CubeResponseDialogProps) {
-
     return (
-        <Dialog {...{ msgs: [], onClick: () => { } }} >
+        <Dialog
+            {...{
+                msgs: [`${props.player??'Oppenent'} offers Double.`],
+                onClick: () => {
+                    //
+                },
+            }}
+        >
             <div className="cubeResponse">
-                <div className="csscaption" />
-                <div className="buttons">                    <div className={"button take"}
-                    onClick={() => props.onTake()}>
-                </div>
-                    <div className={"button pass"}
-                        onClick={() => props.onPass()}>
-                    </div>
-                </div>
+                <Buttons>
+                    <Fragment>
+                        {' '}
+                        <Button id="take" onClick={() => props.onTake()} />
+                        <Button id="pass" onClick={() => props.onPass()} />
+                    </Fragment>
+                </Buttons>
             </div>
-        </Dialog >
+        </Dialog>
     )
 }

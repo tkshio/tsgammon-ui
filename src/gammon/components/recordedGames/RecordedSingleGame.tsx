@@ -1,114 +1,75 @@
-import { plyRecordForCheckerPlay, plyRecordForEoG } from 'tsgammon-core/records/PlyRecord';
-import { CheckerPlayListeners } from '../../dispatchers/CheckerPlayDispatcher';
-import { RollListener } from '../../dispatchers/RollDispatcher';
-import { decorate, SingleGameListeners } from '../../dispatchers/SingleGameDispatcher';
-import { SGEoG, SGState, SGToRoll } from '../../dispatchers/SingleGameState';
-import { SingleGameBoard, SingleGameBoardProps, SingleGameConfs } from '../SingleGameBoard';
-import { EOGDialog } from '../uiparts/EOGDialog';
-import { PlyInfo } from '../uiparts/PlyInfo';
-import { useCheckerPlayListeners } from '../useCheckerPlayListeners';
-import { RecordedGame } from './RecordedGame';
-import { MatchRecorder, useMatchRecorder } from './useMatchRecorder';
-import { useSelectableStateWithRecord } from './useSelectableStateWithRecords';
+import { Fragment } from 'react'
+import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { SingleGame, SingleGameProps } from '../SingleGame'
+import { defaultPlayersConf } from '../PlayersConf'
+import { useCheckerPlayListener } from '../useCheckerPlayListeners'
+import { RecordedGame } from './RecordedGame'
+import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-
-export type RecordedSingleGameProps = {
-    sgState: SGState,
-    sgConfs: SingleGameConfs
-    onStartNextGame: () => void
-    onResumeState: (state: SGState) => void
+export type RecordedSingleGameProps = Omit<SingleGameProps, 'cpState'|'matchScore'> &{
+    matchRecord: MatchRecord<SGState>
+    onResumeState?: (index: number) => void
 }
-    & SingleGameListeners
-    & Partial<CheckerPlayListeners
-        & RollListener
-    >
-
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
+        resignState,
         sgState: curSGState,
-        sgConfs = {
+        matchRecord,
+        gameConf,
+        playersConf = defaultPlayersConf,
+        onResumeState = () => {
+            //
         },
-        onResumeState = () => { },
-        onStartNextGame = () => { },
-        ...listeners
+        dialog,
+       ...listeners
     } = props
 
-
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListeners(undefined, listeners);
-    const [matchRecord, matchRecorder] = useMatchRecorder<SGState>();
-    const { selectedState: { index, state: sgState }, ssListeners } =
-        useSelectableStateWithRecord(
-            curSGState, setCPState, matchRecorder, onResumeState
-        );
+    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
+        undefined,
+        listeners
+    )
+    const {
+        selectedState: { index, state: sgState },
+        ssListeners,
+    } = useSelectableStateWithRecord(curSGState, setCPState, onResumeState)
 
     const isLatest = index === undefined
 
-    const sgListeners: SingleGameListeners = decorate(listeners, asListeners(matchRecorder))
-
-    const eogDialog = sgState.tag === "SGEoG" ? (
-        <EOGDialog stake={sgState.stake} eogStatus={sgState.eogStatus} score={matchRecord.score} onClick={() => {
-            matchRecorder.resetCurGame()
-            if (onStartNextGame) {
-                onStartNextGame()
-            }
-        }} />
-    ) : undefined
-
-    const minimalProps: SingleGameBoardProps = {
+    const minimalProps: Omit<SingleGameProps, 'onStartNextGame'> = {
+        resignState,
         sgState,
         cpState,
+        matchScore:matchRecord.matchState.score,
+        gameConf,
+        playersConf,
+        dialog,
         ...cpListeners,
     }
 
-    const singleGameProps: SingleGameBoardProps =
-        isLatest ?
-            {
-                ...minimalProps,
-                ...sgListeners,
-                sgConfs,
-            }
-            : minimalProps
+    const singleGameProps: SingleGameProps = isLatest
+        ? {
+              ...minimalProps,
+              ...listeners,
+          }
+        : {
+              ...minimalProps,
+          }
 
-    const key = isLatest ? "latest" : "past" + index
+    const key = isLatest ? 'latest' : 'past' + index
 
     const recordedGameProps = {
-        matchRecord: matchRecord,
+        matchRecord,
+        playersConf,
         index,
-        ...ssListeners
-    }
-
-    const plyInfoProps = {
-        sgState,
-        cpState,
-        score: matchRecord.score
+        ...ssListeners,
     }
 
     return (
         <RecordedGame {...recordedGameProps}>
-            <div className='boardContainer'>
-                <SingleGameBoard {...singleGameProps} key={key} />
-                {eogDialog}
-                <PlyInfo {...plyInfoProps} />
-            </div>
+            <Fragment>
+                <SingleGame {...singleGameProps} key={key} />
+            </Fragment>
         </RecordedGame>
     )
 }
-
-function asListeners(matchRecorder: MatchRecorder<SGState>): Partial<SingleGameListeners> {
-    return { onAwaitRoll, onEndOfGame }
-
-    function onAwaitRoll(nextState: SGToRoll) {
-        const lastState = nextState.lastState()
-        const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
-        matchRecorder.recordPly(plyRecord, lastState)
-    }
-
-    function onEndOfGame(nextState: SGEoG) {
-        const lastState = nextState.lastState()
-        const plyRecord = plyRecordForCheckerPlay(lastState.curPly)
-        matchRecorder.recordPly(plyRecord, lastState)
-        const plyRecordEoG = plyRecordForEoG(nextState.stake, nextState.result)
-        matchRecorder.recordEoG(plyRecordEoG)
-    }
-}
-

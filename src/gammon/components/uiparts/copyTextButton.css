@@ -29,5 +29,5 @@
     color: rgba(0, 0, 0, 0);
     transition-property: color;
     transition-duration: 2s;
-    transition-delay: 0.0s;
+    transition-delay: 0s;
 }

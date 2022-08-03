@@ -1,37 +1,39 @@
-import { Meta, Story } from "@storybook/react";
-import React from "react";
-import { initAbsoluteBoard } from "tsgammon-core/AbsoluteBoardState";
-import { Board, BoardProps } from "../../gammon/components/boards/Board";
-import { CubeResponseDialog } from "../../gammon/components/uiparts/CubeResponseDialog";
+import { Meta, Story } from '@storybook/react'
+import React from 'react'
+import { initAbsoluteBoard } from 'tsgammon-core/AbsoluteBoardState'
+import { Board, BoardProps } from '../../gammon/components/boards/Board'
+import { CubeResponseDialog } from '../../gammon/components/uiparts/CubeResponseDialog'
 
 // this export is required.
 export default {
     title: 'CubeResponseDialog',
     component: CubeResponseDialog,
-    parameters: {}
-} as Meta;
+    parameters: {},
+} as Meta
 
 const board = {
-    status: "",
+    status: '',
     board: initAbsoluteBoard(),
     redDices: { dices: [] },
     whiteDices: { dices: [] },
     whiteScore: 0,
     redScore: 0,
+    dialog: (
+        <CubeResponseDialog
+            onTake={() => {
+                //
+            }}
+            onPass={() => {
+                //
+            }}
+        />
+    ),
 }
 
-const Template: Story<BoardProps> = (args) =>
-(
+const Template: Story<BoardProps> = () => (
     <>
-        <div className={"boardContainer"}>
-            <Board {...board} />
-            <CubeResponseDialog onTake={() => {
-            }} onPass={() => { }} />
-        </div>
+        <Board {...board} />
     </>
 )
-export const dialogWithBoard = Template.bind({});
-dialogWithBoard.args = {
-
-
-};
+export const dialogWithBoard = Template.bind({})
+dialogWithBoard.args = {}

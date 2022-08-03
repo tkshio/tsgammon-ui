@@ -1,20 +1,26 @@
-
 .cube {
     width: var(--pieceSize);
     height: var(--pieceSize);
 
-    border-radius: 10%;
-    border: 0 solid black;
+    
+    border-radius: 2pt;
+    border: 1pt solid var(--cubeBorderColor);
     margin: calc(var(--pieceSize) * 0.25);
 
     background-color: var(--cubeColor);
     color: var(--cubeFontColor);
 
-    font-size: calc(var(--pieceSize) * 0.60);
-    text-align: center;
+    font-size: calc(var(--pieceSize) * 0.5);
+    display:flex;
+    align-items:center;
     line-height: var(--pieceSize);
+    justify-content: center;
 }
 
-.cube.MAX {
-    color: var(--cubeMaxColor);
+.cube.MAX, .cube.CRAWFORD {
+   background-color: var(--cubeMaxColor);
+}
+
+.cube.UNDOUBLED::after {
+    content:'1'
 }

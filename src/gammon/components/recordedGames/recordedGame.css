@@ -1,15 +1,20 @@
+#main {
+    display: flex;
+    flex-flow: row;
+
+    font-family: sans-serif;
+}
 
 #recordsPane {
     margin: 5px;
 }
 
 /* マッチログ */
-#matchRecord {
+#matchRecord > pre {
     margin: 5px;
     border: gray solid 1px;
 
-    font-family: monospace;
+    font-family: 'Lucida Console', 'Consolas', 'Courier New', monospace;
     overflow-y: auto;
     height: 200px;
 }
-

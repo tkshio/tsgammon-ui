@@ -1,65 +1,109 @@
 {
-  "name": "tsgammon-ui",
-  "version": "0.1.0",
-  "private": true,
-  "homepage":"tsgammon-ui/",
-  "main": "dist/App.js",
-  "files": [
-    "dist"
-  ],
-  "dependencies": {
-    "@types/node": "^12.19.14",
-    "@types/react": "^16.9.56",
-    "@types/react-dom": "^16.9.9",
-    "@types/styled-components": "^5.1.7",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-scripts": "^5.0.0",
-    "styled-components": "^5.2.1",
-    "tsgammon-core": "^0.1.0",
-    "typescript": "^4.6.3",
-    "web-vitals": "^0.2.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "storybook": "start-storybook -p 6006 -s public --no-dll",
-    "build-storybook": "build-storybook -s public --no-dll"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+    "name": "tsgammon-ui",
+    "version": "0.3.0",
+    "private": true,
+    "main": "dist/App.js",
+    "files": [
+        "dist"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@storybook/addon-actions": "^6.4.19",
-    "@storybook/addon-essentials": "^6.4.19",
-    "@storybook/addon-links": "^6.4.19",
-    "@storybook/node-logger": "^6.4.19",
-    "@storybook/preset-create-react-app": "^3.1.5",
-    "@storybook/react": "^6.4.19",
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.3",
-    "@testing-library/react-hooks": "^5.0.0",
-    "@testing-library/user-event": "^12.6.0",
-    "@types/jest": "^26.0.20",
-    "react-is": "^17.0.1",
-    "ts-jest": "^26.5.6"
-  }
+    "dependencies": {
+        "@types/node": "^12.19.14",
+        "@types/react": "^16.9.56",
+        "@types/react-dom": "^16.9.9",
+        "@types/styled-components": "^5.1.7",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
+        "react-scripts": "^5.0.0",
+        "styled-components": "^5.2.1",
+        "tsgammon-core": "^0.3.0",
+        "typescript": "^4.6.3",
+        "web-vitals": "^0.2.4"
+    },
+    "scripts": {
+        "prepare": "simple-git-hooks",
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "storybook": "start-storybook -p 6006",
+        "build-storybook": "build-storybook",
+        "prettier": "prettier --write .",
+        "eslint": "eslint . --ext .ts,.tsx",
+        "precommit": "run-s lint-staged test",
+        "prepush": "npm run test"
+    },
+    "jest": {
+        "testMatch": [
+            "<rootDir>/src/**/__tests__/**/*.test.{js,jsx,ts,tsx}"
+        ]
+    },
+    "simple-git-hooks": {
+        "pre-commit": "npm run precommit",
+        "pre-push": "npm run prepush"
+    },
+    "lint-staged": {
+        "*.ts": "eslint --cache",
+        "*.{ts,tsx,css,md}": "prettier --write"
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "node": true,
+            "commonjs": true
+        },
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+            "sourceType": "module",
+            "ecmaVersion": "latest"
+        },
+        "plugins": [
+            "@typescript-eslint",
+            "eslint-plugin-jest"
+        ],
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/eslint-recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:eslint-plugin-jest/recommended",
+            "prettier",
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@babel/core": "^7.12.10",
+        "@storybook/addon-actions": "^6.4.19",
+        "@storybook/addon-essentials": "^6.4.19",
+        "@storybook/addon-links": "^6.4.19",
+        "@storybook/builder-webpack5": "^6.4.19",
+        "@storybook/manager-webpack5": "^6.4.19",
+        "@storybook/node-logger": "^6.4.19",
+        "@storybook/preset-create-react-app": "^4.1.0",
+        "@storybook/react": "^6.4.19",
+        "@testing-library/jest-dom": "^5.11.9",
+        "@testing-library/react": "^11.2.3",
+        "@testing-library/react-hooks": "^5.0.0",
+        "@testing-library/user-event": "^12.6.0",
+        "@types/jest": "^26.0.20",
+        "eslint": "^8.13.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-jest": "^25.7.0",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^2.3.0",
+        "react-is": "^17.0.1",
+        "react-refresh": "^0.11.0",
+        "ts-jest": "^26.5.6"
+    }
 }

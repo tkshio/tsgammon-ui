@@ -1,45 +1,23 @@
-
 .dialog > .cubeResponse {
     width: 100%;
-    height:75%;
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: space-around;
 }
 
-
-.dialog > .cubeResponse .csscaption {
-    width: 100%;
-    display:flex;
-    justify-content: center;
-}
-
-.dialog > .cubeResponse .csscaption:before {
-    content: "Take or Pass?";
-    align-self: center;
-}
-
-.dialog > .cubeResponse > .buttons {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.button.take {
+.button#take {
     background: darkslategray;
     color: white;
 }
 
-.button.pass {
+.button#pass {
     background: lightgray;
 }
 
-.button.take:after {
-    content: "Take";
+.button#take:after {
+    content: 'Take';
 }
 
-.button.pass:after {
-    content: "Pass";
+.button#pass:after {
+    content: 'Pass';
 }
-

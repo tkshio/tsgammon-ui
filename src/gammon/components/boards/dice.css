@@ -25,8 +25,8 @@
     margin: calc(var(--diceSize) * 0.1);
     padding: calc(var(--diceSize) * 0.15 - 1px);
     display: grid;
-    grid-template-rows:1fr 1fr 1fr;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     border: 1px solid black;
     border-radius: 20%;
     box-sizing: border-box;
@@ -108,4 +108,3 @@
     height: calc(var(--dicePipSize) * 1.5);
     width: calc(var(--dicePipSize) * 1.5);
 }
-

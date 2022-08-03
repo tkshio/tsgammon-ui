@@ -1,21 +1,16 @@
-import React from 'react';
-import { UnlimitedMatch } from "./gammon/components/apps/UnlimitedMatch";
-import { redCBAutoOperator, redSGAutoOperator } from './gammon/dispatchers/autoOperators';
+import React from 'react'
+import { BGMain } from './gammon/components/apps/BGMain'
 
-import "./App.css";
+import './App.css'
 
 function App() {
     const args = {
-        cbConfs: {
-            autoOperator: redCBAutoOperator(),
-            sgConfs: { autoOperator: redSGAutoOperator() }
-        }
     }
     return (
         <div className="App">
-            <UnlimitedMatch {...args} />
+            <BGMain {...args} />
         </div>
-    );
+    )
 }
 
-export default App;
+export default App
