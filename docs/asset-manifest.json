@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/tsgammon-ui/static/css/main.88eaab54.css",
-    "main.js": "/tsgammon-ui/static/js/main.bf1c0800.js",
+    "main.css": "/tsgammon-ui/static/css/main.33fc12f3.css",
+    "main.js": "/tsgammon-ui/static/js/main.cf86bc19.js",
     "index.html": "/tsgammon-ui/index.html",
-    "main.88eaab54.css.map": "/tsgammon-ui/static/css/main.88eaab54.css.map",
-    "main.bf1c0800.js.map": "/tsgammon-ui/static/js/main.bf1c0800.js.map"
+    "main.33fc12f3.css.map": "/tsgammon-ui/static/css/main.33fc12f3.css.map",
+    "main.cf86bc19.js.map": "/tsgammon-ui/static/js/main.cf86bc19.js.map"
   },
   "entrypoints": [
-    "static/css/main.88eaab54.css",
-    "static/js/main.bf1c0800.js"
+    "static/css/main.33fc12f3.css",
+    "static/js/main.cf86bc19.js"
   ]
 }
