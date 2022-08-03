@@ -2,6 +2,7 @@
     "name": "tsgammon-ui",
     "version": "0.3.0",
     "private": true,
+    "homepage":"tsgammon-ui/",
     "main": "dist/App.js",
     "files": [
         "dist"
