@@ -28,6 +28,7 @@ export type CubefulMatchProps = BGCommonProps & {
 export function CubefulMatch(props: CubefulMatchProps) {
     const {
         autoOperators = { cb: undefined, sg: undefined, rs: undefined },
+        gameConf,
         playersConf = defaultPlayersConf,
         gameSetup,
         diceSource,
@@ -78,6 +79,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
         ...rsDialogHandlerWithOp,
         dialog,
         onEndOfMatch,
+        gameConf,
         playersConf,
     }
 

@@ -21,6 +21,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         resignState,
         bgState: curBGState,
         matchRecord,
+        gameConf,
         playersConf = defaultPlayersConf,
         onResumeState = () => {
             //
@@ -44,6 +45,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         resignState,
         bgState,
         cpState,
+        gameConf,
         playersConf,
         dialog,
         ...cpListeners,

@@ -1,3 +1,4 @@
+import { GameConf, standardConf } from 'tsgammon-core'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
@@ -13,12 +14,28 @@ export function PlyInfo(props: {
     cpState?: CheckerPlayState
     score: Score
     matchLength?: number
+    gameConf?: GameConf
     playersConf: PlayersConf
 }) {
-    const { cbState, sgState, cpState, score, matchLength, playersConf } = props
+    const {
+        cbState,
+        sgState,
+        cpState,
+        score,
+        matchLength,
+        gameConf,
+        playersConf,
+    } = props
 
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
-    const stateText = formatState(sgState, cbState, cpState,undefined,playersConf.red.name, playersConf.white.name)
+    const stateText = formatState(
+        sgState,
+        cbState,
+        cpState,
+        undefined,
+        playersConf.red.name,
+        playersConf.white.name
+    )
     return (
         <div id={'plyAsText'}>
             <div className={'curPly'}>
@@ -33,6 +50,9 @@ export function PlyInfo(props: {
                 )}
                 {formatMatchLength(matchLength)}
             </div>
+            {gameConf && gameConf.name !== standardConf.name && (
+                <div>{gameConf.name}</div>
+            )}
         </div>
     )
 
@@ -41,10 +61,10 @@ export function PlyInfo(props: {
             return ''
         }
         return (
-            '  ' +
-            (matchLength === 0
-                ? '(Unlimited match)'
-                : `(${matchLength}pt match)`)
+            '  (' +
+            (matchLength === 0 ? 'Unlimited match' : `${matchLength}pt match`) +
+            (gameConf?.jacobyRule ? ', Jacoby' : '') +
+            ')'
         )
     }
 }

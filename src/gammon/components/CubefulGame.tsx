@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { standardConf } from 'tsgammon-core'
+import { GameConf, standardConf } from 'tsgammon-core'
 import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { CBResponse } from 'tsgammon-core/dispatchers/CubeGameState'
@@ -28,6 +28,7 @@ import { eogMatchState } from './useMatchState'
 export type CubefulGameProps = CubefulGameBoardProps & {
     resignState?: ResignState | RSToOffer
     matchState: MatchState
+    gameConf?: GameConf
     playersConf?: PlayersConf
     showPositionIDs?: boolean
     onEndOfMatch?: () => void
@@ -50,6 +51,7 @@ export function CubefulGame(props: CubefulGameProps) {
         matchState = props.bgState.cbState.tag === 'CBEoG'
             ? eogMatchState(defaultMatchState, props.bgState.cbState)
             : defaultMatchState,
+        gameConf,
         playersConf = defaultPlayersConf,
         dialog,
         upperButton,
@@ -106,6 +108,7 @@ export function CubefulGame(props: CubefulGameProps) {
         cpState,
         score: matchState.score,
         matchLength: matchState.matchLength,
+        gameConf,
         playersConf,
     }
 

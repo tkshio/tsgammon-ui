@@ -12,6 +12,7 @@ export type SimpleCubefulMatchProps = BGCommonProps & {
 
 export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
     const {
+        gameConf,
         playersConf,
         autoOperators = { cb: undefined, sg: undefined },
         ...exListeners
@@ -24,6 +25,7 @@ export function SimpleCubefulMatch(props: SimpleCubefulMatchProps) {
         bgState,
         cpState,
         matchState,
+        gameConf,
         playersConf,
         ...exListeners,
         ...bgEventHandlerWithOP,

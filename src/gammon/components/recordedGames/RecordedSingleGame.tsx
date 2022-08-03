@@ -16,6 +16,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         resignState,
         sgState: curSGState,
         matchRecord,
+        gameConf,
         playersConf = defaultPlayersConf,
         onResumeState = () => {
             //
@@ -40,6 +41,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         sgState,
         cpState,
         matchScore:matchRecord.matchState.score,
+        gameConf,
         playersConf,
         dialog,
         ...cpListeners,

@@ -1,7 +1,6 @@
 import { EOGStatus } from 'tsgammon-core'
 import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { standardConf } from 'tsgammon-core/GameConf'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { operateWithSGandRS } from '../operateWithRS'
@@ -29,7 +28,7 @@ export type CubelessProps = {
  */
 export function Cubeless(props: CubelessProps) {
     const {
-        gameConf = standardConf,
+        gameConf,
         playersConf = defaultPlayersConf,
         gameSetup,
         autoOperators = { sg: undefined },
@@ -69,6 +68,7 @@ export function Cubeless(props: CubelessProps) {
         sgState,
         cpState,
         dialog,
+        gameConf,
         playersConf,
         ...rsDialogHandler,
         ...handlersWithOp,

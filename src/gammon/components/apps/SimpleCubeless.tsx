@@ -15,6 +15,7 @@ export type SimpleCubelessProps = BGCommonProps & {
 export function SimpleCubeless(props: SimpleCubelessProps) {
     const {
         autoOperators = {},
+        gameConf
     } = props
 
     const { matchScore, matchScoreListener } = useMatchScore()
@@ -30,6 +31,7 @@ export function SimpleCubeless(props: SimpleCubelessProps) {
         sgState,
         cpState,
         matchScore,
+        gameConf,
         ...handlerWithOp,
         ...cpListener,
     }

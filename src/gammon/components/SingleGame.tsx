@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Score, score } from 'tsgammon-core'
+import { GameConf, Score, score } from 'tsgammon-core'
 import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
@@ -13,6 +13,7 @@ import { defaultPlayersConf, PlayersConf } from './PlayersConf'
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer
     matchScore?: Score
+    gameConf?:GameConf
     playersConf?: PlayersConf
     showPositionID?: boolean
 } & Partial<RSDialogHandler>
@@ -23,6 +24,7 @@ export function SingleGame(props: SingleGameProps) {
         cpState,
         sgState,
         matchScore = score(),
+        gameConf,
         playersConf = defaultPlayersConf,
         showPositionID = true,
         dialog,
@@ -67,6 +69,7 @@ export function SingleGame(props: SingleGameProps) {
         sgState,
         cpState,
         score: matchScore,
+        gameConf,
         playersConf,
     }
 
