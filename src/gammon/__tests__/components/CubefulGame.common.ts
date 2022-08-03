@@ -3,15 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
 import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
 import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { BGEventHandlersExtensible, buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
+import {
+    BGEventHandlersExtensible,
+    buildBGEventHandler,
+} from 'tsgammon-core/dispatchers/buildBGEventHandler'
 import {
     CheckerPlayListeners,
-    setCPStateListener
+    setCPStateListener,
 } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
 import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
 import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
-import { rollListeners } from 'tsgammon-core/dispatchers/RollDispatcher'
+import { rollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
 import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { MatchState } from 'tsgammon-core/MatchState'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
@@ -30,10 +33,10 @@ export const BoardOp = {
         const rightDice = screen.getByTestId(/^dice-left/)
         userEvent.click(rightDice)
     },
-    clickCube:async()=>{
+    clickCube: async () => {
         const cube = screen.getByTestId(/^cube/)
         userEvent.click(cube)
-    }
+    },
 }
 
 export function isRed(state: SGState | CBState): boolean {
@@ -86,16 +89,16 @@ export function setupEventHandlers(
         }
     )
     const handlers = buildBGEventHandler(
-        isCrawford,
-        rollListeners({ isRollHandlerEnabled: false, diceSource }),
+        () => isCrawford,
+        rollListener({ diceSource }),
         setBGStateListener(
             defaultBGState(gameConf),
             (next: BGState = state.bgState) => {
                 state.bgState.cbState = next.cbState
                 state.bgState.sgState = next.sgState
             }
-        ),
-    ).addListeners(addOn)
+        )
+    ).addListener(addOn)
 
     return {
         ...cpListeners,

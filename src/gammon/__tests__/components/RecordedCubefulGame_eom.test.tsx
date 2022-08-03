@@ -6,7 +6,7 @@ import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     matchStateEoG,
     matchStateForPointMatch,
-} from 'tsgammon-core/dispatchers/MatchState'
+} from 'tsgammon-core/MatchState'
 import {
     GameSetup,
     GameStatus,

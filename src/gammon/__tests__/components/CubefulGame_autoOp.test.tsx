@@ -8,7 +8,7 @@ import {
     GameSetup,
     GameStatus,
     toCBState,
-    toSGState
+    toSGState,
 } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
@@ -20,12 +20,12 @@ import {
     BoardOp,
     isRed,
     isWhite,
-    setupEventHandlers
+    setupEventHandlers,
 } from './CubefulGame.common'
 import {
     noDoubleEngine,
     setRedAutoOp,
-    setWhiteAutoOp
+    setWhiteAutoOp,
 } from './CubefulGame_autoOp.common'
 
 let container: HTMLElement | null = null
@@ -98,7 +98,7 @@ describe('CubeGameBoard(with autoOp)', () => {
             ...props,
             ...operateWithBG(
                 autoOperators,
-                props.addListeners({
+                props.addListener({
                     onAwaitCheckerPlay: (_: {
                         cbState: CBInPlay
                         sgState: SGInPlay
@@ -109,7 +109,10 @@ describe('CubeGameBoard(with autoOp)', () => {
             ),
         }
         render(<CubefulGame {...next} />)
+        // 上記の盤面ではムーブがないので、クリックにより手番終了
         await act(BoardOp.clickLeftDice)
+        // ダイスクリックしてロール
+        await act(BoardOp.clickRightDice)
 
         // Whiteはキューブアクション、ロール、チェッカープレイまで済ませた
         expect(autoOperators?.cb?.operateWhiteCubeAction).toBeCalled()
@@ -137,7 +140,9 @@ describe('CubeGameBoard(with autoOp)', () => {
             autoOperators: setWhiteAutoOp(engine),
         }
         render(<AutoOperateCBGame {...next} />)
+        // 上記の盤面ではムーブがないので、クリックにより手番終了
         await act(BoardOp.clickLeftDice)
+        await act(BoardOp.clickRightDice)
 
         // Whiteはチェッカープレイを完了して、Redの手番
         expect(bgState.cbState.tag).toEqual('CBAction')
@@ -174,6 +179,7 @@ describe('CubeGameBoard(with autoOp)', () => {
         }
 
         render(<AutoOperateCBGame {...next} />)
+        await act(BoardOp.clickRightDice)
         await act(BoardOp.clickLeftDice)
         // Redはロールして、チェッカープレイも完了した
         expect(next.autoOperators.cb.operateRedCubeAction).toBeCalled()
@@ -193,7 +199,11 @@ describe('CubeGameBoard(with autoOp)', () => {
             autoOperators: setRedAutoOp(engine),
         }
         render(<AutoOperateCBGame {...next} />)
+
+        await act(BoardOp.clickRightDice)
+        // ダイスクリックしてロール
         await act(BoardOp.clickLeftDice)
+
         // Redのプレイが完了した
         expect(bgState.cbState.tag).toEqual('CBAction')
         expect(isWhite(bgState.cbState)).toBeTruthy()
