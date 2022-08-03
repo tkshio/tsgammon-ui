@@ -29,7 +29,7 @@ export function EOGDialog(props: EOGDialogProps) {
     const ZERO_WIDTH_SPACE = String.fromCharCode(8203)
     const msgs = [
         matchLength === undefined
-            ? 'Cubeless game'
+            ? ''
             : matchLength !== 0
             ? `${matchLength} points match`
             : 'Unlimited match',
