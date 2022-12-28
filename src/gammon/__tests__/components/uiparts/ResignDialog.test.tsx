@@ -2,28 +2,26 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { unmountComponentAtNode } from 'react-dom'
 import { eog, EOGStatus } from 'tsgammon-core'
-import {
-    ResignState, RSNONE,
-} from 'tsgammon-core/dispatchers/ResignState'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
+import { ResignState, RSNONE } from 'tsgammon-core/states/ResignState'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { SingleGameEventHandlerExtensible } from '../../../components/dispatchers/SingleGameEventHandler'
+import { operateWithSGandRS } from '../../../components/operateWithRS'
 import {
     redRSAutoOperator,
     whiteRSAutoOperator,
 } from '../../../components/operators/RSAutoOperators'
 import {
-    ResignDialog,
-    ResignDialogProps,
-} from '../../../components/uiparts/ResignDialog'
-import {
     rsDialogHandler,
     RSDialogHandler,
     RSToOffer,
 } from '../../../components/RSDialogHandler'
-import { operateWithSGandRS } from '../../../components/operateWithRS'
+import {
+    ResignDialog,
+    ResignDialogProps,
+} from '../../../components/uiparts/ResignDialog'
 import { alwaysAccept, alwaysReject, neverOffer } from './Resign.common'
-import { SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
-import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
@@ -161,9 +159,7 @@ describe('ResignDialog', () => {
             <ResignDialog
                 {...{
                     ...props,
-                    resignState: RSNONE.doOfferResignWhite(
-                        ResignOffer.Gammon
-                    ),
+                    resignState: RSNONE.doOfferResignWhite(ResignOffer.Gammon),
                     ...rsHandlers,
                 }}
             />

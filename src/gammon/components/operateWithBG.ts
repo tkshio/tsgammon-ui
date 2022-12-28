@@ -1,13 +1,17 @@
 import { BoardStateNode } from 'tsgammon-core'
-import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
+import { BGEventHandler } from './dispatchers/BGEventHandler'
+import { BGEventHandlersExtensible } from './dispatchers/buildBGEventHandler'
 import {
     CBAction,
     CBInPlay,
     CBResponse,
     CBToRoll,
-} from 'tsgammon-core/dispatchers/CubeGameState'
-import { SGInPlay, SGToRoll } from 'tsgammon-core/dispatchers/SingleGameState'
+} from 'tsgammon-core/states/CubeGameState'
+import {
+    inPlayStateWithNode,
+    SGInPlay,
+    SGToRoll,
+} from 'tsgammon-core/states/SingleGameState'
 import { CBOperator } from './operators/CBOperator'
 import { SGOperator } from './operators/SGOperator'
 
@@ -91,7 +95,7 @@ export function operateWithBG(
                 const doCheckerPlay = (node: BoardStateNode) => {
                     autoHandler.onCommit({
                         cbState,
-                        sgState: sgState.withNode(node),
+                        sgState: inPlayStateWithNode(sgState, node),
                     })
                 }
                 return operation(doCheckerPlay, sgState.boardStateNode)

@@ -1,16 +1,13 @@
-import {
-    BGEventHandler,
-    asSGEventHandler,
-} from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { BoardEventHandlers, BoardProps } from './boards/Board'
 import { CubeProps } from './boards/Cube'
+import { asSGEventHandler, BGEventHandler } from './dispatchers/BGEventHandler'
+import { CheckerPlayListeners } from './dispatchers/CheckerPlayDispatcher'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 
 export type CubefulGameBoardProps = {
-    cubeProps?:CubeProps
+    cubeProps?: CubeProps
     bgState: BGState
     cpState?: CheckerPlayState
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &

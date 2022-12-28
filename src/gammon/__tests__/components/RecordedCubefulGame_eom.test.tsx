@@ -1,20 +1,20 @@
 import { render, screen } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { scoreAsWhite, standardConf } from 'tsgammon-core'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
 import {
     matchStateEoG,
     matchStateForPointMatch,
 } from 'tsgammon-core/MatchState'
+import { eogRecord, matchRecordInPlay } from 'tsgammon-core/records/MatchRecord'
+import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { CBEoG } from 'tsgammon-core/states/CubeGameState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
     toSGState,
-} from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { matchRecordInPlay, eogRecord } from 'tsgammon-core/records/MatchRecord'
-import { plyRecordForEoG } from 'tsgammon-core/records/PlyRecord'
+} from 'tsgammon-core/states/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     RecordedCubefulGame,

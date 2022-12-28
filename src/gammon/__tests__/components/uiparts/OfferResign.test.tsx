@@ -1,15 +1,17 @@
 import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { EOGStatus } from 'tsgammon-core'
-import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
-import { buildBGEventHandler } from 'tsgammon-core/dispatchers/buildBGEventHandler'
-import { eogEventHandler } from 'tsgammon-core/dispatchers/EOGEventHandlers'
 import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
-import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
-import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import { SGResult } from 'tsgammon-core/records/SGResult'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
+import { BGState, toState } from 'tsgammon-core/states/BGState'
+import { ResignState, RSNONE } from 'tsgammon-core/states/ResignState'
+import { GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { CubefulGame } from '../../../components/CubefulGame'
+import { setBGStateListener } from '../../../components/dispatchers/BGEventHandler'
+import { buildBGEventHandler } from '../../../components/dispatchers/buildBGEventHandler'
+import { eogEventHandler } from '../../../components/dispatchers/EOGEventHandlers'
+import { operateWithRS } from '../../../components/operateWithRS'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
@@ -20,10 +22,8 @@ import {
     rsDialogHandler,
     RSToOffer,
 } from '../../../components/RSDialogHandler'
-import { operateWithRS } from '../../../components/operateWithRS'
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
-import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {

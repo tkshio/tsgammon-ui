@@ -1,12 +1,6 @@
 import { useState } from 'react'
 import { Dice } from 'tsgammon-core/Dices'
-import {
-    checkerPlayDispatcher,
-    CheckerPlayDispatcher,
-    CheckerPlayListeners,
-    fill,
-} from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
+import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import {
     Board,
     BoardEventHandlers,
@@ -15,7 +9,13 @@ import {
     DiceLayout,
 } from './boards/Board'
 import { CubeProps } from './boards/Cube'
-import { layoutCube } from "./boards/utils/layoutCube"
+import { layoutCube } from './boards/utils/layoutCube'
+import {
+    checkerPlayDispatcher,
+    CheckerPlayDispatcher,
+    CheckerPlayListeners,
+    fill,
+} from './dispatchers/CheckerPlayDispatcher'
 import { IconButton } from './uiparts/IconButton'
 import { RevertButton } from './uiparts/RevertButton'
 
@@ -35,8 +35,14 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
 
     const dispatcher: CheckerPlayDispatcher = checkerPlayDispatcher(cpListeners)
 
-    const { cubeProps, diceLayout, onClickCube, dialog, upperButton, lowerButton } =
-        props
+    const {
+        cubeProps,
+        diceLayout,
+        onClickCube,
+        dialog,
+        upperButton,
+        lowerButton,
+    } = props
     const { onClickDice, onClickPoint } = decorateBEHandlers(
         { onClickDice: doClickDice, onClickPoint: doClickPoint },
         props

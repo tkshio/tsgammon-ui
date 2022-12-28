@@ -1,19 +1,18 @@
 import { dice, Dice } from 'tsgammon-core/Dices'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
+import { SGResult } from 'tsgammon-core/records/SGResult'
 import {
     asCheckerPlayState,
     CheckerPlayState,
     CheckerPlayStateCommitted,
-} from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { SingleGameEventHandler } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
+} from 'tsgammon-core/states/CheckerPlayState'
 import {
+    inPlayStateWithNode,
     SGEoG,
     SGInPlay,
     SGOpening,
     SGState,
     SGToRoll,
-} from 'tsgammon-core/dispatchers/SingleGameState'
-import { SGResult } from 'tsgammon-core/records/SGResult'
+} from 'tsgammon-core/states/SingleGameState'
 import {
     Board,
     BoardEventHandlers,
@@ -21,15 +20,17 @@ import {
     decorate,
     DiceLayout,
 } from './boards/Board'
-import { layoutCube } from "./boards/utils/layoutCube"
-import { blankDice, BlankDice, blankDices } from './boards/Dice'
-import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 import { CubeProps } from './boards/Cube'
+import { blankDice, BlankDice, blankDices } from './boards/Dice'
+import { layoutCube } from './boards/utils/layoutCube'
+import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
+import { CheckerPlayListeners } from './dispatchers/CheckerPlayDispatcher'
+import { SingleGameEventHandler } from './dispatchers/SingleGameEventHandler'
 
 export type SingleGameBoardProps = {
     sgState: SGState
     cpState?: CheckerPlayState
-    cubeProps?:CubeProps
+    cubeProps?: CubeProps
 } & Partial<Pick<BoardProps, 'dialog' | 'upperButton' | 'lowerButton'>> &
     Partial<SingleGameEventHandler & CheckerPlayListeners & BoardEventHandlers>
 export function SingleGameBoard(props: SingleGameBoardProps) {
@@ -74,7 +75,10 @@ function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
 
         // チェッカープレイが確定した時に通知を受ける
         onCommitCheckerPlay: (cpState: CheckerPlayStateCommitted) => {
-            props.onCommit?.(sgState.withNode(cpState.boardStateNode))
+            //            props.onCommit?.(sgState.withNode(cpState.boardStateNode))
+            props.onCommit?.(
+                inPlayStateWithNode(sgState, cpState.boardStateNode)
+            )
             props.onCommitCheckerPlay?.(cpState)
         },
     }

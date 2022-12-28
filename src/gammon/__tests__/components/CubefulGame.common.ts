@@ -1,23 +1,23 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GameConf, standardConf } from 'tsgammon-core'
-import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { MatchState } from 'tsgammon-core/MatchState'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
+import { CBState } from 'tsgammon-core/states/CubeGameState'
+import { defaultBGState } from 'tsgammon-core/states/defaultStates'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+import { setBGStateListener } from '../../components/dispatchers/BGEventHandler'
 import {
     BGEventHandlersExtensible,
     buildBGEventHandler,
-} from 'tsgammon-core/dispatchers/buildBGEventHandler'
+} from '../../components/dispatchers/buildBGEventHandler'
 import {
     CheckerPlayListeners,
     setCPStateListener,
-} from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
-import { rollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { MatchState } from 'tsgammon-core/MatchState'
-import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+} from '../../components/dispatchers/CheckerPlayDispatcher'
+import { rollListener } from '../../components/dispatchers/RollDispatcher'
 import { matchStateListener } from '../../components/useMatchState'
 
 export const BoardOp = {

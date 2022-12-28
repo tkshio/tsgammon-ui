@@ -2,16 +2,16 @@ import { render } from '@testing-library/react'
 import { unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { standardConf } from 'tsgammon-core'
-import { CBInPlay } from 'tsgammon-core/dispatchers/CubeGameState'
-import { SGInPlay } from 'tsgammon-core/dispatchers/SingleGameState'
+import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
+import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
+import { CBInPlay } from 'tsgammon-core/states/CubeGameState'
+import { SGInPlay } from 'tsgammon-core/states/SingleGameState'
 import {
     GameSetup,
     GameStatus,
     toCBState,
     toSGState,
-} from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
-import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
+} from 'tsgammon-core/states/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import { CubefulGame } from '../../components/CubefulGame'
 import { operateWithBG } from '../../components/operateWithBG'
