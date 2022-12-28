@@ -1,27 +1,21 @@
 import { score, Score } from 'tsgammon-core'
-import { setBGStateListener } from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { BGState, toState } from 'tsgammon-core/dispatchers/BGState'
+import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { MatchState, shouldSkipCubeAction } from 'tsgammon-core/MatchState'
+import { BGState, toState } from 'tsgammon-core/states/BGState'
+import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
+import { CBInPlay } from 'tsgammon-core/states/CubeGameState'
+import { defaultBGState } from 'tsgammon-core/states/defaultStates'
+import { GameSetup } from 'tsgammon-core/states/utils/GameSetup'
+import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+import { setBGStateListener } from '../dispatchers/BGEventHandler'
+import { BGListener } from '../dispatchers/BGListener'
 import {
     BGEventHandlersExtensible,
     buildBGEventHandler,
-} from 'tsgammon-core/dispatchers/buildBGEventHandler'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { CBInPlay } from 'tsgammon-core/dispatchers/CubeGameState'
-import { defaultBGState } from 'tsgammon-core/dispatchers/defaultStates'
-import {
-    BGEoGHandler,
-    eogEventHandler,
-} from 'tsgammon-core/dispatchers/EOGEventHandlers'
-import {
-    RollListener,
-    rollListener,
-} from 'tsgammon-core/dispatchers/RollDispatcher'
-import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { MatchState, shouldSkipCubeAction } from 'tsgammon-core/MatchState'
-import { DiceSource } from 'tsgammon-core/utils/DiceSource'
+} from '../dispatchers/buildBGEventHandler'
+import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
+import { BGEoGHandler, eogEventHandler } from '../dispatchers/EOGEventHandlers'
+import { RollListener, rollListener } from '../dispatchers/RollDispatcher'
 import { BGRecorder, useBGRecorder } from '../useBGRecorder'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListener } from '../useCheckerPlayListeners'

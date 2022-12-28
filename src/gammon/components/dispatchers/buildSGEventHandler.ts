@@ -1,12 +1,12 @@
-import { DiceRoll } from '../Dices'
+import { DiceRoll } from 'tsgammon-core/Dices'
+import { SGOpening, SGToRoll } from 'tsgammon-core/states/SingleGameState'
 import { RollListener, rollListener } from './RollDispatcher'
 import { singleGameDispatcher } from './SingleGameDispatcher'
-import { SingleGameListener } from './SingleGameListener'
-import { SGOpening, SGToRoll } from '../states/SingleGameState'
 import {
-    SingleGameEventHandlerExtensible,
     SingleGameEventHandler,
+    SingleGameEventHandlerExtensible,
 } from './SingleGameEventHandler'
+import { SingleGameListener } from './SingleGameListener'
 import { concat0, concat1 } from './utils/concat'
 
 /**

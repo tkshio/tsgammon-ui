@@ -1,8 +1,5 @@
 import { useState } from 'react'
-import {
-    SGState
-} from 'tsgammon-core/dispatchers/SingleGameState'
-
+import { SGState } from 'tsgammon-core/states/SingleGameState'
 
 export function useSingleGameState(initialSGState: SGState): {
     sgState: SGState

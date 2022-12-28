@@ -1,12 +1,12 @@
 import { Meta, Story } from '@storybook/react'
 import { BoardState } from 'tsgammon-core/BoardState'
 import { DicePip, DiceRoll } from 'tsgammon-core/Dices'
-import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
 import {
     GammonEngine,
     simpleEvalEngine,
 } from 'tsgammon-core/engines/GammonEngine'
 import { evaluate } from 'tsgammon-core/engines/SimpleNNGammon'
+import { GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     SimpleCubeless,

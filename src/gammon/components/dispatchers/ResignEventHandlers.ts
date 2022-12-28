@@ -1,5 +1,5 @@
-import { RSOffered } from '../states/ResignState'
-import { ResignOffer } from '../ResignOffer'
+import { RSOffered } from 'tsgammon-core/states/ResignState'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 /**
  * 降参のための一連の操作として提供されるインターフェース

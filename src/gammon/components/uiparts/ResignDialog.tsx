@@ -1,11 +1,11 @@
 import { Fragment } from 'react'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
 import { ResignOffer } from 'tsgammon-core/ResignOffer'
+import { ResignState } from 'tsgammon-core/states/ResignState'
+import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import { RSDialogHandler, RSToOffer } from '../RSDialogHandler'
 import { Button } from './Button'
 import { Buttons } from './Buttons'
 import { Dialog } from './Dialog'
-import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
 import './resignDialog.css'
 
 export type ResignDialogProps = {
@@ -15,8 +15,12 @@ export type ResignDialogProps = {
 } & Partial<RSDialogHandler>
 
 export function ResignDialog(props: ResignDialogProps) {
-    const { isGammonSaved, resignState, playersConf=defaultPlayersConf, ...resignEventHandlers } =
-        props
+    const {
+        isGammonSaved,
+        resignState,
+        playersConf = defaultPlayersConf,
+        ...resignEventHandlers
+    } = props
 
     function format(offer: ResignOffer): string {
         switch (offer) {

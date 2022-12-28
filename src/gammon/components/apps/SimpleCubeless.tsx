@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
-import { SGEoG } from 'tsgammon-core/dispatchers/SingleGameState'
 import { Score, score } from 'tsgammon-core/Score'
+import { SGEoG } from 'tsgammon-core/states/SingleGameState'
+import { SingleGameListener } from '../dispatchers/SingleGameListener'
 import { operateWithSG } from '../operateWithSG'
 import { RSOperator } from '../operators/RSOperator'
 import { SGOperator } from '../operators/SGOperator'
@@ -13,10 +13,7 @@ export type SimpleCubelessProps = BGCommonProps & {
     autoOperators?: { sg?: SGOperator; rs?: RSOperator }
 } & Partial<SingleGameListener>
 export function SimpleCubeless(props: SimpleCubelessProps) {
-    const {
-        autoOperators = {},
-        gameConf
-    } = props
+    const { autoOperators = {}, gameConf } = props
 
     const { matchScore, matchScoreListener } = useMatchScore()
 

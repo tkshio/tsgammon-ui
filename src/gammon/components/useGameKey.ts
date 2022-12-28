@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { BGListener } from './dispatchers/BGListener'
 
 export function useGameKey(): {
     gameKeyAddOn: Partial<BGListener>

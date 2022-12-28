@@ -1,12 +1,12 @@
-import { EOGStatus } from '../EOGStatus'
-import { SGResult } from '../records/SGResult'
+import { EOGStatus } from 'tsgammon-core/EOGStatus'
+import { SGResult } from 'tsgammon-core/records/SGResult'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { CBEoG } from 'tsgammon-core/states/CubeGameState'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { BGListener } from './BGListener'
-import { BGState } from '../states/BGState'
 import { cubeGameDispatcher } from './CubeGameDispatcher'
-import { CBEoG } from '../states/CubeGameState'
 import { singleGameDispatcher } from './SingleGameDispatcher'
 import { SingleGameListener } from './SingleGameListener'
-import { SGState } from '../states/SingleGameState'
 import { concat1 } from './utils/concat'
 
 /**

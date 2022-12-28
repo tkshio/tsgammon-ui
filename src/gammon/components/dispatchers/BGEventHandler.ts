@@ -1,5 +1,4 @@
-import { BGState } from '../states/BGState'
-import { BGListener } from './BGListener'
+import { BGState } from 'tsgammon-core/states/BGState'
 import {
     CBAction,
     CBInPlay,
@@ -7,9 +6,14 @@ import {
     CBResponse,
     CBState,
     CBToRoll,
-} from '../states/CubeGameState'
+} from 'tsgammon-core/states/CubeGameState'
+import {
+    SGInPlay,
+    SGOpening,
+    SGToRoll,
+} from 'tsgammon-core/states/SingleGameState'
+import { BGListener } from './BGListener'
 import { SingleGameEventHandler } from './SingleGameEventHandler'
-import { SGInPlay, SGOpening, SGToRoll } from '../states/SingleGameState'
 import { concat0, concat1, concat2 } from './utils/concat'
 
 /**

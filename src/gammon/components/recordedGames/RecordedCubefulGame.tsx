@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { matchStateLastGame } from 'tsgammon-core/MatchState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
+import { BGState } from 'tsgammon-core/states/BGState'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { defaultPlayersConf } from '../PlayersConf'
 import { useCheckerPlayListener } from '../useCheckerPlayListeners'
@@ -12,7 +12,7 @@ export type RecordedCubefulGameProps = Omit<
     CubefulGameProps,
     'matchState' | 'cpState'
 > & {
-    matchRecord: MatchRecord<BGState>,
+    matchRecord: MatchRecord<BGState>
     onResumeState?: (index: number) => void
 }
 

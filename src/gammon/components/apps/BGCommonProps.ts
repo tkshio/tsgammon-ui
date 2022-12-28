@@ -1,9 +1,9 @@
 import { GameConf, Score } from 'tsgammon-core'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { GameSetup } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { GameSetup } from 'tsgammon-core/states/utils/GameSetup'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
 import { BoardEventHandlers } from '../boards/Board'
+import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
+import { RollListener } from '../dispatchers/RollDispatcher'
 import { PlayersConf } from '../PlayersConf'
 
 export type BGCommonProps = {

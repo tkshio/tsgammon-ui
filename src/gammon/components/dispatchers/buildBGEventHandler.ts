@@ -9,11 +9,16 @@ import {
     CBOpening,
     CBResponse,
     CBToRoll,
-} from '../states/CubeGameState'
+} from 'tsgammon-core/states/CubeGameState'
+import {
+    SGEoG,
+    SGInPlay,
+    SGOpening,
+    SGToRoll,
+} from 'tsgammon-core/states/SingleGameState'
 import { eogEventHandler } from './EOGEventHandlers'
 import { RollListener, rollListener, withRL } from './RollDispatcher'
 import { singleGameDispatcher } from './SingleGameDispatcher'
-import { SGEoG, SGInPlay, SGOpening, SGToRoll } from '../states/SingleGameState'
 
 /**
  * BGListenerを後付け可能なBGEventHandler

@@ -1,7 +1,7 @@
 import { EOGStatus } from 'tsgammon-core'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { CubefulGame } from '../CubefulGame'
+import { BGListener } from '../dispatchers/BGListener'
 import { operateWithBGandRS } from '../operateWithRS'
 import { CBOperator } from '../operators/CBOperator'
 import { RSOperator } from '../operators/RSOperator'

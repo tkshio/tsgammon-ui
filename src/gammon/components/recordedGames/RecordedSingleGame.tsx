@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { SingleGame, SingleGameProps } from '../SingleGame'
 import { defaultPlayersConf } from '../PlayersConf'
@@ -7,7 +7,10 @@ import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedSingleGameProps = Omit<SingleGameProps, 'cpState'|'matchScore'> &{
+export type RecordedSingleGameProps = Omit<
+    SingleGameProps,
+    'cpState' | 'matchScore'
+> & {
     matchRecord: MatchRecord<SGState>
     onResumeState?: (index: number) => void
 }
@@ -22,7 +25,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
             //
         },
         dialog,
-       ...listeners
+        ...listeners
     } = props
 
     const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
@@ -40,7 +43,7 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         resignState,
         sgState,
         cpState,
-        matchScore:matchRecord.matchState.score,
+        matchScore: matchRecord.matchState.score,
         gameConf,
         playersConf,
         dialog,

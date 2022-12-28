@@ -1,8 +1,5 @@
 import { useState } from 'react'
 import { Score, score } from 'tsgammon-core'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { CBEoG } from 'tsgammon-core/dispatchers/CubeGameState'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
 import {
     MatchState,
     MatchStateEoG,
@@ -10,6 +7,9 @@ import {
     MatchStateInPlay,
 } from 'tsgammon-core/MatchState'
 import { StakeConf } from 'tsgammon-core/StakeConf'
+import { CBEoG } from 'tsgammon-core/states/CubeGameState'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { BGListener } from './dispatchers/BGListener'
 
 export function useMatchState(conf: {
     stakeConf?: StakeConf

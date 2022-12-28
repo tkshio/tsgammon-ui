@@ -1,26 +1,23 @@
-import { buildSGEventHandler } from 'tsgammon-core/dispatchers/buildSGEventHandler'
-import { defaultSGState } from 'tsgammon-core/dispatchers/defaultStates'
-import {
-    RollListener,
-    rollListener,
-} from 'tsgammon-core/dispatchers/RollDispatcher'
-import { setSGStateListener } from 'tsgammon-core/dispatchers/SingleGameDispatcher'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { CheckerPlayState } from 'tsgammon-core/dispatchers/CheckerPlayState'
-import { SingleGameEventHandlerExtensible } from 'tsgammon-core/dispatchers/SingleGameEventHandler'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { GameSetup, toSGState } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { score, Score } from 'tsgammon-core'
 import { GameConf, standardConf } from 'tsgammon-core/GameConf'
-import { useCheckerPlayListener } from '../useCheckerPlayListeners'
-import { useSingleGameState } from '../useSingleGameState'
+import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
+import { defaultSGState } from 'tsgammon-core/states/defaultStates'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { GameSetup, toSGState } from 'tsgammon-core/states/utils/GameSetup'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { useSGRecorder } from './useSGRecorder'
-import { SGRecorder } from './Cubeless'
+import { buildSGEventHandler } from '../dispatchers/buildSGEventHandler'
+import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import {
     eogEventHandlersSG,
     SGEoGHandler,
-} from 'tsgammon-core/dispatchers/EOGEventHandlers'
-import { score, Score } from 'tsgammon-core'
+} from '../dispatchers/EOGEventHandlers'
+import { RollListener, rollListener } from '../dispatchers/RollDispatcher'
+import { setSGStateListener } from '../dispatchers/SingleGameDispatcher'
+import { SingleGameEventHandlerExtensible } from '../dispatchers/SingleGameEventHandler'
+import { useCheckerPlayListener } from '../useCheckerPlayListeners'
+import { useSingleGameState } from '../useSingleGameState'
+import { SGRecorder } from './Cubeless'
+import { useSGRecorder } from './useSGRecorder'
 
 export function useCubeless(
     conf: {
@@ -28,7 +25,7 @@ export function useCubeless(
         gameConf?: GameConf
         diceSource?: DiceSource
         recordMatch?: boolean
-        matchScore?:Score
+        matchScore?: Score
     } & Partial<RollListener>
 ): {
     sgState: SGState
@@ -44,7 +41,7 @@ export function useCubeless(
         diceSource,
         onRollRequest,
         recordMatch = false,
-        matchScore = score()
+        matchScore = score(),
     } = conf
     const rListener = rollListener({
         diceSource,

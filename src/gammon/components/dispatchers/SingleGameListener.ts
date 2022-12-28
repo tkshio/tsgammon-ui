@@ -1,4 +1,9 @@
-import { SGEoG, SGInPlay, SGOpening, SGToRoll } from '../states/SingleGameState'
+import {
+    SGEoG,
+    SGInPlay,
+    SGOpening,
+    SGToRoll,
+} from 'tsgammon-core/states/SingleGameState'
 
 /**
  * SingleGameについての状態遷移の通知を受け付けるListener

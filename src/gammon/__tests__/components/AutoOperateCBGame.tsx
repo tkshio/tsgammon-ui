@@ -1,11 +1,11 @@
-import { PointMatchProps } from '../../components/apps/PointMatch'
+import { CubefulMatchProps } from '../../components/apps/CubefulMatch'
 import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
+import { BGEventHandlersExtensible } from '../../components/dispatchers/buildBGEventHandler'
 import { operateWithBG } from '../../components/operateWithBG'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
 
 export function AutoOperateCBGame(
     props: CubefulGameProps &
-        Pick<PointMatchProps, 'autoOperators'> &
+        Pick<CubefulMatchProps, 'autoOperators'> &
         BGEventHandlersExtensible
 ) {
     const { bgState, autoOperators, ...handlers } = props

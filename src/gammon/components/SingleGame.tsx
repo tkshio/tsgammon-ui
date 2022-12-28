@@ -1,19 +1,19 @@
 import { Fragment } from 'react'
 import { GameConf, Score, score } from 'tsgammon-core'
-import { ResignState } from 'tsgammon-core/dispatchers/ResignState'
+import { ResignState } from 'tsgammon-core/states/ResignState'
+import { defaultPlayersConf, PlayersConf } from './PlayersConf'
+import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
 import { EOGDialog } from './uiparts/EOGDialog'
 import { PlyInfo } from './uiparts/PlyInfo'
 import { PositionID } from './uiparts/PositionID'
 import { ResignButton } from './uiparts/ResignButton'
 import { ResignDialog } from './uiparts/ResignDialog'
-import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
-import { defaultPlayersConf, PlayersConf } from './PlayersConf'
 
 export type SingleGameProps = Omit<SingleGameBoardProps, 'cube'> & {
     resignState?: ResignState | RSToOffer
     matchScore?: Score
-    gameConf?:GameConf
+    gameConf?: GameConf
     playersConf?: PlayersConf
     showPositionID?: boolean
 } & Partial<RSDialogHandler>

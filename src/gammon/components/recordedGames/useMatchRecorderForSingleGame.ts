@@ -1,6 +1,6 @@
 import { GameConf, score } from 'tsgammon-core'
-import { SGState } from 'tsgammon-core/dispatchers/SingleGameState'
-import { matchRecorderAsSG } from 'tsgammon-core/records/MatchRecorder'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { matchRecorderAsSG } from '../recordedGames/MatchRecorder'
 import { initMatchState } from '../useMatchState'
 import { useMatchRecorder } from './useMatchRecorder'
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
+import { BGState } from 'tsgammon-core/states/BGState'
 
 export function useBGState(initialBGState: BGState): {
     bgState: BGState

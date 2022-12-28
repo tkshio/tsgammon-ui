@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { EOGStatus } from 'tsgammon-core'
-import { ResignState, RSNONE } from 'tsgammon-core/dispatchers/ResignState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { RSToOffer, RSDialogHandler, rsDialogHandler } from './RSDialogHandler'
+import { ResignState, RSNONE } from 'tsgammon-core/states/ResignState'
+import { RSDialogHandler, rsDialogHandler, RSToOffer } from './RSDialogHandler'
 
 export function useResignState(
     acceptResign: (result: SGResult, eog: EOGStatus) => void

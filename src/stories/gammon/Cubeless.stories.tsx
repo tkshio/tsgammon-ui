@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
-import { GameStatus } from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { Cubeless } from '../../gammon/components/apps/Cubeless'
 import {
     bothSGAutoOperator,

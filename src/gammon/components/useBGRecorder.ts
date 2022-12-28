@@ -1,10 +1,10 @@
 import { Score } from 'tsgammon-core'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { MatchState } from 'tsgammon-core/MatchState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { matchRecorderAsBG } from 'tsgammon-core/records/MatchRecorder'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { BGListener } from './dispatchers/BGListener'
+import { matchRecorderAsBG } from './recordedGames/MatchRecorder'
 import { useMatchRecorder } from './recordedGames/useMatchRecorder'
 import { initMatchState, useMatchState } from './useMatchState'
 
@@ -57,10 +57,7 @@ export function useBGRecorder(conf: BGRecorderHookProps): BGRecorder {
         gameConf,
         initialMatchState
     )
-    const matchRecorderListener = matchRecorderAsBG(
-        gameConf,
-        matchRecorder
-    )
+    const matchRecorderListener = matchRecorderAsBG(gameConf, matchRecorder)
     const bgRecorder = recordMatch
         ? {
               recordMatch,

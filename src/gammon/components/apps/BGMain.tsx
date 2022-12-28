@@ -19,21 +19,18 @@ import { Buttons } from '../uiparts/Buttons'
 import { Dialog } from '../uiparts/Dialog'
 import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { CheckerPlayListeners } from 'tsgammon-core/dispatchers/CheckerPlayDispatcher'
-import { RollListener } from 'tsgammon-core/dispatchers/RollDispatcher'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
-import {
-    GameSetup,
-    GameStatus,
-} from 'tsgammon-core/dispatchers/utils/GameSetup'
+import { GameSetup, GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { decodePositionID } from 'tsgammon-core/utils/decodePositionID'
 import { formatBoard } from 'tsgammon-core/utils/formatBoard'
 import { BoardEventHandlers } from '../boards/Board'
+import { BGListener } from '../dispatchers/BGListener'
+import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
+import { RollListener } from '../dispatchers/RollDispatcher'
+import { SingleGameListener } from '../dispatchers/SingleGameListener'
 import { Cubeless } from './Cubeless'
 
-import './bgMain.css'
 import { toPositionID } from 'tsgammon-core/utils/toPositionID'
+import './bgMain.css'
 
 export type BGMainProps = Partial<
     BGListener &
@@ -589,7 +586,10 @@ export function BGMain(props: BGMainProps) {
 
     function positionConf(state: BGMainConfState) {
         const text = state.position.positionID
-            ? formatBoard(decodePositionID(state.position.positionID), true).join('\n')
+            ? formatBoard(
+                  decodePositionID(state.position.positionID),
+                  true
+              ).join('\n')
             : ''
         return (
             <Fragment>

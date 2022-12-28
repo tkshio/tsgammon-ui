@@ -5,13 +5,13 @@ import {
     CBOpening,
     CBResponse,
     CBToRoll,
-} from './CubeGameState'
+} from 'tsgammon-core/states/CubeGameState'
 import {
     SGInPlay,
     SGOpening,
     SGState,
     SGToRoll,
-} from '../states/SingleGameState'
+} from 'tsgammon-core/states/SingleGameState'
 
 /**
  * BGEventHandlerの提供する各操作について、それを適用した結果発生するイベントが通知されるListener：引数には、イベント発生後の状態が渡される
