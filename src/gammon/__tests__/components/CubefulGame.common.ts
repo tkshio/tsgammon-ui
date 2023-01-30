@@ -18,6 +18,7 @@ import {
     setCPStateListener,
 } from '../../components/dispatchers/CheckerPlayDispatcher'
 import { rollListener } from '../../components/dispatchers/RollDispatcher'
+import { singleGameDispatcher } from '../../components/dispatchers/SingleGameDispatcher'
 import { matchStateListener } from '../../components/useMatchState'
 
 export const BoardOp = {
@@ -88,7 +89,9 @@ export function setupEventHandlers(
             state.cpState = next
         }
     )
+    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
     const handlers = buildBGEventHandler(
+        sgDispatcher,
         () => isCrawford,
         rollListener({ diceSource }),
         setBGStateListener(

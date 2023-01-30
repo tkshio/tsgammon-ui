@@ -1,24 +1,24 @@
 import { BoardState, BoardStateNode, cube, CubeState } from 'tsgammon-core'
-import { BGEventHandler } from 'tsgammon-core/dispatchers/BGEventHandler'
-import { BGListener } from 'tsgammon-core/dispatchers/BGListener'
-import { BGState } from 'tsgammon-core/dispatchers/BGState'
-import { BGEventHandlersExtensible } from 'tsgammon-core/dispatchers/buildBGEventHandler'
-import { CBInPlay, CBState } from 'tsgammon-core/dispatchers/CubeGameState'
-import { ResignEventHandler } from 'tsgammon-core/dispatchers/ResignEventHandlers'
-import { ResignState, RSOffered } from 'tsgammon-core/dispatchers/ResignState'
-import { SingleGameListener } from 'tsgammon-core/dispatchers/SingleGameListener'
+import { ResignOffer } from 'tsgammon-core/ResignOffer'
+import { BGState } from 'tsgammon-core/states/BGState'
+import { CBInPlay, CBState } from 'tsgammon-core/states/CubeGameState'
+import { ResignState, RSOffered } from 'tsgammon-core/states/ResignState'
+import { SGInPlay, SGState } from 'tsgammon-core/states/SingleGameState'
+import { BGEventHandler } from './dispatchers/BGEventHandler'
+import { BGListener } from './dispatchers/BGListener'
+import { BGEventHandlersExtensible } from './dispatchers/buildBGEventHandler'
+import { ResignEventHandler } from './dispatchers/ResignEventHandlers'
 import {
     SingleGameEventHandler,
     SingleGameEventHandlerExtensible,
-} from 'tsgammon-core/dispatchers/SingleGameEventHandler'
-import { SGInPlay, SGState } from 'tsgammon-core/dispatchers/SingleGameState'
+} from './dispatchers/SingleGameEventHandler'
+import { SingleGameListener } from './dispatchers/SingleGameListener'
 import { operateWithBG } from './operateWithBG'
 import { operateWithSG } from './operateWithSG'
 import { CBOperator } from './operators/CBOperator'
 import { RSOperator } from './operators/RSOperator'
 import { SGOperator } from './operators/SGOperator'
 import { RSDialogHandler, RSToOffer } from './RSDialogHandler'
-import { ResignOffer } from 'tsgammon-core/ResignOffer'
 
 export function operateWithBGandRS(
     resignState: ResignState | RSToOffer,

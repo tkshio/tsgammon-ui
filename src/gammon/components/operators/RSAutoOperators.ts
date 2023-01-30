@@ -79,7 +79,7 @@ function doOfferAction(
     }
 
     // コンタクトがあるうちはResignしない
-    if (!boardState.isRunningGame()) {
+    if (!boardState.isRunningGame) {
         return
     }
 

@@ -16,6 +16,7 @@ import {
 import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import { BGEoGHandler, eogEventHandler } from '../dispatchers/EOGEventHandlers'
 import { RollListener, rollListener } from '../dispatchers/RollDispatcher'
+import { singleGameDispatcher } from '../dispatchers/SingleGameDispatcher'
 import { BGRecorder, useBGRecorder } from '../useBGRecorder'
 import { useBGState } from '../useBGState'
 import { useCheckerPlayListener } from '../useCheckerPlayListeners'
@@ -98,8 +99,9 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
     }
 
     const _listeners = [bgListener, bgRecorder.matchListener, exListeners]
-
+    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
     const bgEventHandler = buildBGEventHandler(
+        sgDispatcher,
         skipCubeAction,
         rListener,
         ..._listeners

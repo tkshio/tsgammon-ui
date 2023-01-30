@@ -11,6 +11,7 @@ import { CubefulGame } from '../../../components/CubefulGame'
 import { setBGStateListener } from '../../../components/dispatchers/BGEventHandler'
 import { buildBGEventHandler } from '../../../components/dispatchers/buildBGEventHandler'
 import { eogEventHandler } from '../../../components/dispatchers/EOGEventHandlers'
+import { singleGameDispatcher } from '../../../components/dispatchers/SingleGameDispatcher'
 import { operateWithRS } from '../../../components/operateWithRS'
 import {
     bothRSAutoOperator,
@@ -25,6 +26,7 @@ import {
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
 
+const sgDispatcher = singleGameDispatcher()
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
     resignState: RSNONE,
@@ -69,6 +71,7 @@ describe('ResignDialog', () => {
         })
 
         const bgHandler = buildBGEventHandler(
+            sgDispatcher,
             () => false,
             undefined,
             setBGStateListener(bgState, setBGState)
@@ -111,6 +114,7 @@ describe('ResignDialog', () => {
         })
 
         const bgHandler = buildBGEventHandler(
+            sgDispatcher,
             () => true,
             undefined,
             setBGStateListener(bgState, setBGState)
@@ -163,6 +167,7 @@ describe('ResignDialog', () => {
         const listeners = [setBGStateListener(bgState, setBGState)]
 
         const bgHandler = buildBGEventHandler(
+            sgDispatcher,
             () => true,
             undefined,
             ...listeners

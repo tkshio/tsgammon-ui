@@ -1,7 +1,7 @@
 import { DiceRoll } from 'tsgammon-core/Dices'
 import { SGOpening, SGToRoll } from 'tsgammon-core/states/SingleGameState'
 import { RollListener, rollListener } from './RollDispatcher'
-import { singleGameDispatcher } from './SingleGameDispatcher'
+import { SingleGameDispatcher } from './SingleGameDispatcher'
 import {
     SingleGameEventHandler,
     SingleGameEventHandlerExtensible,
@@ -17,13 +17,20 @@ import { concat0, concat1 } from './utils/concat'
  * @returns
  */
 export function buildSGEventHandler(
+    singleGameDispatcher: SingleGameDispatcher,
     rListener: RollListener = rollListener(),
     ...listeners: Partial<SingleGameListener>[]
 ): SingleGameEventHandlerExtensible {
-    return buildSGEventHandler_rec(rListener, {}, ...listeners)
+    return buildSGEventHandler_rec(
+        singleGameDispatcher,
+        rListener,
+        {},
+        ...listeners
+    )
 }
 
 function buildSGEventHandler_rec(
+    singleGameDispatcher: SingleGameDispatcher,
     rollListener: RollListener,
     sgListener: Partial<SingleGameListener>,
     ...listeners: Partial<SingleGameListener>[]
@@ -36,15 +43,21 @@ function buildSGEventHandler_rec(
         ),
     }
     const addListeners = (...toAdd: Partial<SingleGameListener>[]) => {
-        return buildSGEventHandler_rec(rollListener, listener, ...toAdd)
+        return buildSGEventHandler_rec(
+            singleGameDispatcher,
+            rollListener,
+            listener,
+            ...toAdd
+        )
     }
     return {
-        ..._buildSGEventHandler(rollListener, listener),
+        ..._buildSGEventHandler(singleGameDispatcher, rollListener, listener),
         addListeners,
     }
 }
 
 function _buildSGEventHandler(
+    singleGameDispatcher: SingleGameDispatcher,
     rollListener: RollListener,
     listeners: SingleGameListener
 ): SingleGameEventHandler {

@@ -5,7 +5,7 @@ import { CBEoG } from 'tsgammon-core/states/CubeGameState'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { BGListener } from './BGListener'
 import { cubeGameDispatcher } from './CubeGameDispatcher'
-import { singleGameDispatcher } from './SingleGameDispatcher'
+import { SingleGameDispatcher } from './SingleGameDispatcher'
 import { SingleGameListener } from './SingleGameListener'
 import { concat1 } from './utils/concat'
 
@@ -63,6 +63,7 @@ export type SGEoGHandler = {
     onEndOfGame: (sgState: SGState, sgResult: SGResult, eog: EOGStatus) => void
 }
 export function eogEventHandlersSG(
+    singleGameDispatcher: SingleGameDispatcher,
     ...listeners: Partial<SingleGameListener>[]
 ): SGEoGHandler {
     const listener = {

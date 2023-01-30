@@ -12,7 +12,10 @@ import {
     SGEoGHandler,
 } from '../dispatchers/EOGEventHandlers'
 import { RollListener, rollListener } from '../dispatchers/RollDispatcher'
-import { setSGStateListener } from '../dispatchers/SingleGameDispatcher'
+import {
+    setSGStateListener,
+    singleGameDispatcher,
+} from '../dispatchers/SingleGameDispatcher'
 import { SingleGameEventHandlerExtensible } from '../dispatchers/SingleGameEventHandler'
 import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { useSingleGameState } from '../useSingleGameState'
@@ -61,8 +64,9 @@ export function useCubeless(
         setSGStateListener(defaultSGState(gameConf), setSGState),
         matchRecordListener,
     ]
-    const handler = buildSGEventHandler(rListener, ...listeners)
-    const eogHandler = eogEventHandlersSG(...listeners)
+    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
+    const handler = buildSGEventHandler(sgDispatcher, rListener, ...listeners)
+    const eogHandler = eogEventHandlersSG(sgDispatcher, ...listeners)
     return {
         sgState,
         cpState,

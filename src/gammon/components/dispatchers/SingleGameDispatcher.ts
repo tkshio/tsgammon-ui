@@ -1,8 +1,8 @@
 import { DiceRoll } from 'tsgammon-core/Dices'
 import { EOGStatus } from 'tsgammon-core/EOGStatus'
 import { SGResult } from 'tsgammon-core/records/SGResult'
-import { SGTransitions } from 'tsgammon-core/states/SGTransitions'
-import { basicSGTransitions } from 'tsgammon-core/states/SGTransitionsBasic'
+import { SGTransition, sgTransition } from 'tsgammon-core/states/SGTransition'
+
 import {
     SGInPlay,
     SGOpening,
@@ -60,9 +60,9 @@ export type SingleGameDispatcher = {
 /**
  * SingleGameDispatcherオブジェクトを生成する
  */
-export const singleGameDispatcher: SingleGameDispatcher =
-    dispatcher(basicSGTransitions)
-function dispatcher(t: SGTransitions) {
+export function singleGameDispatcher(
+    t: SGTransition = sgTransition()
+): SingleGameDispatcher {
     return {
         doStartGame: () => {
             return (listener: Pick<SingleGameListener, 'onGameStarted'>) => {

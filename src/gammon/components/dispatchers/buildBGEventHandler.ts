@@ -18,7 +18,7 @@ import {
 } from 'tsgammon-core/states/SingleGameState'
 import { eogEventHandler } from './EOGEventHandlers'
 import { RollListener, rollListener, withRL } from './RollDispatcher'
-import { singleGameDispatcher } from './SingleGameDispatcher'
+import { SingleGameDispatcher } from './SingleGameDispatcher'
 
 /**
  * BGListenerを後付け可能なBGEventHandler
@@ -35,14 +35,22 @@ export type BGEventHandlersExtensible = BGEventHandler & {
  * @returns
  */
 export function buildBGEventHandler(
+    singleGameDispatcher: SingleGameDispatcher,
     skipCubeAction: (cbState: CBInPlay) => boolean,
     rListener: RollListener = rollListener(),
     ...listeners: Partial<BGListener>[]
 ): BGEventHandlersExtensible {
-    return buildBGEventHandler_rec(skipCubeAction, rListener, {}, ...listeners)
+    return buildBGEventHandler_rec(
+        singleGameDispatcher,
+        skipCubeAction,
+        rListener,
+        {},
+        ...listeners
+    )
 }
 
 function buildBGEventHandler_rec(
+    singleGameDispatcher: SingleGameDispatcher,
     skipCubeAction: (cbState: CBInPlay) => boolean,
     rListener: RollListener = rollListener(),
     _bgListeners: Partial<BGListener>,
@@ -54,6 +62,7 @@ function buildBGEventHandler_rec(
     )
 
     const handlers = _buildBGEventHandler(
+        singleGameDispatcher,
         skipCubeAction,
         rListener,
         bgListeners
@@ -61,6 +70,7 @@ function buildBGEventHandler_rec(
 
     function addListeners(...toAdd: Partial<BGListener>[]) {
         return buildBGEventHandler_rec(
+            singleGameDispatcher,
             skipCubeAction,
             rListener,
             bgListeners,
@@ -76,6 +86,7 @@ function buildBGEventHandler_rec(
 
 // singleGameDispatcherとcubeGameDispatcherを組み合わせて、BGEventHandlerを実装している
 function _buildBGEventHandler(
+    singleGameDispatcher: SingleGameDispatcher,
     skipCubeAction: (cbState: CBInPlay) => boolean,
     rollListener: RollListener,
     bgListeners: Partial<BGListener>
