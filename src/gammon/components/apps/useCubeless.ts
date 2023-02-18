@@ -1,5 +1,4 @@
-import { score, Score } from 'tsgammon-core'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { GameConf, score, Score, standardConf } from 'tsgammon-core'
 import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { defaultSGState } from 'tsgammon-core/states/defaultStates'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
@@ -64,7 +63,7 @@ export function useCubeless(
         setSGStateListener(defaultSGState(gameConf), setSGState),
         matchRecordListener,
     ]
-    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
+    const sgDispatcher = singleGameDispatcher(gameConf.transition)
     const handler = buildSGEventHandler(sgDispatcher, rListener, ...listeners)
     const eogHandler = eogEventHandlersSG(sgDispatcher, ...listeners)
     return {

@@ -1,4 +1,3 @@
-import { wrap } from 'tsgammon-core/BoardStateNode'
 import { Dice } from 'tsgammon-core/Dices'
 import {
     CheckerPlayState,
@@ -7,6 +6,7 @@ import {
 import { findMove } from 'tsgammon-core/utils/findMove'
 import { makeLeap } from 'tsgammon-core/utils/makeLeap'
 import { makePoint } from 'tsgammon-core/utils/makePoint'
+import { wrapNode } from 'tsgammon-core/utils/wrapNode'
 
 /**
  * 未確定の状態のチェッカープレイを管理する：CheckerPlayでは機能追加の必要性が薄いので、
@@ -129,13 +129,13 @@ export function applyCheckerPlay(
         !dices[0].used &&
         !dices[1].used
 
-    const node = wrap(state.curBoardState)
+    const node = wrapNode(state.curBoardState, useMinorFirst)
         // クリック位置から動かせる駒がある
         .apply((node) => findMove(node, pos, useMinorFirst))
         // クリック位置でポイントを作れる
         .or((node) => makePoint(node, pos))
         // クリック位置へ動かせる
-        .or((node) => makeLeap(node, pos, useMinorFirst)).unwrap
+        .or((node) => makeLeap(node, pos)).unwrap
 
     return node.hasValue
         ? {

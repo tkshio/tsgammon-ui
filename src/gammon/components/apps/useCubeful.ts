@@ -1,5 +1,4 @@
-import { score, Score } from 'tsgammon-core'
-import { GameConf, standardConf } from 'tsgammon-core/GameConf'
+import { GameConf, score, Score, standardConf } from 'tsgammon-core'
 import { MatchState, shouldSkipCubeAction } from 'tsgammon-core/MatchState'
 import { BGState, toState } from 'tsgammon-core/states/BGState'
 import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
@@ -99,7 +98,7 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
     }
 
     const _listeners = [bgListener, bgRecorder.matchListener, exListeners]
-    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
+    const sgDispatcher = singleGameDispatcher(gameConf.transition)
     const bgEventHandler = buildBGEventHandler(
         sgDispatcher,
         skipCubeAction,

@@ -11,6 +11,7 @@ import { Point } from './Point'
 import './board.appearance.css'
 import './board.css'
 import { IconButton } from '../uiparts/IconButton'
+import { standardConf } from 'tsgammon-core'
 
 export type DiceLayout = {
     redDices: DiceProps
@@ -55,7 +56,7 @@ export type BoardProps = {
  */
 export function Board(props: BoardProps) {
     const {
-        board = initAbsoluteBoard(),
+        board = initAbsoluteBoard(standardConf.initialPos),
         redDices = { dices: [] },
         whiteDices = { dices: [] },
         centerCube,

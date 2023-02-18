@@ -89,7 +89,7 @@ export function setupEventHandlers(
             state.cpState = next
         }
     )
-    const sgDispatcher = singleGameDispatcher(gameConf.transitions)
+    const sgDispatcher = singleGameDispatcher(gameConf.transition)
     const handlers = buildBGEventHandler(
         sgDispatcher,
         () => isCrawford,

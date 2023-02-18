@@ -1,4 +1,5 @@
 import { Meta, Story } from '@storybook/react'
+import { standardConf } from 'tsgammon-core'
 import { initAbsoluteBoard } from 'tsgammon-core/AbsoluteBoardState'
 import { Board } from '../../gammon/components/boards/Board'
 import { Dialog, DialogProps } from '../../gammon/components/uiparts/Dialog'
@@ -11,7 +12,7 @@ export default {
 } as Meta
 const board = {
     status: '',
-    board: initAbsoluteBoard(),
+    board: initAbsoluteBoard(standardConf.initialPos),
     whiteDices: { dices: [] },
     redDices: { dices: [] },
     whiteScore: 0,

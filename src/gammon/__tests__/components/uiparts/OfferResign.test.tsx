@@ -4,8 +4,10 @@ import { EOGStatus } from 'tsgammon-core'
 import { matchStateForUnlimitedMatch } from 'tsgammon-core/MatchState'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import { ResignOffer } from 'tsgammon-core/ResignOffer'
+import { standardRuleSet } from 'tsgammon-core/rules/standardRuleSet'
 import { BGState, toState } from 'tsgammon-core/states/BGState'
 import { ResignState, RSNONE } from 'tsgammon-core/states/ResignState'
+import { sgTransition } from 'tsgammon-core/states/SGTransitions'
 import { GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { CubefulGame } from '../../../components/CubefulGame'
 import { setBGStateListener } from '../../../components/dispatchers/BGEventHandler'
@@ -26,7 +28,7 @@ import {
 import { BoardOp } from '../CubefulGame.common'
 import { alwaysAccept, alwaysOffer } from './Resign.common'
 
-const sgDispatcher = singleGameDispatcher()
+const sgDispatcher = singleGameDispatcher(sgTransition(standardRuleSet))
 let container: HTMLElement | null = null
 const state: { resignState: ResignState | RSToOffer } = {
     resignState: RSNONE,
