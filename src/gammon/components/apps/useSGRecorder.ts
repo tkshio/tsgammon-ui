@@ -2,7 +2,7 @@ import { Score } from 'tsgammon-core'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { SingleGameListener } from '../dispatchers/SingleGameListener'
-import { matchRecorderAsSG } from '../recordedGames/MatchRecorder'
+import { matchRecordingSGListener } from '../recordedGames/MatchRecordingListeners'
 import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
 import { initMatchState } from '../useMatchState'
 import { SGRecorder } from './Cubeless'
@@ -26,7 +26,7 @@ export function useSGRecorder(
         })
     )
 
-    const matchRecordListener = matchRecorderAsSG(matchRecorder)
+    const matchRecordListener = matchRecordingSGListener(matchRecorder)
     const sgRecorder = {
         recordMatch,
         onResumeState: (index: number) => {

@@ -1,7 +1,8 @@
 import { GameConf, score } from 'tsgammon-core'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
-import { matchRecorderAsSG } from '../recordedGames/MatchRecorder'
+
 import { initMatchState } from '../useMatchState'
+import { matchRecordingSGListener } from './MatchRecordingListeners'
 import { useMatchRecorder } from './useMatchRecorder'
 
 export function useMatchRecorderForSingleGame(gameConf: GameConf) {
@@ -15,7 +16,7 @@ export function useMatchRecorderForSingleGame(gameConf: GameConf) {
         })
     )
 
-    const matchRecordListener = matchRecorderAsSG(matchRecorder)
+    const matchRecordListener = matchRecordingSGListener(matchRecorder)
 
     return { matchRecord, matchRecorder, matchRecordListener }
 }
