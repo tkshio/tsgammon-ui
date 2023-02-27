@@ -75,7 +75,6 @@ function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
 
         // チェッカープレイが確定した時に通知を受ける
         onCommitCheckerPlay: (cpState: CheckerPlayStateCommitted) => {
-            //            props.onCommit?.(sgState.withNode(cpState.boardStateNode))
             props.onCommit?.(
                 inPlayStateWithNode(sgState, cpState.boardStateNode)
             )
@@ -89,8 +88,9 @@ function renderBoardInPlay(props: SingleGameBoardProps, sgState: SGInPlay) {
 function layoutDices(sgState: SGOpening | SGToRoll | SGEoG): DiceLayout {
     switch (sgState.tag) {
         case 'SGOpening': {
-            const dices: Dice[] | BlankDice[] = sgState.dicePip
-                ? [dice(sgState.dicePip)]
+            const diceRoll = sgState.diceRoll
+            const dices: Dice[] | BlankDice[] = diceRoll
+                ? [dice(diceRoll.dice1), dice(diceRoll.dice2)]
                 : [blankDice]
             return { redDices: { dices }, whiteDices: { dices } }
         }
