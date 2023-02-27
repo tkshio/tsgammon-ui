@@ -1,9 +1,10 @@
 import { BoardState, CubeState } from 'tsgammon-core'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
+import { BoardStateNodeRoot } from 'tsgammon-core/BoardStateNodeRoot'
 import { GammonEngine } from 'tsgammon-core/engines/GammonEngine'
 import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
-import { CBOperator } from "./CBOperator"
-import { SGOperator } from "./SGOperator"
+import { CBOperator } from './CBOperator'
+import { SGOperator } from './SGOperator'
 
 const defaultEngine: GammonEngine = simpleNNEngine
 
@@ -11,7 +12,7 @@ const doCheckerPlay =
     (engine: GammonEngine) =>
     (
         doCommitCheckerPlay: (nextNode: BoardStateNode) => void,
-        boardStateNode: BoardStateNode
+        boardStateNode: BoardStateNodeRoot
     ) => {
         doCommitCheckerPlay(engine.checkerPlay(boardStateNode))
         return true

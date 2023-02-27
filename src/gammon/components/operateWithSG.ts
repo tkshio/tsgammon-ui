@@ -37,7 +37,7 @@ export function operateWithSG(
                 const doCheckerPlay = (node: BoardStateNode) => {
                     autoHandler.onCommit(inPlayStateWithNode(nextState, node))
                 }
-                return operation(doCheckerPlay, nextState.boardStateNode)
+                return operation(doCheckerPlay, nextState.rootNode)
             },
             onOpeningCheckerPlayStarted: async (nextState: SGInPlay) => {
                 const operation = await sg[
@@ -48,7 +48,7 @@ export function operateWithSG(
                 const doCheckerPlay = (node: BoardStateNode) => {
                     autoHandler.onCommit(inPlayStateWithNode(nextState, node))
                 }
-                return operation(doCheckerPlay, nextState.boardStateNode)
+                return operation(doCheckerPlay, nextState.rootNode)
             },
         }),
     }

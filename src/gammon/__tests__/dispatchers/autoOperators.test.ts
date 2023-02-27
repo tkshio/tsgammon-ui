@@ -1,10 +1,10 @@
-import { boardState, boardStateNode, cube } from 'tsgammon-core'
+import { boardState, boardStateNode, cube, standardConf } from 'tsgammon-core'
 import {
     GammonEngine,
     simpleEvalEngine,
 } from 'tsgammon-core/engines/GammonEngine'
-import { CBOperator } from "../../components/operators/CBOperator"
-import { SGOperator } from "../../components/operators/SGOperator"
+import { CBOperator } from '../../components/operators/CBOperator'
+import { SGOperator } from '../../components/operators/SGOperator'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
@@ -13,6 +13,7 @@ import {
     whiteCBAutoOperator,
     whiteSGAutoOperator,
 } from '../../components/operators/autoOperators'
+import { BoardStateNodeRoot } from 'tsgammon-core/BoardStateNodeRoot'
 
 const rollRed = jest.fn(() => {
     //
@@ -22,7 +23,10 @@ const rollWhite = jest.fn(() => {
 })
 const playRed = jest.fn()
 const playWhite = jest.fn()
-const node = boardStateNode(boardState(), { dice1: 1, dice2: 3 })
+const node: BoardStateNodeRoot = boardStateNode(
+    boardState(standardConf.initialPos),
+    { dice1: 1, dice2: 3 }
+)
 
 describe('bothSGOperator', () => {
     test('returns always true', () => {
@@ -154,7 +158,7 @@ describe('whiteCBAutoOperator', () => {
 
 function doRedCubeActions(ao: CBOperator) {
     const cubeState = cube(1)
-    const board = boardState()
+    const board = boardState(standardConf.initialPos)
     const redAction = ao.operateRedCubeAction(
         cubeState,
         board,
@@ -171,7 +175,7 @@ function doRedCubeActions(ao: CBOperator) {
 }
 function doWhiteCubeActions(ao: CBOperator) {
     const cubeState = cube(1)
-    const board = boardState()
+    const board = boardState(standardConf.initialPos)
     const whiteAction = ao.operateWhiteCubeAction(
         cubeState,
         board,

@@ -98,7 +98,7 @@ export function operateWithBG(
                         sgState: inPlayStateWithNode(sgState, node),
                     })
                 }
-                return operation(doCheckerPlay, sgState.boardStateNode)
+                return operation(doCheckerPlay, sgState.rootNode)
             },
         }),
     }
