@@ -11,5 +11,7 @@ type RevertButtonProps = IconButtonProps & {
  * @constructor
  */
 export function RevertButton(prop: RevertButtonProps) {
-    return <IconButton id={'revertButton'} {...prop} />
+    return (
+        <IconButton id={'revertButton'} data-testid="revert-button" {...prop} />
+    )
 }

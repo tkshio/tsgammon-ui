@@ -22,7 +22,7 @@ import { singleGameDispatcher } from '../../components/dispatchers/SingleGameDis
 import { matchStateListener } from '../../components/useMatchState'
 
 export const BoardOp = {
-    clickPoint: (pos: number) => {
+    clickPoint: async (pos: number) => {
         const point = screen.getByTestId(new RegExp(`^point-${pos}`))
         userEvent.click(point)
     },
@@ -37,6 +37,10 @@ export const BoardOp = {
     clickCube: async () => {
         const cube = screen.getByTestId(/^cube/)
         userEvent.click(cube)
+    },
+    clickRevertButton: async () => {
+        const revert = screen.getByTestId(/^revert-button/)
+        userEvent.click(revert)
     },
 }
 
