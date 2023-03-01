@@ -12,11 +12,15 @@ export type PointProps = {
  */
 export function Point(props: PointProps) {
     const [count, color] =
-        props.count < 0 ? [-props.count, 'red'] : [props.count, 'white']
+        props.count < 0
+            ? [-props.count, 'point red']
+            : props.count > 0
+            ? [props.count, 'point white']
+            : [props.count, 'point']
 
-    const pieces: JSX.Element[] = [...Array(count)].map((value, index) => {
+    const pieces: JSX.Element[] = [...Array(count)].map((_, index) => {
         return <div className="piece" key={index} />
     })
 
-    return <div className={'point ' + color}>{pieces}</div>
+    return <div className={color}>{pieces}</div>
 }
