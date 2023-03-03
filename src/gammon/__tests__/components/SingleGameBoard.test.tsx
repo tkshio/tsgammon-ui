@@ -17,7 +17,7 @@ import {
     SingleGameBoard,
     SingleGameBoardProps,
 } from '../../components/SingleGameBoard'
-import { BoardOp } from './CubefulGame.common'
+import { BoardOp, isRed, isWhite } from './CubefulGame.common'
 
 let container: HTMLElement | null = null
 
@@ -34,7 +34,7 @@ describe('SingleGameBoard', () => {
         ...setCPStateListener((state) => (props.cpState = state)),
         ...buildSGEventHandler(
             singleGameDispatcher(standardConf.transition),
-            rollListener({ diceSource: presetDiceSource(1, 3) }),
+            rollListener({ diceSource: presetDiceSource(1, 3, 4, 2) }),
             setSGStateListener(
                 initialState,
                 (state: SGState) => (props.sgState = state)
@@ -44,6 +44,8 @@ describe('SingleGameBoard', () => {
 
     test('renders blank dice and pieces for Opening state', async () => {
         render(<SingleGameBoard {...props} />)
+        expect(isWhite(props.sgState)).toBeFalsy()
+        expect(isRed(props.sgState)).toBeFalsy()
         assertPositions(standardConf.initialPos)
         assertDices([blankDice], 'right')
         assertDices([blankDice], 'left')
@@ -71,6 +73,7 @@ describe('SingleGameBoard', () => {
                 -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
                 0]
         )
+        expect(isWhite(props.sgState)).toBeTruthy()
         assertNoDices('left')
     })
 
@@ -94,6 +97,7 @@ describe('SingleGameBoard', () => {
         await act(async () => {
             BoardOp.clickRevertButton()
         })
+        expect(isWhite(props.sgState)).toBeTruthy()
         assertDices([dice(1), dice(3)], 'right')
         assertAbsBoardPositions(
             props.cpState!.absBoard,
@@ -118,8 +122,9 @@ describe('SingleGameBoard', () => {
                -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
                0]
 
+        expect(isWhite(props.sgState)).toBeTruthy()
         assertPositions(pos)
-        assertAbsBoardPositions(props.cpState?.absBoard!, pos)
+        assertAbsBoardPositions(props.cpState!.absBoard, pos)
         assertDices([dice(1, true), dice(3, true)], 'right')
     })
     test('turns board after commit', async () => {
@@ -135,10 +140,48 @@ describe('SingleGameBoard', () => {
              2, 0, 0, 0, 0,-5, /* bar */ 0,-3, 0, 0, 0, 5,
             -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
             0]
-
-        console.log(props.sgState.boardState.points)
+        expect(isRed(props.sgState)).toBeTruthy()
         assertPositions(pos)
         assertAbsBoardPositions(props.sgState.absBoard, pos)
+    })
+
+    test('rolls dice for red when left dices gets clicked', async () => {
+        const { rerender } = render(<SingleGameBoard {...props} />)
+
+        await act(async () => {
+            BoardOp.clickLeftDice()
+        })
+        rerender(<SingleGameBoard {...props} />)
+        const pos =
+            // prettier-ignore
+            [0,
+             2, 0, 0, 0, 0,-5, /* bar */ 0,-3, 0, 0, 0, 5,
+            -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
+            0]
+
+        expect(isRed(props.sgState)).toBeTruthy()
+        assertPositions(pos)
+        assertDices([dice(4), dice(2)], 'left')
+    })
+
+    test('makes block when empty point gets clicked(red)', async () => {
+        const { rerender } = render(<SingleGameBoard {...props} />)
+
+        await act(async () => {
+            BoardOp.clickPoint(4)
+        })
+        rerender(<SingleGameBoard {...props} />)
+        const pos =
+            // prettier-ignore
+            [0,
+                2, 0, 0,-2, 0,-4, /* bar */ 0,-2, 0, 0, 0, 5,
+               -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
+               0]
+        expect(props.sgState.tag).toBe('SGInPlay')
+        expect(isRed(props.sgState)).toBeTruthy()
+        assertPositions(pos)
+        assertAbsBoardPositions(props.cpState!.absBoard, pos)
+        assertDices([dice(4, true), dice(2, true)], 'left')
     })
 })
 
@@ -183,14 +226,15 @@ function assertNoDices(side: 'right' | 'left') {
 }
 
 function assertDices(dices: (Dice | BlankDice)[], side: 'right' | 'left') {
-    screen
-        .getByTestId(`dice-${side}`)
-        .querySelectorAll(`div.dice > div`)
-        ?.forEach((e, idx) => {
-            expect(e.className).toBe(
-                `pip d${dices[idx].pip + (dices[idx].used ? ' used' : '')}`
-            )
-        })
+    dices.forEach((dice, idx) => {
+        const e = screen
+            .getByTestId(`dice-${side}`)
+            .querySelectorAll(`div.dice > div`)
+            .item(idx)
+        expect(e.className).toBe(
+            `pip d${dice.pip + (dice.used ? ' used' : '')}`
+        )
+    })
 }
 afterEach(() => {
     // clean up DOM
