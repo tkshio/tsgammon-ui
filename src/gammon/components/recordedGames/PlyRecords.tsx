@@ -12,7 +12,7 @@ export type PlyRecordsProps<T> = {
     plyRecords: PlyStateRecord<T>[]
     eogRecord?: PlyRecordEoG
     matchScore: Score
-    playersConf:PlayersConf
+    playersConf: PlayersConf
     selected?: number
     dispatcher: (index: number, state?: T) => void
 }
@@ -31,7 +31,7 @@ const optionalDirection = MoveFormatDirection.RELATIVE_DEC
  */
 export function PlyRecords<T>(props: PlyRecordsProps<T>) {
     const {
-        plyRecords: plyStates = [],
+        plyRecords = [],
         eogRecord,
         matchScore = score(),
         playersConf,
@@ -49,7 +49,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
 
     // refは、selected番目の要素か、それがなければ最下段の要素
     function genRef(index: number) {
-        return index === (selected ?? plyStates.length) ? { ref } : {}
+        return index === (selected ?? plyRecords.length) ? { ref } : {}
     }
 
     useEffect(() => {
@@ -84,7 +84,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
                         <col id={'movesCol'} />
                     </colgroup>
                     <tbody>
-                        {plyStates.map(
+                        {plyRecords.map(
                             (plyState: PlyStateRecord<T>, index: number) => {
                                 const plyRecord = plyState.plyRecord
                                 const piecemark =
@@ -105,6 +105,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
                                                 ? ' selected'
                                                 : '')
                                         }
+                                        data-testid={'plyrecord' + index}
                                         key={index}
                                         onClick={() =>
                                             dispatcher(index, plyState.state)
@@ -133,16 +134,16 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
                         <tr
                             className={
                                 'record' +
-                                (selected === plyStates.length
+                                (selected === plyRecords.length
                                     ? ' selected'
                                     : '')
                             }
-                            key={plyStates.length}
-                            onClick={() => dispatcher(plyStates.length)}
+                            key={plyRecords.length}
+                            onClick={() => dispatcher(plyRecords.length)}
                         >
                             <td>
-                                <div {...genRef(plyStates.length)}>
-                                    {plyStates.length + 1}
+                                <div {...genRef(plyRecords.length)}>
+                                    {plyRecords.length + 1}
                                 </div>
                             </td>
                             <td>
