@@ -42,7 +42,7 @@ describe('SingleGameBoard', () => {
         ...setCPStateListener((state) => (props.cpState = state)),
         ...buildSGEventHandler(
             singleGameDispatcher(standardConf.transition),
-            rollListener({ diceSource: presetDiceSource(1, 3, 4, 2) }),
+            rollListener({ diceSource: presetDiceSource(1, 3, 4, 2, 5, 6) }),
             setSGStateListener(
                 initialState,
                 (state: SGState) => (props.sgState = state)
@@ -200,6 +200,44 @@ describe('SingleGameBoard', () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         assertAbsBoardPositions(props.cpState!.absBoard, pos)
         assertDices([dice(4, true), dice(2, true)], 'left')
+    })
+
+    test('uses left dice first', async () => {
+        const { rerender } = render(<SingleGameBoard {...props} />)
+        expect(props.sgState.tag).toBe('SGInPlay')
+        expect(isRed(props.sgState)).toBeTruthy()
+        // undo & use default roll(4)
+        BoardOp.clickRevertButton()
+        rerender(<SingleGameBoard {...props} />)
+        BoardOp.clickPoint(6)
+        rerender(<SingleGameBoard {...props} />)
+        assertPositions(
+            // prettier-ignore
+            [0,
+                2,-1, 0, 0, 0,-4, /* bar */ 0,-3, 0, 0, 0, 5,
+               -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
+               0]
+        )
+        assertDices([dice(4, true), dice(2)], 'left')
+        // undo & swap dice
+        BoardOp.clickRevertButton()
+        rerender(<SingleGameBoard {...props} />)
+        assertDices([dice(4), dice(2)], 'left')
+        BoardOp.clickLeftDice()
+        rerender(<SingleGameBoard {...props} />)
+        assertDices([dice(2), dice(4)], 'left')
+
+        // use swapped roll(2)
+        BoardOp.clickPoint(6)
+        rerender(<SingleGameBoard {...props} />)
+        assertDices([dice(2, true), dice(4)], 'left')
+        assertPositions(
+            // prettier-ignore
+            [0,
+                2, 0, 0,-1, 0,-4, /* bar */ 0,-3, 0, 0, 0, 5,
+               -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
+               0]
+        )
     })
 })
 

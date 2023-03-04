@@ -1,12 +1,13 @@
-import { Dice } from 'tsgammon-core/Dices'
 import {
     CheckerPlayState,
     CheckerPlayStateCommitted,
-} from 'tsgammon-core/states/CheckerPlayState'
-import { findMove } from 'tsgammon-core/utils/findMove'
-import { makeLeap } from 'tsgammon-core/utils/makeLeap'
-import { makePoint } from 'tsgammon-core/utils/makePoint'
-import { wrapNode } from 'tsgammon-core/utils/wrapNode'
+} from '../states/CheckerPlayState'
+import {
+    applyCheckerPlay,
+    committedCheckerPlayState,
+    resetCheckerPlayState,
+    revertSelection,
+} from '../states/CheckerPlayStateUtils'
 
 /**
  * 未確定の状態のチェッカープレイを管理する：CheckerPlayでは機能追加の必要性が薄いので、
@@ -14,11 +15,7 @@ import { wrapNode } from 'tsgammon-core/utils/wrapNode'
  */
 export type CheckerPlayDispatcher = {
     // チェッカープレイを行う
-    doCheckerPlay: (
-        state: CheckerPlayState,
-        absPos: number,
-        dices: Dice[]
-    ) => void
+    doCheckerPlay: (state: CheckerPlayState, absPos: number) => void
 
     // ダイスの使用順序を入れ替える
     doRevertDices: (state: CheckerPlayState) => void
@@ -59,96 +56,29 @@ export function checkerPlayDispatcher(
         doCommitCheckerPlay,
         doRedo,
     }
-    function doCheckerPlay(
-        state: CheckerPlayState,
-        absPos: number,
-        dices: Dice[]
-    ) {
-        const ret = applyCheckerPlay(state, absPos, dices)
+    function doCheckerPlay(state: CheckerPlayState, absPos: number) {
+        const ret = applyCheckerPlay(state, absPos)
         if (ret.isValid) {
             listeners.onCheckerPlay(ret.state)
         }
     }
     function doRevertDices(state: CheckerPlayState) {
-        const reverted = { ...state, revertDicesFlag: !state.revertDicesFlag }
+        const reverted = revertSelection(state)
         listeners.onRevertDices(reverted)
     }
 
     function doUndo(state: CheckerPlayState) {
-        const reverted: CheckerPlayState = {
-            ...state,
-            curPly: {
-                moves: [],
-                dices: state.boardStateNodeRevertTo.dices.map(
-                    (dice) => dice.pip
-                ),
-                isRed: state.curPly.isRed,
-            },
-            curBoardState: state.boardStateNodeRevertTo.primary,
-            absBoard: state.absBoardRevertTo,
-            isUndoable: false,
-            // revertDicesFlag: false ダイスの入れ替え状態はアンドゥでも維持
-        }
+        const reverted = resetCheckerPlayState(state)
         listeners.onUndo(reverted)
     }
 
     function doCommitCheckerPlay(state: CheckerPlayState) {
-        const committed: CheckerPlayStateCommitted = {
-            isCommitted: true,
-            boardStateNode: state.curBoardState,
-        }
+        const committed = committedCheckerPlayState(state)
         listeners.onCommitCheckerPlay(committed)
     }
     function doRedo(state: CheckerPlayState) {
         listeners.onRedo(state)
     }
-}
-
-/**
- * 任意のポイントがクリックされたとき、それに対応するムーブを決定し、
- * そのムーブの適用後の局面を返す
- *
- * @param state 現局面（そこから可能な局面のツリーを含む）
- * @param absPos クリックされたポイントの絶対座標（=White視点の座標）
- * @param dices ダイス状態の配列：インデックスの小さいものを優先して使用する
- * @returns
- */
-export function applyCheckerPlay(
-    state: CheckerPlayState,
-    absPos: number,
-    dices: Dice[]
-): { isValid: true; state: CheckerPlayState } | { isValid: false } {
-    const pos = state.toPos(absPos)
-
-    // Board上の実配置に基づき、小さい目を先に使うかどうかを判定する
-    // ゾロ目でなく、両方使える時で、左側が小さい目の時だけ、
-    // 小さい方が優先
-    const useMinorFirst: boolean =
-        dices.length === 2 &&
-        dices[0].pip < dices[1].pip &&
-        !dices[0].used &&
-        !dices[1].used
-
-    const node = wrapNode(state.curBoardState, useMinorFirst)
-        // クリック位置から動かせる駒がある
-        .apply((node) => findMove(node, pos, useMinorFirst))
-        // クリック位置でポイントを作れる
-        .or((node) => makePoint(node, pos))
-        // クリック位置へ動かせる
-        .or((node) => makeLeap(node, pos)).unwrap
-
-    return node.hasValue
-        ? {
-              isValid: true,
-              state: {
-                  ...state,
-                  curBoardState: node,
-                  absBoard: state.toAbsBoard(node.board),
-                  curPly: state.toPly(node),
-                  isUndoable: true,
-              },
-          }
-        : { isValid: false }
 }
 
 export function fill(

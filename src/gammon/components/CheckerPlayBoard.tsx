@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Dice } from 'tsgammon-core/Dices'
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import {
     Board,
     BoardEventHandlers,
@@ -16,6 +15,7 @@ import {
     CheckerPlayListeners,
     fill,
 } from './dispatchers/CheckerPlayDispatcher'
+import { CheckerPlayState } from './states/CheckerPlayState'
 import { IconButton } from './uiparts/IconButton'
 import { RevertButton } from './uiparts/RevertButton'
 
@@ -50,11 +50,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
 
     const boardProps: BoardProps = {
         board: cpState.absBoard,
-        ...layoutDices(
-            cpState.curBoardState.dices,
-            cpState.revertDicesFlag,
-            diceLayout
-        ),
+        ...diceLayout(cpState.curBoardState.dices),
         ...layoutCube(cubeProps),
 
         onClickDice,
@@ -92,26 +88,7 @@ export function CheckerPlayBoard(props: CheckerPlayBoardProps) {
             dispatcher.doRevertDices(cpState)
         }
     }
-    function doClickPoint(absPos: number, dices: Dice[]) {
-        dispatcher.doCheckerPlay(cpState, absPos, dices)
-    }
-}
-
-function layoutDices(
-    dices: Dice[],
-    revertDicesFlag: boolean,
-    diceLayout: (dices: Dice[]) => DiceLayout
-): DiceLayout {
-    const orderedDice = reorderDice(dices, revertDicesFlag)
-    return diceLayout(orderedDice)
-
-    // ゾロ目ではなく、どちらのダイスも未使用の時は入れ替えができる
-    function reorderDice(dices: Dice[], revertDiceFlag: boolean) {
-        return revertDiceFlag &&
-            dices.length === 2 &&
-            !dices[0].used &&
-            !dices[1].used
-            ? [dices[1], dices[0]]
-            : dices
+    function doClickPoint(absPos: number, _: Dice[]) {
+        dispatcher.doCheckerPlay(cpState, absPos)
     }
 }
