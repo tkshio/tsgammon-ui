@@ -1,11 +1,11 @@
 import { GameConf, standardConf } from 'tsgammon-core'
 import { Score } from 'tsgammon-core/Score'
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { CBState } from 'tsgammon-core/states/CubeGameState'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { formatState } from 'tsgammon-core/states/utils/formatState'
 import { formatScore } from 'tsgammon-core/utils/formatScore'
 import { PlayersConf } from '../PlayersConf'
+import { CheckerPlayState } from '../states/CheckerPlayState'
 import './plyInfo.css'
 
 export function PlyInfo(props: {
@@ -31,7 +31,7 @@ export function PlyInfo(props: {
     const stateText = formatState(
         sgState,
         cbState,
-        cpState,
+        cpState?.curPly,
         undefined,
         playersConf.red.name,
         playersConf.white.name

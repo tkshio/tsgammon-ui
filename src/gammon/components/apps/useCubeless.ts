@@ -1,5 +1,4 @@
 import { GameConf, score, Score, standardConf } from 'tsgammon-core'
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { defaultSGState } from 'tsgammon-core/states/defaultStates'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { GameSetup, toSGState } from 'tsgammon-core/states/utils/GameSetup'
@@ -16,6 +15,7 @@ import {
     singleGameDispatcher,
 } from '../dispatchers/SingleGameDispatcher'
 import { SingleGameEventHandlerExtensible } from '../dispatchers/SingleGameEventHandler'
+import { CheckerPlayState } from '../states/CheckerPlayState'
 import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { useSingleGameState } from '../useSingleGameState'
 import { SGRecorder } from './Cubeless'

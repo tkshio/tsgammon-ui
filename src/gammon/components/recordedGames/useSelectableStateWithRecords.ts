@@ -1,4 +1,4 @@
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
+import { CheckerPlayState } from '../states/CheckerPlayState'
 import {
     SelectableState,
     SelectableStateListeners,

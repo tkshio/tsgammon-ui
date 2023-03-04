@@ -1,11 +1,6 @@
 import { dice, Dice } from 'tsgammon-core/Dices'
 import { SGResult } from 'tsgammon-core/records/SGResult'
 import {
-    asCheckerPlayState,
-    CheckerPlayState,
-    CheckerPlayStateCommitted,
-} from 'tsgammon-core/states/CheckerPlayState'
-import {
     inPlayStateWithNode,
     SGEoG,
     SGInPlay,
@@ -26,6 +21,11 @@ import { layoutCube } from './boards/utils/layoutCube'
 import { CheckerPlayBoard, CheckerPlayBoardProps } from './CheckerPlayBoard'
 import { CheckerPlayListeners } from './dispatchers/CheckerPlayDispatcher'
 import { SingleGameEventHandler } from './dispatchers/SingleGameEventHandler'
+import {
+    CheckerPlayState,
+    CheckerPlayStateCommitted,
+} from './states/CheckerPlayState'
+import { asCheckerPlayState } from './states/CheckerPlayStateUtils'
 
 export type SingleGameBoardProps = {
     sgState: SGState

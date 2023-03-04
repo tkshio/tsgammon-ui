@@ -1,10 +1,10 @@
 import { BGState } from 'tsgammon-core/states/BGState'
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { BoardEventHandlers, BoardProps } from './boards/Board'
 import { CubeProps } from './boards/Cube'
 import { asSGEventHandler, BGEventHandler } from './dispatchers/BGEventHandler'
 import { CheckerPlayListeners } from './dispatchers/CheckerPlayDispatcher'
 import { SingleGameBoard, SingleGameBoardProps } from './SingleGameBoard'
+import { CheckerPlayState } from './states/CheckerPlayState'
 
 export type CubefulGameBoardProps = {
     cubeProps?: CubeProps

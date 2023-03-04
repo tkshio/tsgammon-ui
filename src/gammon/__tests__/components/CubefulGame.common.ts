@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { AbsoluteBoardState, Dice, GameConf, standardConf } from 'tsgammon-core'
 import { MatchState } from 'tsgammon-core/MatchState'
 import { BGState } from 'tsgammon-core/states/BGState'
-import { CheckerPlayState } from 'tsgammon-core/states/CheckerPlayState'
 import { CBState } from 'tsgammon-core/states/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/states/defaultStates'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
@@ -20,6 +19,7 @@ import {
 } from '../../components/dispatchers/CheckerPlayDispatcher'
 import { rollListener } from '../../components/dispatchers/RollDispatcher'
 import { singleGameDispatcher } from '../../components/dispatchers/SingleGameDispatcher'
+import { CheckerPlayState } from '../../components/states/CheckerPlayState'
 import { matchStateListener } from '../../components/useMatchState'
 
 export const BoardOp = {
