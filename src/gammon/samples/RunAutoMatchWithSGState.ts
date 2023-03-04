@@ -3,9 +3,7 @@ import { simpleNNEngine } from 'tsgammon-core/engines/SimpleNNGammon'
 import { standardRuleSet } from 'tsgammon-core/rules/standardRuleSet'
 import { sgTransition } from 'tsgammon-core/states/SGTransitions'
 import {
-    inPlayState,
     inPlayStateWithNode,
-    openingState,
     SGState,
 } from 'tsgammon-core/states/SingleGameState'
 import { toSGState } from 'tsgammon-core/states/utils/GameSetup'

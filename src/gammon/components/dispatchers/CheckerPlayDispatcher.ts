@@ -84,7 +84,7 @@ export function checkerPlayDispatcher(
                 ),
                 isRed: state.curPly.isRed,
             },
-            curBoardState: state.boardStateNodeRevertTo,
+            curBoardState: state.boardStateNodeRevertTo.primary,
             absBoard: state.absBoardRevertTo,
             isUndoable: false,
             // revertDicesFlag: false ダイスの入れ替え状態はアンドゥでも維持

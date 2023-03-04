@@ -1,11 +1,11 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 
 import { unmountComponentAtNode } from 'react-dom'
-import { AbsoluteBoardState, Dice, dice, standardConf } from 'tsgammon-core'
+import { dice, standardConf } from 'tsgammon-core'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { toSGState } from 'tsgammon-core/states/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { BlankDice, blankDice } from '../../components/boards/Dice'
+import { blankDice } from '../../components/boards/Dice'
 import { buildSGEventHandler } from '../../components/dispatchers/buildSGEventHandler'
 import { setCPStateListener } from '../../components/dispatchers/CheckerPlayDispatcher'
 import { rollListener } from '../../components/dispatchers/RollDispatcher'
@@ -17,7 +17,15 @@ import {
     SingleGameBoard,
     SingleGameBoardProps,
 } from '../../components/SingleGameBoard'
-import { BoardOp, isRed, isWhite } from './CubefulGame.common'
+import {
+    assertAbsBoardPositions,
+    assertDices,
+    assertNoDices,
+    assertPositions,
+    BoardOp,
+    isRed,
+    isWhite,
+} from './CubefulGame.common'
 
 let container: HTMLElement | null = null
 
@@ -66,6 +74,7 @@ describe('SingleGameBoard', () => {
             BoardOp.clickPoint(17)
         })
         assertAbsBoardPositions(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             props.cpState!.absBoard,
             // prettier-ignore
             [0,
@@ -86,6 +95,7 @@ describe('SingleGameBoard', () => {
         rerender(<SingleGameBoard {...props} />)
         assertDices([dice(1), dice(3)], 'right')
         assertAbsBoardPositions(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             props.cpState!.absBoard,
             // prettier-ignore
             [0,
@@ -100,6 +110,7 @@ describe('SingleGameBoard', () => {
         expect(isWhite(props.sgState)).toBeTruthy()
         assertDices([dice(1), dice(3)], 'right')
         assertAbsBoardPositions(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             props.cpState!.absBoard,
             // prettier-ignore
             [0,
@@ -110,7 +121,12 @@ describe('SingleGameBoard', () => {
     })
     test('makes block when empty point gets clicked', async () => {
         const { rerender } = render(<SingleGameBoard {...props} />)
-
+        // revert again
+        await act(async () => {
+            BoardOp.clickRevertButton()
+        })
+        rerender(<SingleGameBoard {...props} />)
+        // click to make point
         await act(async () => {
             BoardOp.clickPoint(20)
         })
@@ -124,6 +140,7 @@ describe('SingleGameBoard', () => {
 
         expect(isWhite(props.sgState)).toBeTruthy()
         assertPositions(pos)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         assertAbsBoardPositions(props.cpState!.absBoard, pos)
         assertDices([dice(1, true), dice(3, true)], 'right')
     })
@@ -180,62 +197,12 @@ describe('SingleGameBoard', () => {
         expect(props.sgState.tag).toBe('SGInPlay')
         expect(isRed(props.sgState)).toBeTruthy()
         assertPositions(pos)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         assertAbsBoardPositions(props.cpState!.absBoard, pos)
         assertDices([dice(4, true), dice(2, true)], 'left')
     })
 })
 
-function assertAbsBoardPositions(aBoard: AbsoluteBoardState, pos: number[]) {
-    aBoard.points().forEach((num, index) => expect(num).toBe(pos[index]))
-}
-function assertPositions(pos: number[]) {
-    pos.forEach((v, index) => {
-        if (v > 0) {
-            expect(
-                (
-                    screen
-                        .getByTestId(`point-${index}`)
-                        .querySelector('div.white') ?? {
-                        childNodes: { length: -99 },
-                    }
-                ).childNodes.length
-            ).toBe(v)
-        } else if (v < 0) {
-            expect(
-                (
-                    screen
-                        .getByTestId(`point-${index}`)
-                        .querySelector('div.red') ?? {
-                        childNodes: { length: -99 },
-                    }
-                ).childNodes.length
-            ).toBe(-v)
-        } else {
-            expect(
-                screen.getByTestId(`point-${index}`).querySelector('div > div')
-                    ?.childElementCount
-            ).toBe(0)
-        }
-    })
-}
-
-function assertNoDices(side: 'right' | 'left') {
-    expect(
-        screen.getByTestId(`dice-${side}`).querySelector(`div.dice > div`)
-    ).toBeNull()
-}
-
-function assertDices(dices: (Dice | BlankDice)[], side: 'right' | 'left') {
-    dices.forEach((dice, idx) => {
-        const e = screen
-            .getByTestId(`dice-${side}`)
-            .querySelectorAll(`div.dice > div`)
-            .item(idx)
-        expect(e.className).toBe(
-            `pip d${dice.pip + (dice.used ? ' used' : '')}`
-        )
-    })
-}
 afterEach(() => {
     // clean up DOM
     if (container) {
