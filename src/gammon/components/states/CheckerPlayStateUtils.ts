@@ -1,10 +1,8 @@
-import { BoardState } from 'tsgammon-core/BoardState'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import {
-    isRootState,
     SGInPlay,
     toAbsBoard,
-    toPly as _toPly,
+    toPly,
     toPos,
 } from 'tsgammon-core/states/SingleGameState'
 import { makeLeap } from 'tsgammon-core/utils/makeLeap'
@@ -19,24 +17,22 @@ import { CheckerPlayState, CheckerPlayStateCommitted } from './CheckerPlayState'
  */
 export function asCheckerPlayState(sgInPlay: SGInPlay): CheckerPlayState {
     // 通常はboardStateNode === rootNode.primaryだが、
-    // 記録を再生する時はboardStateNodeにcommit直前の状態が格納されてsgiInPlayとして渡される
-    const { boardStateNode, absBoard, rootNode } = sgInPlay
-    const toPly = (node: BoardStateNode) => _toPly(sgInPlay, node)
-    const curPly = toPly(boardStateNode)
-    const isUndoable = !isRootState(sgInPlay)
+    // 記録を再生する時はboardStateNodeにcommit直前の状態が格納されてsgInPlayとして渡される
+    const { rootNode, boardStateNode, absBoard } = sgInPlay
+    const toPlyFunc = toPly(sgInPlay)
     return {
         isCommitted: false,
 
-        curPly,
+        curPly: toPlyFunc(boardStateNode),
         curBoardState: boardStateNode,
         absBoard,
-        rootNode: rootNode,
+        rootNode,
 
-        toPly,
-        toPos: (absPos: number) => toPos(sgInPlay, absPos),
-        toAbsBoard: (board: BoardState) => toAbsBoard(sgInPlay, board),
+        toPly: toPlyFunc,
+        toPos: toPos(sgInPlay),
+        toAbsBoard: toAbsBoard(sgInPlay),
 
-        isUndoable,
+        isUndoable: !sgInPlay.isRootState,
         selectAlternate: false,
     }
 }
