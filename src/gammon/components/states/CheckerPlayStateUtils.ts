@@ -1,6 +1,7 @@
 import { BoardState } from 'tsgammon-core/BoardState'
 import { BoardStateNode } from 'tsgammon-core/BoardStateNode'
 import {
+    isRootState,
     SGInPlay,
     toAbsBoard,
     toPly as _toPly,
@@ -22,7 +23,7 @@ export function asCheckerPlayState(sgInPlay: SGInPlay): CheckerPlayState {
     const { boardStateNode, absBoard, rootNode } = sgInPlay
     const toPly = (node: BoardStateNode) => _toPly(sgInPlay, node)
     const curPly = toPly(boardStateNode)
-    const isUndoable = rootNode.primary !== boardStateNode
+    const isUndoable = !isRootState(sgInPlay)
     return {
         isCommitted: false,
 
