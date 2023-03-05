@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react'
-import React, { ComponentProps } from 'react'
+import { ComponentProps } from 'react'
 import {
     absoluteMovesRed,
     absoluteMovesWhite,
@@ -51,6 +51,7 @@ const plyRecordsWhiteWon: PlyRecordInPlay[] = [
 ]
 
 whiteWon.args = {
+    playersConf: { red: { name: 'red' }, white: { name: 'white' } },
     plyRecords: plyRecordsWhiteWon.map((plyRecord: PlyRecordInPlay) => ({
         plyRecord,
         state: undefined,
@@ -62,6 +63,7 @@ whiteWon.args = {
 }
 export const redWon = Template.bind({})
 redWon.args = {
+    playersConf: { red: { name: 'red' }, white: { name: 'white' } },
     plyRecords: whiteWon.args.plyRecords?.map((plyState) => ({
         ...plyState,
         plyRecord: { ...plyState.plyRecord, isRed: !plyState.plyRecord.isRed },
@@ -100,6 +102,7 @@ const plyRecordsWhiteFirst: PlyRecordInPlay[] = [
 ]
 export const whiteFirstRedWon = Template.bind({})
 whiteFirstRedWon.args = {
+    playersConf: { red: { name: 'red' }, white: { name: 'white' } },
     plyRecords: plyRecordsWhiteFirst.map((plyRecord) => ({
         plyRecord,
         state: undefined,
@@ -126,6 +129,7 @@ const plyRecordsRedFirst: PlyRecordInPlay[] = [
 ]
 export const redFirstWhiteWon = Template.bind({})
 redFirstWhiteWon.args = {
+    playersConf: { red: { name: 'red' }, white: { name: 'white' } },
     plyRecords: plyRecordsRedFirst.map((plyRecord) => ({
         plyRecord,
         state: undefined,
@@ -138,6 +142,7 @@ redFirstWhiteWon.args = {
 
 export const emptyRecords = Template.bind({})
 emptyRecords.args = {
+    playersConf: { red: { name: 'red' }, white: { name: 'white' } },
     plyRecords: [],
     dispatcher: () => {
         //

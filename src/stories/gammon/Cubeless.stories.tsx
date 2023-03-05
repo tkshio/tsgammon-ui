@@ -6,7 +6,8 @@ import {
     bothSGAutoOperator,
     redSGAutoOperator,
 } from '../../gammon/components/operators/autoOperators'
-
+import { DiceSource, rollMathRandom } from 'tsgammon-core/utils/DiceSource'
+import { DiceRoll } from 'tsgammon-core'
 export default {
     title: 'Cubeless',
     component: Cubeless,
@@ -31,7 +32,13 @@ cpuPlaysBoth.args = {
 }
 
 export const playDoublet = Template.bind({})
+const rollDoublet: () => DiceRoll = () => {
+    const roll = rollMathRandom()
+    return { dice1: roll, dice2: roll }
+}
+const diceSource: DiceSource = { roll: rollDoublet, openingRoll: rollDoublet }
 playDoublet.args = {
+    diceSource,
     gameSetup: {
         gameStatus: GameStatus.INPLAY_WHITE,
         dice1: 2,
