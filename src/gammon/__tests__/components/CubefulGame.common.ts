@@ -51,6 +51,10 @@ export const BoardOp = {
         const resumeButtonRed = screen.getByText('Go back')
         userEvent.click(resumeButtonRed)
     },
+    clickLatestRecord: async () => {
+        const latest = screen.getByTestId('latest_record')
+        userEvent.click(latest)
+    },
 }
 
 export function isRed(state: SGState | CBState): boolean {

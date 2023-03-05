@@ -138,6 +138,7 @@ export function PlyRecords<T>(props: PlyRecordsProps<T>) {
                                     ? ' selected'
                                     : '')
                             }
+                            data-testid="latest_record"
                             key={plyRecords.length}
                             onClick={() => dispatcher(plyRecords.length)}
                         >
