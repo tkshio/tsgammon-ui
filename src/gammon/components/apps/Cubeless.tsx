@@ -40,15 +40,22 @@ export function Cubeless(props: CubelessProps) {
         ...exListeners
     } = props
 
-    const { sgState, cpState, cpListener, handler, sgRecorder, eogHandler } =
-        useCubeless({
-            gameSetup,
-            gameConf,
-            diceSource,
-            onRollRequest,
-            recordMatch,
-            matchScore,
-        })
+    const {
+        sgState,
+        cpState,
+        cpListener,
+        clearCPState,
+        handler,
+        sgRecorder,
+        eogHandler,
+    } = useCubeless({
+        gameSetup,
+        gameConf,
+        diceSource,
+        onRollRequest,
+        recordMatch,
+        matchScore,
+    })
 
     const { resignState, rsDialogHandler: rsHandler } = useResignState(
         (result: SGResult, eog: EOGStatus) =>
@@ -76,7 +83,11 @@ export function Cubeless(props: CubelessProps) {
     }
 
     if (sgRecorder.recordMatch) {
-        return <RecordedSingleGame {...{ ...singleGameProps, ...sgRecorder }} />
+        return (
+            <RecordedSingleGame
+                {...{ ...singleGameProps, ...sgRecorder, clearCPState }}
+            />
+        )
     } else {
         return (
             <div id="main">

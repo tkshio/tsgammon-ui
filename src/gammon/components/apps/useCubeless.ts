@@ -32,6 +32,7 @@ export function useCubeless(
 ): {
     sgState: SGState
     cpState: CheckerPlayState | undefined
+    clearCPState: () => void
     cpListener: CheckerPlayListeners
     handler: SingleGameEventHandlerExtensible
     sgRecorder: SGRecorder
@@ -52,7 +53,8 @@ export function useCubeless(
     const initialSGState = toSGState(gameSetup, gameConf)
     const { sgState, setSGState } = useSingleGameState(initialSGState)
 
-    const [cpState, cpListener] = useCheckerPlayListener()
+    const { cpState, cpListener, setCPState, clearCPState } =
+        useCheckerPlayListener()
     const { sgRecorder, matchRecordListener } = useSGRecorder(
         gameConf,
         setSGState,
@@ -69,6 +71,7 @@ export function useCubeless(
     return {
         sgState,
         cpState,
+        clearCPState,
         cpListener,
         handler,
         sgRecorder,

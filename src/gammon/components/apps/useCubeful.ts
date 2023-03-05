@@ -33,6 +33,7 @@ export type CubefulHookProps = {
 export type CubefulHookItems = {
     bgState: BGState
     cpState: CheckerPlayState | undefined
+    clearCPState: () => void
     bgEventHandler: BGEventHandlersExtensible
     eogHandler: BGEoGHandler
     cpListener: Partial<CheckerPlayListeners>
@@ -65,8 +66,10 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
     const bgListener = setBGStateListener(defaultBGState(gameConf), setBGState)
 
     // チェッカープレイ中の状態管理
-    const [cpState, cpListener] = useCheckerPlayListener(undefined, exListeners)
-
+    const { cpState, cpListener, clearCPState } = useCheckerPlayListener(
+        undefined,
+        exListeners
+    )
     const recordConf = {
         gameConf,
         isCrawford,
@@ -110,6 +113,7 @@ export function useCubeful(props: CubefulHookProps): CubefulHookItems {
     return {
         bgState,
         cpState,
+        clearCPState,
         bgEventHandler,
         eogHandler,
         cpListener,

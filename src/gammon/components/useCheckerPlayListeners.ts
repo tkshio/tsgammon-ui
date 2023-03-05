@@ -9,15 +9,17 @@ import { CheckerPlayState } from './states/CheckerPlayState'
 export function useCheckerPlayListener(
     initialState: CheckerPlayState | undefined = undefined,
     listeners: Partial<CheckerPlayListeners> = {}
-): [
-    CheckerPlayState | undefined,
-    CheckerPlayListeners,
-    Dispatch<SetStateAction<CheckerPlayState | undefined>>
-] {
-    const [state, setState] = useState(initialState)
-    const _listeners: CheckerPlayListeners = decorate(
-        setCPStateListener(setState),
+): {
+    cpState: CheckerPlayState | undefined
+    cpListener: CheckerPlayListeners
+    setCPState: Dispatch<SetStateAction<CheckerPlayState | undefined>>
+    clearCPState: () => void
+} {
+    const [cpState, setCPState] = useState(initialState)
+    const cpListener: CheckerPlayListeners = decorate(
+        setCPStateListener(setCPState),
         listeners
     )
-    return [state, _listeners, setState]
+    const clearCPState = () => setCPState(undefined)
+    return { cpState, cpListener, setCPState, clearCPState }
 }

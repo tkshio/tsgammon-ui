@@ -45,6 +45,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
         bgState,
         bgEventHandler,
         cpState,
+        clearCPState,
         cpListener,
         eogHandler,
         matchState,
@@ -90,6 +91,7 @@ export function CubefulMatch(props: CubefulMatchProps) {
                     ...cbProps,
                     matchRecord: bgRecorder.matchRecord,
                     onResumeState: bgRecorder.onResumeState,
+                    clearCPState,
                 }}
             />
         )

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { act, renderHook } from '@testing-library/react-hooks'
+import userEvent from '@testing-library/user-event'
 import { assert } from 'console'
 import { dice, score, standardConf } from 'tsgammon-core'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
@@ -17,6 +18,7 @@ import {
     RecordedSingleGame,
     RecordedSingleGameProps,
 } from '../../components/recordedGames/RecordedSingleGame'
+import { useCheckerPlayListener } from '../../components/useCheckerPlayListeners'
 import {
     assertDices,
     assertNoDices,
@@ -40,13 +42,16 @@ describe('RecordedSingleGame', () => {
     })
     const g = { sgState: initialState }
     const setSGState = (state: SGState) => (g.sgState = state)
-
     const { result } = renderHook(() =>
         useSGRecorder(standardConf, setSGState, true, score())
     )
+    const { result: resultCP } = renderHook(() => useCheckerPlayListener())
+    const clearCPState = () => resultCP.current.setCPState(undefined)
     const diceSource = presetDiceSource(1, 3, 4, 2)
     const props: () => RecordedSingleGameProps = () => ({
         sgState: g.sgState,
+        cpState: resultCP.current.cpState,
+        clearCPState,
         matchRecord: result.current.sgRecorder.matchRecord,
         onResumeState: result.current.sgRecorder.onResumeState,
         ...buildSGEventHandler(
@@ -55,6 +60,7 @@ describe('RecordedSingleGame', () => {
             setSGStateListener(initialState, setSGState),
             result.current.matchRecordListener
         ),
+        ...resultCP.current.cpListener,
     })
 
     test('transits to InPlay state and renders rolled dice', async () => {
@@ -135,6 +141,7 @@ describe('RecordedSingleGame', () => {
 
         // do redo and commit
         BoardOp.clickRevertButton()
+        rerender(<RecordedSingleGame {...props()} />)
         BoardOp.clickRightDice()
         rerender(<RecordedSingleGame {...props()} />)
         expect(isRed(g.sgState)).toBeTruthy()
@@ -144,6 +151,7 @@ describe('RecordedSingleGame', () => {
         rerender(<RecordedSingleGame {...props()} />)
         assertDices([dice(4), dice(2)], 'left')
         BoardOp.clickPoint(4)
+        rerender(<RecordedSingleGame {...props()} />)
         assertPositions(
             // prettier-ignore
             [0,
@@ -155,17 +163,18 @@ describe('RecordedSingleGame', () => {
         // undo red
         assertDices([dice(4, true), dice(2, true)], 'left')
         BoardOp.clickRevertButton()
+        rerender(<RecordedSingleGame {...props()} />)
         assertDices([dice(4), dice(2)], 'left')
 
         // redo red
         BoardOp.clickRevertButton()
+        rerender(<RecordedSingleGame {...props()} />)
         assertDices([dice(4, true), dice(2, true)], 'left')
 
         // commit red
         BoardOp.clickLeftDice()
-        assert(isWhite(g.sgState))
-
         rerender(<RecordedSingleGame {...props()} />)
+        assert(isWhite(g.sgState))
 
         // select 2nd record
         BoardOp.selectPlyRecord(1)
@@ -187,5 +196,27 @@ describe('RecordedSingleGame', () => {
             -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
             0]
         )
+
+        // select white and do undo
+        await act(async () => {
+            BoardOp.selectPlyRecord(0)
+        })
+        rerender(<RecordedSingleGame {...props()} />)
+        assertDices([dice(1, true), dice(3, true)], 'right')
+
+        await act(async () => {
+            BoardOp.clickRevertButton()
+        })
+        rerender(<RecordedSingleGame {...props()} />)
+        assertDices([dice(1), dice(3)], 'right')
+
+        // back to latest
+        await act(async () => {
+            const latest = screen.getByTestId('latest_record')
+            userEvent.click(latest)
+        })
+        rerender(<RecordedSingleGame {...props()} />)
+        assert(isRed(g.sgState))
+        assertDices([dice(4, true), dice(2, true)], 'left')
     })
 })

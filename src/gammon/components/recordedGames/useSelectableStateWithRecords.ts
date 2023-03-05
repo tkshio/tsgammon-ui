@@ -1,4 +1,3 @@
-import { CheckerPlayState } from '../states/CheckerPlayState'
 import {
     SelectableState,
     SelectableStateListeners,
@@ -7,7 +6,7 @@ import {
 
 export function useSelectableStateWithRecord<T>(
     curState: T,
-    setCPState: (cpState: CheckerPlayState | undefined) => void,
+    clearCurState: () => void,
     onResumeState: (index: number, state: T) => void
 ): {
     selectedState: SelectableState<T>
@@ -15,10 +14,10 @@ export function useSelectableStateWithRecord<T>(
 } {
     return useSelectableState<T>(curState, {
         onSelect: () => {
-            setCPState(undefined)
+            clearCurState()
         },
         onSelectLatest: () => {
-            setCPState(undefined)
+            clearCurState()
         },
         onResumeState,
     })

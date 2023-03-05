@@ -1,22 +1,21 @@
 import { Fragment } from 'react'
-import { SGState } from 'tsgammon-core/states/SingleGameState'
 import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
-import { SingleGame, SingleGameProps } from '../SingleGame'
+import { SGState } from 'tsgammon-core/states/SingleGameState'
+import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
 import { defaultPlayersConf } from '../PlayersConf'
-import { useCheckerPlayListener } from '../useCheckerPlayListeners'
+import { SingleGame, SingleGameProps } from '../SingleGame'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedSingleGameProps = Omit<
-    SingleGameProps,
-    'cpState' | 'matchScore'
-> & {
+export type RecordedSingleGameProps = Omit<SingleGameProps, 'matchScore'> & {
     matchRecord: MatchRecord<SGState>
     onResumeState?: (index: number) => void
+    clearCPState: () => void
 }
 export function RecordedSingleGame(props: RecordedSingleGameProps) {
     const {
         resignState,
+        cpState,
         sgState: curSGState,
         matchRecord,
         gameConf,
@@ -24,18 +23,16 @@ export function RecordedSingleGame(props: RecordedSingleGameProps) {
         onResumeState = () => {
             //
         },
+        clearCPState,
         dialog,
         ...listeners
     } = props
 
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
-        undefined,
-        listeners
-    )
+    const cpListeners: Partial<CheckerPlayListeners> = listeners
     const {
         selectedState: { index, state: sgState },
         ssListeners,
-    } = useSelectableStateWithRecord(curSGState, setCPState, onResumeState)
+    } = useSelectableStateWithRecord(curSGState, clearCPState, onResumeState)
 
     const isLatest = index === undefined
 

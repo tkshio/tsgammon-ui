@@ -4,41 +4,35 @@ import { MatchRecord } from 'tsgammon-core/records/MatchRecord'
 import { BGState } from 'tsgammon-core/states/BGState'
 import { CubefulGame, CubefulGameProps } from '../CubefulGame'
 import { defaultPlayersConf } from '../PlayersConf'
-import { useCheckerPlayListener } from '../useCheckerPlayListeners'
 import { RecordedGame } from './RecordedGame'
 import { useSelectableStateWithRecord } from './useSelectableStateWithRecords'
 
-export type RecordedCubefulGameProps = Omit<
-    CubefulGameProps,
-    'matchState' | 'cpState'
-> & {
+export type RecordedCubefulGameProps = Omit<CubefulGameProps, 'matchState'> & {
     matchRecord: MatchRecord<BGState>
     onResumeState?: (index: number) => void
+    clearCPState: () => void
 }
 
 export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
     const {
         resignState,
         bgState: curBGState,
+        cpState,
         matchRecord,
         gameConf,
         playersConf = defaultPlayersConf,
         onResumeState = () => {
             //
         },
+        clearCPState,
         dialog,
         ...eventHandlers
     } = props
     const { matchState } = matchRecord
-    const [cpState, cpListeners, setCPState] = useCheckerPlayListener(
-        undefined,
-        eventHandlers
-    )
-
     const {
         selectedState: { index, state: bgState },
         ssListeners,
-    } = useSelectableStateWithRecord(curBGState, setCPState, onResumeState)
+    } = useSelectableStateWithRecord(curBGState, clearCPState, onResumeState)
     const isLatest = index === undefined
 
     const minimalProps = {
@@ -48,7 +42,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         gameConf,
         playersConf,
         dialog,
-        ...cpListeners,
     }
     const cubeGameProps: CubefulGameProps = isLatest
         ? {
@@ -58,6 +51,7 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
           }
         : {
               ...minimalProps,
+              ...eventHandlers,
               matchState: matchState.isEoG
                   ? matchStateLastGame(matchState)
                   : matchState,
@@ -71,7 +65,6 @@ export function RecordedCubefulGame(props: RecordedCubefulGameProps) {
         index,
         ...ssListeners,
     }
-
     return (
         <RecordedGame {...recordedGameProps}>
             <Fragment>
