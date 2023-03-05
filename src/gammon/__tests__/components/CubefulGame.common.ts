@@ -168,4 +168,8 @@ export function assertDices(
             `pip d${dice.pip + (dice.used ? ' used' : '')}`
         )
     })
+    expect(
+        // eslint-disable-next-line testing-library/no-node-access
+        screen.getByTestId(`dice-${side}`)?.firstElementChild?.childNodes.length
+    ).toBe(dices.length)
 }

@@ -89,10 +89,14 @@ function layoutDices(sgState: SGOpening | SGToRoll | SGEoG): DiceLayout {
     switch (sgState.tag) {
         case 'SGOpening': {
             const diceRoll = sgState.diceRoll
-            const dices: Dice[] | BlankDice[] = diceRoll
-                ? [dice(diceRoll.dice1), dice(diceRoll.dice2)]
-                : [blankDice]
-            return { redDices: { dices }, whiteDices: { dices } }
+            return {
+                redDices: {
+                    dices: diceRoll ? [dice(diceRoll.dice1)] : [blankDice],
+                },
+                whiteDices: {
+                    dices: diceRoll ? [dice(diceRoll.dice2)] : [blankDice],
+                },
+            }
         }
         case 'SGToRoll':
             return selectDiceLayout(sgState)(blankDices)

@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 
 import { unmountComponentAtNode } from 'react-dom'
 import { dice, standardConf } from 'tsgammon-core'
@@ -238,6 +238,37 @@ describe('SingleGameBoard', () => {
                -5, 0, 0, 0, 2, 0, /* bar */ 4, 2, 0, 0, 0,-2,
                0]
         )
+    })
+    describe('Reroll opening', () => {
+        const initialState = toSGState()
+        const props: SingleGameBoardProps = {
+            cpState: undefined,
+            sgState: initialState,
+            ...setCPStateListener((state) => (props.cpState = state)),
+            ...buildSGEventHandler(
+                singleGameDispatcher(standardConf.transition),
+                rollListener({
+                    diceSource: presetDiceSource(1, 1),
+                }),
+                setSGStateListener(
+                    initialState,
+                    (state: SGState) => (props.sgState = state)
+                )
+            ),
+        }
+        test('renders duplicated roll for Opening state', async () => {
+            const { rerender } = render(<SingleGameBoard {...props} />)
+            expect(isWhite(props.sgState)).toBeFalsy()
+            expect(isRed(props.sgState)).toBeFalsy()
+            assertPositions(standardConf.initialPos)
+            assertDices([blankDice], 'right')
+            assertDices([blankDice], 'left')
+            await act(async () => BoardOp.clickRightDice())
+            rerender(<SingleGameBoard {...props} />)
+
+            assertDices([dice(1)], 'right')
+            assertDices([dice(1)], 'left')
+        })
     })
 })
 
