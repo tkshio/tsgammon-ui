@@ -11,7 +11,7 @@ import {
     bothRSAutoOperator,
     redRSAutoOperator,
 } from '../../gammon/components/operators/RSAutoOperators'
-import { CubefulMatch } from '../../gammon/components/apps/CubefulMatch'
+import { CubefulMatch } from '../../gammon/apps/CubefulMatch'
 export default {
     title: 'PointMatch',
     component: CubefulMatch,

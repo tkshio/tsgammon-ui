@@ -1,8 +1,8 @@
-import { CubefulGame, CubefulGameProps } from '../CubefulGame'
-import { operateWithBG } from '../operateWithBG'
-import { CBOperator } from '../operators/CBOperator'
-import { RSOperator } from '../operators/RSOperator'
-import { SGOperator } from '../operators/SGOperator'
+import { CubefulGame, CubefulGameProps } from '../components/CubefulGame'
+import { operateWithBG } from '../components/operateWithBG'
+import { CBOperator } from '../components/operators/CBOperator'
+import { RSOperator } from '../components/operators/RSOperator'
+import { SGOperator } from '../components/operators/SGOperator'
 import { BGCommonProps } from './BGCommonProps'
 import { useCubeful } from './useCubeful'
 

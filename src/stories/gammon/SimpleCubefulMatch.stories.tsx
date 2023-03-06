@@ -4,7 +4,7 @@ import { Meta, Story } from '@storybook/react'
 import {
     SimpleCubefulMatch,
     SimpleCubefulMatchProps,
-} from '../../gammon/components/apps/SimpleCubefulMatch'
+} from '../../gammon/apps/SimpleCubefulMatch'
 
 // this export is required.
 export default {
@@ -17,7 +17,9 @@ export default {
 // define Story as Story<> object
 
 // default
-const Template: Story<SimpleCubefulMatchProps> = (args) => <SimpleCubefulMatch {...args} />
+const Template: Story<SimpleCubefulMatchProps> = (args) => (
+    <SimpleCubefulMatch {...args} />
+)
 
 export const initialBoard = Template.bind({})
 initialBoard.args = {}

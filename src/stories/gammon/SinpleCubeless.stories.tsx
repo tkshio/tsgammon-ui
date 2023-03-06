@@ -11,7 +11,7 @@ import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
 import {
     SimpleCubeless,
     SimpleCubelessProps,
-} from '../../gammon/components/apps/SimpleCubeless'
+} from '../../gammon/apps/SimpleCubeless'
 import {
     bothSGAutoOperator,
     redSGAutoOperator,

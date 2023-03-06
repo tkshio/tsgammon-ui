@@ -1,7 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
-import { BGMain, BGMainProps } from '../../gammon/components/apps/BGMain'
-
+import { BGMain, BGMainProps } from '../../gammon/apps/BGMain'
 
 export default {
     title: 'BGMain',
@@ -14,5 +13,4 @@ const Template: Story<BGMainProps> = (args) => {
 }
 
 export const main = Template.bind({})
-main.args = {
-}
+main.args = {}

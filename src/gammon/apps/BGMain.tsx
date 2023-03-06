@@ -7,26 +7,26 @@ import {
     redSGAutoOperator,
     whiteCBAutoOperator,
     whiteSGAutoOperator,
-} from '../operators/autoOperators'
+} from '../components/operators/autoOperators'
 import {
     bothRSAutoOperator,
     redRSAutoOperator,
     whiteRSAutoOperator,
-} from '../operators/RSAutoOperators'
-import { defaultPlayersConf, PlayersConf } from '../PlayersConf'
-import { Button } from '../uiparts/Button'
-import { Buttons } from '../uiparts/Buttons'
-import { Dialog } from '../uiparts/Dialog'
+} from '../components/operators/RSAutoOperators'
+import { defaultPlayersConf, PlayersConf } from '../components/PlayersConf'
+import { Button } from '../components/uiparts/Button'
+import { Buttons } from '../components/uiparts/Buttons'
+import { Dialog } from '../components/uiparts/Dialog'
 import { CubefulMatch, CubefulMatchProps } from './CubefulMatch'
 
 import { GameSetup, GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { decodePositionID } from 'tsgammon-core/utils/decodePositionID'
 import { formatBoard } from 'tsgammon-core/utils/formatBoard'
-import { BoardEventHandlers } from '../boards/Board'
-import { BGListener } from '../dispatchers/BGListener'
-import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
-import { RollListener } from '../dispatchers/RollDispatcher'
-import { SingleGameListener } from '../dispatchers/SingleGameListener'
+import { BoardEventHandlers } from '../components/boards/Board'
+import { BGListener } from '../components/dispatchers/BGListener'
+import { CheckerPlayListeners } from '../components/dispatchers/CheckerPlayDispatcher'
+import { RollListener } from '../components/dispatchers/RollDispatcher'
+import { SingleGameListener } from '../components/dispatchers/SingleGameListener'
 import { Cubeless } from './Cubeless'
 
 import { toPositionID } from 'tsgammon-core/utils/toPositionID'

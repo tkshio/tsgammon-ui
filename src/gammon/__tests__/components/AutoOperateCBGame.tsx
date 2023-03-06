@@ -1,4 +1,4 @@
-import { CubefulMatchProps } from '../../components/apps/CubefulMatch'
+import { CubefulMatchProps } from '../../apps/CubefulMatch'
 import { CubefulGame, CubefulGameProps } from '../../components/CubefulGame'
 import { BGEventHandlersExtensible } from '../../components/dispatchers/buildBGEventHandler'
 import { operateWithBG } from '../../components/operateWithBG'

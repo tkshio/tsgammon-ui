@@ -5,20 +5,26 @@ import { CBInPlay } from 'tsgammon-core/states/CubeGameState'
 import { defaultBGState } from 'tsgammon-core/states/defaultStates'
 import { GameSetup } from 'tsgammon-core/states/utils/GameSetup'
 import { DiceSource } from 'tsgammon-core/utils/DiceSource'
-import { setBGStateListener } from '../dispatchers/BGEventHandler'
-import { BGListener } from '../dispatchers/BGListener'
+import { setBGStateListener } from '../components/dispatchers/BGEventHandler'
+import { BGListener } from '../components/dispatchers/BGListener'
 import {
     BGEventHandlersExtensible,
     buildBGEventHandler,
-} from '../dispatchers/buildBGEventHandler'
-import { CheckerPlayListeners } from '../dispatchers/CheckerPlayDispatcher'
-import { BGEoGHandler, eogEventHandler } from '../dispatchers/EOGEventHandlers'
-import { RollListener, rollListener } from '../dispatchers/RollDispatcher'
-import { singleGameDispatcher } from '../dispatchers/SingleGameDispatcher'
-import { CheckerPlayState } from '../states/CheckerPlayState'
-import { BGRecorder, useBGRecorder } from '../useBGRecorder'
-import { useBGState } from '../useBGState'
-import { useCheckerPlayListener } from '../useCheckerPlayListeners'
+} from '../components/dispatchers/buildBGEventHandler'
+import { CheckerPlayListeners } from '../components/dispatchers/CheckerPlayDispatcher'
+import {
+    BGEoGHandler,
+    eogEventHandler,
+} from '../components/dispatchers/EOGEventHandlers'
+import {
+    RollListener,
+    rollListener,
+} from '../components/dispatchers/RollDispatcher'
+import { singleGameDispatcher } from '../components/dispatchers/SingleGameDispatcher'
+import { CheckerPlayState } from '../components/states/CheckerPlayState'
+import { BGRecorder, useBGRecorder } from '../components/useBGRecorder'
+import { useBGState } from '../components/useBGState'
+import { useCheckerPlayListener } from '../components/useCheckerPlayListeners'
 
 export type CubefulHookProps = {
     gameSetup?: GameSetup

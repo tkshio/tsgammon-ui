@@ -1,10 +1,10 @@
 import { Score } from 'tsgammon-core'
 import { GameConf } from 'tsgammon-core/GameConf'
 import { SGState } from 'tsgammon-core/states/SingleGameState'
-import { SingleGameListener } from '../dispatchers/SingleGameListener'
-import { matchRecordingSGListener } from '../recordedGames/MatchRecordingListeners'
-import { useMatchRecorder } from '../recordedGames/useMatchRecorder'
-import { initMatchState } from '../useMatchState'
+import { SingleGameListener } from '../components/dispatchers/SingleGameListener'
+import { matchRecordingSGListener } from '../components/recordedGames/MatchRecordingListeners'
+import { useMatchRecorder } from '../components/recordedGames/useMatchRecorder'
+import { initMatchState } from '../components/useMatchState'
 import { SGRecorder } from './Cubeless'
 
 export function useSGRecorder(

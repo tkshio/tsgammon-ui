@@ -1,11 +1,10 @@
 import React from 'react'
-import { BGMain } from './gammon/components/apps/BGMain'
+import { BGMain } from './gammon/apps/BGMain'
 
 import './App.css'
 
 function App() {
-    const args = {
-    }
+    const args = {}
     return (
         <div className="App">
             <BGMain {...args} />

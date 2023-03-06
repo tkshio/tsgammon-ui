@@ -2,7 +2,7 @@ import { Meta, Story } from '@storybook/react'
 import { ComponentProps } from 'react'
 import { GameStatus } from 'tsgammon-core/states/utils/GameSetup'
 import { presetDiceSource } from 'tsgammon-core/utils/DiceSource'
-import { CubefulMatch } from '../../gammon/components/apps/CubefulMatch'
+import { CubefulMatch } from '../../gammon/apps/CubefulMatch'
 import {
     bothCBAutoOperator,
     bothSGAutoOperator,
