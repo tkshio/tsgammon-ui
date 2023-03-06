@@ -33,7 +33,7 @@
         "eslint": "eslint . --ext .ts,.tsx",
         "lint-staged": "lint-staged",
         "precommit": "run-s lint-staged",
-        "prepush": "npm run jest"
+        "prepush": "npm run test -- --watchAll=false"
     },
     "jest": {
         "testMatch": [
